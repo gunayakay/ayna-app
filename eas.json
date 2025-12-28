@@ -1,0 +1,10 @@
+{
+  "build": {
+    "production": {
+      "android": {
+        "credentialsSource": "local",
+        "gradleCommand": ":app:bundleRelease"
+      }
+    }
+  }
+}

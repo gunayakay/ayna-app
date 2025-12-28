@@ -1,0 +1,59 @@
+{
+  "name": "Ayna",
+  "scheme": "ayna",
+  "version": "1.0.0",
+  "icon": "./src/assets/splash/icon.png",
+  "plugins": [
+    "expo-router",
+    [
+      "expo-font",
+      {
+        "fonts": [
+          "node_modules/@expo-google-fonts/poppins/100Thin/Poppins_100Thin.ttf",
+          "node_modules/@expo-google-fonts/poppins/200ExtraLight/Poppins_200ExtraLight.ttf",
+          "node_modules/@expo-google-fonts/poppins/300Light/Poppins_300Light.ttf",
+          "node_modules/@expo-google-fonts/poppins/400Regular/Poppins_400Regular.ttf",
+          "node_modules/@expo-google-fonts/poppins/500Medium/Poppins_500Medium.ttf",
+          "node_modules/@expo-google-fonts/poppins/600SemiBold/Poppins_600SemiBold.ttf",
+          "node_modules/@expo-google-fonts/poppins/700Bold/Poppins_700Bold.ttf",
+          "node_modules/@expo-google-fonts/poppins/800ExtraBold/Poppins_800ExtraBold.ttf",
+          "node_modules/@expo-google-fonts/poppins/900Black/Poppins_900Black.ttf"
+        ]
+      }
+    ],
+    [
+      "expo-splash-screen",
+      {
+        "backgroundColor": "#FFFFFF",
+        "image": "./src/assets/splash/splash-icon.png",
+        "dark": {
+          "image": "./src/assets/splash/splash-icon.png",
+          "backgroundColor": "#000000"
+        }
+      }
+    ]
+  ],
+  "orientation": "portrait",
+  "android": {
+    "package": "com.ayna",
+    "versionCode": 9,
+    "adaptiveIcon": {
+      "foregroundImage": "./src/assets/splash/adaptive-icon.png",
+      "backgroundColor": "#FFFFFF"
+    },
+    "permissions": []
+  },
+  "ios": {
+    "bundleIdentifier": "com.ayna",
+    "infoPlist": {}
+  },
+  "newArchEnabled": false,
+  "extra": {
+    "router": {
+      "origin": false
+    },
+    "eas": {
+      "projectId": "0bf67369-2389-4ed8-af98-b3e046ddca3e"
+    }
+  }
+}
