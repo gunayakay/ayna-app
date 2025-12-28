@@ -51,15 +51,6 @@
     </array>
     <key>UIAppFonts</key>
     <array>
-      <string>Poppins_100Thin.ttf</string>
-      <string>Poppins_200ExtraLight.ttf</string>
-      <string>Poppins_300Light.ttf</string>
-      <string>Poppins_400Regular.ttf</string>
-      <string>Poppins_500Medium.ttf</string>
-      <string>Poppins_600SemiBold.ttf</string>
-      <string>Poppins_700Bold.ttf</string>
-      <string>Poppins_800ExtraBold.ttf</string>
-      <string>Poppins_900Black.ttf</string>
       <string>PlusJakartaSans_200ExtraLight.ttf</string>
       <string>PlusJakartaSans_300Light.ttf</string>
       <string>PlusJakartaSans_400Regular.ttf</string>
