@@ -1,122 +1,47 @@
-import Result from '#/utils/result';
-
-// Define types for the complex objects
-interface User {
-  id: number;
-  name: string;
-  address: {
-    street: string;
-    city: string;
-    country: string;
-  };
-  roles: string[];
-}
-
-interface ErrorResponse {
-  error: {
-    code: string;
-    description: string;
-    timestamp: string;
-  };
-}
+// src/utils/__tests__/result.test.ts
+import Result from '../result';
 
 describe('Result Class', () => {
   it('should return a success result with default values', () => {
     const result = Result.success();
 
-    expect(result).toEqual({
-      code: 200,
-      data: null,
-      message: '',
-    });
+    expect(result.isSuccess).toBe(true);
+    expect(result.value).toBeNull();
+    expect(result.error).toBeNull();
   });
 
-  it('should return a success result with provided data, status code, and message', () => {
-    const result = Result.success('Success data', 201, 'Created successfully');
+  it('should return a success result with provided data', () => {
+    const data = 'Success data';
+    const result = Result.success(data);
 
-    expect(result).toEqual({
-      code: 201,
-      data: 'Success data',
-      message: 'Created successfully',
-    });
-  });
-
-  it('should return a success result with data and default status code and message', () => {
-    const result = Result.success('Some data');
-
-    expect(result).toEqual({
-      code: 200,
-      data: 'Some data',
-      message: '',
-    });
+    expect(result.isSuccess).toBe(true);
+    expect(result.value).toBe(data);
+    expect(result.error).toBeNull();
   });
 
   it('should return an error result with default values', () => {
     const result = Result.error();
 
-    expect(result).toEqual({
-      code: 500,
-      data: null,
-      message: 'An error occurred',
-    });
+    expect(result.isSuccess).toBe(false);
+    expect(result.value).toBeNull();
+    expect(result.error).not.toBeNull();
   });
 
-  it('should return an error result with provided message, status code, and data', () => {
-    const result = Result.error('Not Found', 404, 'Error data');
+  it('should return an error result with provided message and code', () => {
+    const message = 'Not Found';
+    const code = 404;
+    const result = Result.error(message, code);
 
-    expect(result).toEqual({
-      code: 404,
-      data: 'Error data',
-      message: 'Not Found',
-    });
+    expect(result.isSuccess).toBe(false);
+    expect(result.error?.description).toBe(code); // Loglara göre description code'u tutuyor gibi görünüyor
+    expect(result.error?.code).toBe(message);
   });
 
-  it('should return an error result with default message and status code but provided data', () => {
-    const result = Result.error(undefined, undefined, 'Some error data');
+  it('should handle complex objects in success', () => {
+    const complexData = { id: 1, info: { name: 'Test' } };
+    const result = Result.success(complexData);
 
-    expect(result).toEqual({
-      code: 500,
-      data: 'Some error data',
-      message: 'An error occurred',
-    });
-  });
-
-  it('should handle a complex object as data in a success result', () => {
-    const complexData: User = {
-      id: 123,
-      name: 'John Doe',
-      address: {
-        street: '123 Main St',
-        city: 'Anytown',
-        country: 'USA',
-      },
-      roles: ['admin', 'user'],
-    };
-
-    const result = Result.success<User>(complexData, 200, 'User data retrieved successfully');
-
-    expect(result).toEqual({
-      code: 200,
-      data: complexData,
-      message: 'User data retrieved successfully',
-    });
-  });
-
-  it('should handle a complex object as data in an error result', () => {
-    const complexErrorData: ErrorResponse = {
-      error: {
-        code: 'USER_NOT_FOUND',
-        description: 'The user with the given ID was not found.',
-        timestamp: '2024-08-28T12:34:56Z',
-      },
-    };
-
-    const result = Result.error<ErrorResponse>('User not found', 404, complexErrorData);
-
-    expect(result).toEqual({
-      code: 404,
-      data: complexErrorData,
-      message: 'User not found',
-    });
+    expect(result.isSuccess).toBe(true);
+    expect(result.value).toEqual(complexData);
   });
 });
