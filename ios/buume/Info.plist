@@ -60,6 +60,13 @@
       <string>Poppins_700Bold.ttf</string>
       <string>Poppins_800ExtraBold.ttf</string>
       <string>Poppins_900Black.ttf</string>
+      <string>PlusJakartaSans_200ExtraLight.ttf</string>
+      <string>PlusJakartaSans_300Light.ttf</string>
+      <string>PlusJakartaSans_400Regular.ttf</string>
+      <string>PlusJakartaSans_500Medium.ttf</string>
+      <string>PlusJakartaSans_600SemiBold.ttf</string>
+      <string>PlusJakartaSans_700Bold.ttf</string>
+      <string>PlusJakartaSans_800ExtraBold.ttf</string>
     </array>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>

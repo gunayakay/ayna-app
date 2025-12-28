@@ -8,6 +8,7 @@ const borderRadius = {
   '3xl': 12,
   '4xl': 16,
   '5xl': 24,
+  '6xl': 32,
   full: 9999,
 };
 

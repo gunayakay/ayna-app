@@ -1,114 +1,65 @@
 const colors = {
+  // Temel Renkler
   black: '#000000',
   white: '#FFFFFF',
-  lavender: {
-    DEFAULT: '#CB6CE3',
-    50: '#FBF3FD',
-    100: '#F5E4FA',
-    200: '#EBC6F4',
-    300: '#E0A8EE',
-    400: '#D68AE9',
-    500: '#CB6CE3',
-    600: '#BC41DB',
-    700: '#A425C4',
-    800: '#801D99',
-    900: '#5C156E',
-    950: '#4A1159',
+  transparent: 'transparent',
+
+  // 🟠 BRAND: Senin Ana Turuncu Rengin (#FF9F43)
+  // 500: Ana Renk | 50: Çok açık zeminler için | 600+: Hover durumları için
+  brand: {
+    DEFAULT: '#FF9F43',
+    50: '#FFF6E9', // Çok açık turuncu (Arka plan vurgusu)
+    100: '#FFECCF',
+    200: '#FED89C',
+    300: '#FDC469',
+    400: '#FEB156',
+    500: '#FF9F43', // ⭐️ ANA RENK (Butonlar, Progress Bar)
+    600: '#E68228', // Buton Tıklama (Active) rengi
+    700: '#BF6217',
+    800: '#99460D',
+    900: '#733107',
+    950: '#401901',
   },
-  'pastel-green': {
-    DEFAULT: '#85D460',
-    50: '#F4FBF1',
-    100: '#E8F7E0',
-    200: '#CFEEC0',
-    300: '#B6E5A0',
-    400: '#9EDD80',
-    500: '#85D460',
-    600: '#64C636',
-    700: '#4E9A2A',
-    800: '#376E1E',
-    900: '#214212',
-    950: '#162C0C',
-  },
-  'burnt-sienna': {
-    DEFAULT: '#EC4E50',
-    50: '#FEF4F4',
-    100: '#FCE1E2',
-    200: '#F8BDBD',
-    300: '#F49899',
-    400: '#F07374',
-    500: '#EC4E50',
-    600: '#E71B1E',
-    700: '#B61416',
-    800: '#840E10',
-    900: '#51090A',
-    950: '#380607',
-  },
-  malachite: {
-    DEFAULT: '#15C15D',
-    50: '#9AF4BF',
-    100: '#87F2B4',
-    200: '#62EE9D',
-    300: '#3EEA86',
-    400: '#19E66F',
-    500: '#15C15D',
-    600: '#0F8E45',
-    700: '#0A5C2C',
-    800: '#042914',
-    900: '#000000',
-  },
-  sun: {
-    DEFAULT: '#F8AA1C',
-    50: '#FDEDCE',
-    100: '#FDE5BA',
-    200: '#FCD693',
-    300: '#FAC86B',
-    400: '#F9B944',
-    500: '#F8AA1C',
-    600: '#D58C07',
-    700: '#9F6805',
-    800: '#684503',
-    900: '#322102',
-    950: '#170F01',
-  },
-  biscay: {
-    DEFAULT: '#193B67',
-    50: '#5F94D8',
-    100: '#4F89D4',
-    200: '#3173C9',
-    300: '#2961A9',
-    400: '#214E88',
-    500: '#193B67',
-    600: '#0E213A',
-    700: '#03070D',
-    800: '#000000',
-  },
-  mirage: {
-    DEFAULT: '#192434',
-    50: '#354D6F',
-    100: '#334A6B',
-    200: '#304564',
-    300: '#2D415D',
-    400: '#2A3C56',
-    500: '#263750',
-    600: '#233249',
-    700: '#202E42',
-    800: '#1C293B',
-    900: '#192434',
-    950: '#161F2D',
-  },
+
+  // ⚫️ NEUTRAL: Metinler, Kart Zeminleri ve Çizgiler
+  // iOS standartlarına uygun griler
   neutral: {
-    DEFAULT: '#737373',
-    50: '#FAFAFA',
-    100: '#F5F5F5',
-    200: '#E5E5E5',
-    300: '#D4D4D4',
-    400: '#A3A3A3',
-    500: '#737373',
-    600: '#525252',
-    700: '#404040',
-    800: '#262626',
-    900: '#171717',
-    950: '#0A0A0A',
+    DEFAULT: '#8E8E93', // Secondary Text (Tarihler, alt yazılar)
+    50: '#F9F9F7', // ⭐️ APP BACKGROUND (O konuştuğumuz kırık beyaz)
+    100: '#F2F2F7', // Kart İçi Dolgular / Input Zeminleri (Tertiary)
+    200: '#E5E5EA', // Çizgiler / Borderlar
+    300: '#D1D1D6',
+    400: '#C7C7CC', // Pasif İkonlar
+    500: '#8E8E93', // İkincil Metin Rengi
+    600: '#636366',
+    700: '#3A3A3C',
+    800: '#2C2C2E',
+    900: '#1A1A1A', // ⭐️ ANA METİN RENGİ (Başlıklar)
+    950: '#000000',
+  },
+
+  // 🔴 DANGER: "İmdat" / Panic Butonu ve Hata Mesajları için
+  // Action Sheet'teki o tatlı kırmızı buton için 50 ve 500'ü kullanacağız.
+  danger: {
+    DEFAULT: '#FF3B30', // iOS Standart Kırmızı (Yazılar, İkonlar)
+    50: '#FFF5F5', // ⭐️ PANIC BUTON ARKAPLANI (O tatlı açık kırmızı)
+    100: '#FFE1E1',
+    200: '#FFBDBD',
+    300: '#FF9595',
+    400: '#FF6D6D',
+    500: '#FF3B30', // Ana Kırmızı
+    600: '#D62F26',
+    700: '#AD221B',
+    800: '#851712',
+    900: '#3D0806',
+  },
+
+  // 🟢 SUCCESS: Tamamlanan Hedefler / Tik İşaretleri için
+  success: {
+    DEFAULT: '#34C759', // iOS Yeşil
+    50: '#F0FDF4',
+    500: '#34C759',
+    700: '#15803d',
   },
 };
 

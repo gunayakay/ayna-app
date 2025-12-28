@@ -22,16 +22,22 @@ interface TabBarItemProps extends RippleWrapperProps {
 const ICONS: Record<string, SvgComponent> = {
   [ROUTES.HOME]: Home,
   [ROUTES.ACCOUNT]: User,
+  [ROUTES.HISTORY]: Home,
+  [ROUTES.ANALYTICS]: User,
 };
 
 const ACTIVE_ICONS: Record<string, SvgComponent> = {
   [ROUTES.HOME]: HomeFilled,
   [ROUTES.ACCOUNT]: UserFilled,
+  [ROUTES.HISTORY]: HomeFilled,
+  [ROUTES.ANALYTICS]: UserFilled,
 };
 
 const LABELS: Record<string, string> = {
   [ROUTES.HOME]: 'Home',
   [ROUTES.ACCOUNT]: 'Account',
+  [ROUTES.HISTORY]: 'History',
+  [ROUTES.ANALYTICS]: 'Analytics',
 };
 
 const AnimatedText = Animated.createAnimatedComponent(Text);
@@ -53,7 +59,7 @@ export default function TabBarItem({
 
   const animatedFocusStyle = useAnimatedStyle(() => ({
     color: withTiming(
-      animatedFocus.value ? theme.colors.typography.PRIMARY[800] : theme.colors.primary,
+      animatedFocus.value ? theme.colors.typography.PRIMARY : theme.colors.primary,
       { duration: 200 }
     ),
   }));
@@ -79,7 +85,7 @@ export default function TabBarItem({
             width={24}
             height={24}
             fill={isFocused ? theme.colors.primary : 'transparent'}
-            stroke={isFocused ? theme.colors.primary : theme.colors.typography.PRIMARY[800]}
+            stroke={isFocused ? theme.colors.primary : theme.colors.typography.PRIMARY}
             strokeWidth={isFocused ? 0 : 1.5}
           />
         )}
@@ -104,7 +110,7 @@ const stylesheet = StyleSheet.create(theme => ({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 2,
-    borderRadius: theme.borderRadius.xl,
+    borderRadius: theme.borderRadius['6xl'],
   },
   text: {
     textAlign: 'center',

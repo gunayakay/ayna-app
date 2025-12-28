@@ -47,6 +47,7 @@ export default function TabBar({ state, descriptors, navigation }: BottomTabBarP
           />
         );
       })}
+      {/* <View style={[styles.button]} /> */}
     </View>
   );
 }
@@ -70,4 +71,13 @@ const stylesheet = StyleSheet.create(theme => ({
     shadowOpacity: 0.15,
     shadowRadius: 10,
   },
+  // button: {
+  //   width: theme.spacing[20],
+  //   height: theme.spacing[20],
+  //   backgroundColor: theme.colors.primary,
+  //   borderRadius: theme.borderRadius.full,
+  //   position: 'absolute',
+  //   top: 0,
+  //   transform: [{ translateX: '50%' }],
+  // },
 }));

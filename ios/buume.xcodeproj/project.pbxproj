@@ -10,7 +10,10 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		188448BB691449FCAABE864F /* PlusJakartaSans_300Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 874D83F729D04F7FAB5195DB /* PlusJakartaSans_300Light.ttf */; };
 		21C5870062F340A7B798CABA /* Poppins_900Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5E53718A846D4009B3014137 /* Poppins_900Black.ttf */; };
+		33674BEF647E4E1A9E568253 /* PlusJakartaSans_200ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3CEB755094E0446286F1138B /* PlusJakartaSans_200ExtraLight.ttf */; };
+		38D08869F4A049C896FA0A79 /* PlusJakartaSans_700Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 90695D6A09854C24888712C3 /* PlusJakartaSans_700Bold.ttf */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		546C289528E6472382D2E7C3 /* Poppins_700Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0C7CFD3633674D92A98B820F /* Poppins_700Bold.ttf */; };
 		728997653C984A3D9F78CCB8 /* Poppins_200ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 891747DBC2A542CE9C9B1D04 /* Poppins_200ExtraLight.ttf */; };
@@ -18,12 +21,16 @@
 		871BF31CB45C4FC8AB962833 /* Poppins_100Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7E6D7F32C1EE4218A31FC2AE /* Poppins_100Thin.ttf */; };
 		8B73CF715E044F658FC5C516 /* Poppins_400Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 263FDC3A4A78475C8D38899E /* Poppins_400Regular.ttf */; };
 		96905EF65AED1B983A6B3ABC /* libPods-buume.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-buume.a */; };
+		98FB0F8A1FC149A5BF16CB20 /* PlusJakartaSans_500Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FA6028DB80DB4F56A3308377 /* PlusJakartaSans_500Medium.ttf */; };
+		9ABC6D318B55427BA60270FC /* PlusJakartaSans_400Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BBE3D5AEF6434B45AD22F1AA /* PlusJakartaSans_400Regular.ttf */; };
+		9AD66BEAFB8945E4968D1DDF /* PlusJakartaSans_800ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 65B9BC4B65434F6F944E8BE9 /* PlusJakartaSans_800ExtraBold.ttf */; };
 		A6319C787A7E434F81AA799C /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ABBE966316B4F689CE4D7CC /* noop-file.swift */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BA1D8F6607D9430A9EFED110 /* Poppins_800ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E35DFA8846644CD7925D2705 /* Poppins_800ExtraBold.ttf */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		BD10EA15FDCA42F4B5E5D1B4 /* Poppins_500Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A3141A8DBEB439BB9AF0042 /* Poppins_500Medium.ttf */; };
 		DB36AA0322A44B63A63CC28B /* Poppins_600SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 96E21657E9374AB4A5115D0B /* Poppins_600SemiBold.ttf */; };
+		DFEB7F69D08447ECBF29EDDF /* PlusJakartaSans_600SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADB326DC0DC49B0A8B41676 /* PlusJakartaSans_600SemiBold.ttf */; };
 		FA5975DBD2DD71BFA0A54766 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EADD2E83F739423A3F939715 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
@@ -37,21 +44,28 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = buume/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = buume/main.m; sourceTree = "<group>"; };
 		263FDC3A4A78475C8D38899E /* Poppins_400Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Poppins_400Regular.ttf; path = "../node_modules/@expo-google-fonts/poppins/400Regular/Poppins_400Regular.ttf"; sourceTree = "<group>"; };
+		3CEB755094E0446286F1138B /* PlusJakartaSans_200ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = PlusJakartaSans_200ExtraLight.ttf; path = "../node_modules/@expo-google-fonts/plus-jakarta-sans/200ExtraLight/PlusJakartaSans_200ExtraLight.ttf"; sourceTree = "<group>"; };
 		58EEBF8E8E6FB1BC6CAF49B5 /* libPods-buume.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-buume.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E53718A846D4009B3014137 /* Poppins_900Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Poppins_900Black.ttf; path = "../node_modules/@expo-google-fonts/poppins/900Black/Poppins_900Black.ttf"; sourceTree = "<group>"; };
+		65B9BC4B65434F6F944E8BE9 /* PlusJakartaSans_800ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = PlusJakartaSans_800ExtraBold.ttf; path = "../node_modules/@expo-google-fonts/plus-jakarta-sans/800ExtraBold/PlusJakartaSans_800ExtraBold.ttf"; sourceTree = "<group>"; };
 		6C2E3173556A471DD304B334 /* Pods-buume.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-buume.debug.xcconfig"; path = "Target Support Files/Pods-buume/Pods-buume.debug.xcconfig"; sourceTree = "<group>"; };
 		7A3141A8DBEB439BB9AF0042 /* Poppins_500Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Poppins_500Medium.ttf; path = "../node_modules/@expo-google-fonts/poppins/500Medium/Poppins_500Medium.ttf"; sourceTree = "<group>"; };
 		7A4D352CD337FB3A3BF06240 /* Pods-buume.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-buume.release.xcconfig"; path = "Target Support Files/Pods-buume/Pods-buume.release.xcconfig"; sourceTree = "<group>"; };
 		7E6D7F32C1EE4218A31FC2AE /* Poppins_100Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Poppins_100Thin.ttf; path = "../node_modules/@expo-google-fonts/poppins/100Thin/Poppins_100Thin.ttf"; sourceTree = "<group>"; };
+		874D83F729D04F7FAB5195DB /* PlusJakartaSans_300Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = PlusJakartaSans_300Light.ttf; path = "../node_modules/@expo-google-fonts/plus-jakarta-sans/300Light/PlusJakartaSans_300Light.ttf"; sourceTree = "<group>"; };
 		891747DBC2A542CE9C9B1D04 /* Poppins_200ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Poppins_200ExtraLight.ttf; path = "../node_modules/@expo-google-fonts/poppins/200ExtraLight/Poppins_200ExtraLight.ttf"; sourceTree = "<group>"; };
+		90695D6A09854C24888712C3 /* PlusJakartaSans_700Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = PlusJakartaSans_700Bold.ttf; path = "../node_modules/@expo-google-fonts/plus-jakarta-sans/700Bold/PlusJakartaSans_700Bold.ttf"; sourceTree = "<group>"; };
 		96E21657E9374AB4A5115D0B /* Poppins_600SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Poppins_600SemiBold.ttf; path = "../node_modules/@expo-google-fonts/poppins/600SemiBold/Poppins_600SemiBold.ttf"; sourceTree = "<group>"; };
 		9ABBE966316B4F689CE4D7CC /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "buume/noop-file.swift"; sourceTree = "<group>"; };
+		9ADB326DC0DC49B0A8B41676 /* PlusJakartaSans_600SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = PlusJakartaSans_600SemiBold.ttf; path = "../node_modules/@expo-google-fonts/plus-jakarta-sans/600SemiBold/PlusJakartaSans_600SemiBold.ttf"; sourceTree = "<group>"; };
 		9E30BB30455C4A2BAD1169B7 /* Poppins_300Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Poppins_300Light.ttf; path = "../node_modules/@expo-google-fonts/poppins/300Light/Poppins_300Light.ttf"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = buume/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
+		BBE3D5AEF6434B45AD22F1AA /* PlusJakartaSans_400Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = PlusJakartaSans_400Regular.ttf; path = "../node_modules/@expo-google-fonts/plus-jakarta-sans/400Regular/PlusJakartaSans_400Regular.ttf"; sourceTree = "<group>"; };
 		E35DFA8846644CD7925D2705 /* Poppins_800ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Poppins_800ExtraBold.ttf; path = "../node_modules/@expo-google-fonts/poppins/800ExtraBold/Poppins_800ExtraBold.ttf"; sourceTree = "<group>"; };
 		EADD2E83F739423A3F939715 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = buume/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		FA6028DB80DB4F56A3308377 /* PlusJakartaSans_500Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = PlusJakartaSans_500Medium.ttf; path = "../node_modules/@expo-google-fonts/plus-jakarta-sans/500Medium/PlusJakartaSans_500Medium.ttf"; sourceTree = "<group>"; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-buume/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -144,6 +158,13 @@
 				0C7CFD3633674D92A98B820F /* Poppins_700Bold.ttf */,
 				E35DFA8846644CD7925D2705 /* Poppins_800ExtraBold.ttf */,
 				5E53718A846D4009B3014137 /* Poppins_900Black.ttf */,
+				3CEB755094E0446286F1138B /* PlusJakartaSans_200ExtraLight.ttf */,
+				874D83F729D04F7FAB5195DB /* PlusJakartaSans_300Light.ttf */,
+				BBE3D5AEF6434B45AD22F1AA /* PlusJakartaSans_400Regular.ttf */,
+				FA6028DB80DB4F56A3308377 /* PlusJakartaSans_500Medium.ttf */,
+				9ADB326DC0DC49B0A8B41676 /* PlusJakartaSans_600SemiBold.ttf */,
+				90695D6A09854C24888712C3 /* PlusJakartaSans_700Bold.ttf */,
+				65B9BC4B65434F6F944E8BE9 /* PlusJakartaSans_800ExtraBold.ttf */,
 			);
 			name = Resources;
 			path = "";
@@ -249,6 +270,13 @@
 				BA1D8F6607D9430A9EFED110 /* Poppins_800ExtraBold.ttf in Resources */,
 				21C5870062F340A7B798CABA /* Poppins_900Black.ttf in Resources */,
 				FA5975DBD2DD71BFA0A54766 /* PrivacyInfo.xcprivacy in Resources */,
+				33674BEF647E4E1A9E568253 /* PlusJakartaSans_200ExtraLight.ttf in Resources */,
+				188448BB691449FCAABE864F /* PlusJakartaSans_300Light.ttf in Resources */,
+				9ABC6D318B55427BA60270FC /* PlusJakartaSans_400Regular.ttf in Resources */,
+				98FB0F8A1FC149A5BF16CB20 /* PlusJakartaSans_500Medium.ttf in Resources */,
+				DFEB7F69D08447ECBF29EDDF /* PlusJakartaSans_600SemiBold.ttf in Resources */,
+				38D08869F4A049C896FA0A79 /* PlusJakartaSans_700Bold.ttf in Resources */,
+				9AD66BEAFB8945E4968D1DDF /* PlusJakartaSans_800ExtraBold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -403,12 +431,12 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ayna";
-				PRODUCT_NAME = "Ayna";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ayna;
+				PRODUCT_NAME = Ayna;
 				SWIFT_OBJC_BRIDGING_HEADER = "buume/buume-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -431,11 +459,11 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ayna";
-				PRODUCT_NAME = "Ayna";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ayna;
+				PRODUCT_NAME = Ayna;
 				SWIFT_OBJC_BRIDGING_HEADER = "buume/buume-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

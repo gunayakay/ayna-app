@@ -1186,6 +1186,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@expo-google-fonts/plus-jakarta-sans@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@expo-google-fonts/plus-jakarta-sans@npm:0.4.2"
+  checksum: 10c0/a2c90e344dd974c6f332b3285173ac28b0de5e37517d5ea959117578ae02550720ab233417d7da42637db7ebbfded86648814198795ca35bd2b49fc164084bb7
+  languageName: node
+  linkType: hard
+
 "@expo-google-fonts/poppins@npm:^0.4.1":
   version: 0.4.1
   resolution: "@expo-google-fonts/poppins@npm:0.4.1"
@@ -3086,6 +3093,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.25.2"
     "@babel/runtime": "npm:^7.25.0"
+    "@expo-google-fonts/plus-jakarta-sans": "npm:^0.4.2"
     "@expo-google-fonts/poppins": "npm:^0.4.1"
     "@react-native/babel-preset": "npm:0.76.9"
     "@react-native/metro-config": "npm:0.76.9"
@@ -3100,7 +3108,7 @@ __metadata:
     babel-preset-expo: "npm:^54.0.0"
     expo: "npm:^52.0.43"
     expo-constants: "npm:~17.0.3"
-    expo-font: "npm:~13.0.1"
+    expo-font: "npm:~13.0.4"
     expo-image: "npm:~2.0.7"
     expo-linking: "npm:~7.0.3"
     expo-router: "npm:~4.0.9"
@@ -4713,7 +4721,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-font@npm:~13.0.1, expo-font@npm:~13.0.4":
+"expo-font@npm:~13.0.4":
   version: 13.0.4
   resolution: "expo-font@npm:13.0.4"
   dependencies:

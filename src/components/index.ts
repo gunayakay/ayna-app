@@ -8,3 +8,4 @@ export { default as Modal } from './modal';
 export { default as ModalHeader } from './modal-header';
 export { default as Row } from './row';
 export { default as ShadowWrapper } from './shadow-wrapper';
+export { default as TabBar } from './tab-bar';

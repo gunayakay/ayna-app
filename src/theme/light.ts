@@ -1,50 +1,64 @@
 import { Platform } from 'react-native';
-
+import colors from './atoms/colors'; // Senin oluşturduğun yeni colors dosyasını import et
 import borderRadius from './atoms/borderRadius';
-import colors from './atoms/colors';
 import fontSizes from './atoms/fontSizes';
 import spacing from './atoms/spacing';
 
 const lightTheme = {
   colors: {
+    // 🟠 BRAND (Ana Renkler)
+    primaryLightest: colors.brand[50], // Arka plan vurguları
+    primaryLighter: colors.brand[100],
+    primaryLight: colors.brand[400],
+    primary: colors.brand.DEFAULT, // #FF9F43 (Ana Turuncu)
+    primaryDarker: colors.brand[600], // Hover/Active durumları
+
+    // ⚫️ NEUTRAL (Tipografi ve Zemin)
     typography: {
-      PRIMARY: { ...colors.neutral },
+      PRIMARY: colors.neutral[900], // Ana Başlıklar (#1A1A1A)
+      SECONDARY: colors.neutral[500], // Alt Metinler (#8E8E93)
+      TERTIARY: colors.neutral[400], // Pasif İkonlar
+    },
+    background: {
+      PRIMARY: colors.neutral[50], // Uygulama Arkaplanı (#F9F9F7)
+      CARD: colors.white, // Kartlar
+      MODAL: colors.white, // Action Sheet
     },
     border: {
-      PRIMARY: { ...colors.neutral },
+      PRIMARY: colors.neutral[200], // İnce Çizgiler
     },
+
+    // 🔴 DANGER (Panic Butonu)
+    danger: {
+      background: colors.danger[50], // Buton Zemini (#FFF5F5)
+      text: colors.danger.DEFAULT, // Buton Yazısı (#FF3B30)
+    },
+
+    // 🟢 SUCCESS (Tamamlananlar)
+    success: colors.success.DEFAULT,
+
     black: colors.black,
     white: colors.white,
-    primaryLightest: colors.lavender[50],
-    primaryLighter: colors.lavender[100],
-    primaryLight: colors.lavender[400],
-    primary: colors.lavender.DEFAULT,
-    primaryDarker: colors.lavender[900],
-    secondaryLightest: colors['pastel-green'][50],
-    secondaryLighter: colors['pastel-green'][200],
-    secondary: colors['pastel-green'].DEFAULT,
-    secondaryDarker: colors['pastel-green'][900],
-    success: colors.malachite.DEFAULT,
-    dangerLighter: colors['burnt-sienna'][100],
-    dangerLight: colors['burnt-sienna'][400],
-    danger: colors['burnt-sienna'].DEFAULT,
-    dangerDarker: colors['burnt-sienna'][900],
-    warning: colors.sun.DEFAULT,
   },
+
   spacing: { ...spacing },
   fontSizes: { ...fontSizes },
   borderRadius: { ...borderRadius },
+
   fontFamily: {
-    PRIMARY: Platform.OS === 'ios' ? 'Poppins-Regular' : 'Poppins_400Regular',
-    thin: Platform.OS === 'ios' ? 'Poppins-Thin' : 'Poppins_100Thin',
-    extraLight: Platform.OS === 'ios' ? 'Poppins-ExtraLight' : 'Poppins_200ExtraLight',
-    light: Platform.OS === 'ios' ? 'Poppins-Light' : 'Poppins_300Light',
-    regular: Platform.OS === 'ios' ? 'Poppins-Regular' : 'Poppins_400Regular',
-    medium: Platform.OS === 'ios' ? 'Poppins-Medium' : 'Poppins_500Medium',
-    semiBold: Platform.OS === 'ios' ? 'Poppins-SemiBold' : 'Poppins_600SemiBold',
-    bold: Platform.OS === 'ios' ? 'Poppins-Bold' : 'Poppins_700Bold',
-    extraBold: Platform.OS === 'ios' ? 'Poppins-ExtraBold' : 'Poppins_800ExtraBold',
-    black: Platform.OS === 'ios' ? 'Poppins-Black' : 'Poppins_900Black',
+    // iOS ve Android için font eşleştirmesi
+    thin: 'PlusJakartaSans_200ExtraLight', // PlusJakarta'da 100 bazen sorunlu olabiliyor, 200 güvenli
+    extraLight: 'PlusJakartaSans_200ExtraLight',
+    light: 'PlusJakartaSans_300Light',
+    regular: 'PlusJakartaSans_400Regular',
+    medium: 'PlusJakartaSans_500Medium',
+    semiBold: 'PlusJakartaSans_600SemiBold',
+    bold: 'PlusJakartaSans_700Bold',
+    extraBold: 'PlusJakartaSans_800ExtraBold',
+    black: 'PlusJakartaSans_800ExtraBold', // 900 her zaman pakette olmayabiliyor, 800 en kalınıdır genelde.
+
+    // Varsayılan Font
+    PRIMARY: 'PlusJakartaSans_400Regular',
   },
 };
 
