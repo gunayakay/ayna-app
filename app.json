@@ -22,14 +22,16 @@
     [
       "expo-splash-screen",
       {
-        "backgroundColor": "#FFFFFF",
-        "image": "./src/assets/splash/splash-icon.png",
+        "backgroundColor": "#F8F8F4",
+        "image": "./src/assets/splash/logo-without-bg.png",
+        "imageWidth": 150,
         "dark": {
-          "image": "./src/assets/splash/splash-icon.png",
-          "backgroundColor": "#000000"
+          "image": "./src/assets/splash/logo-without-bg.png",
+          "backgroundColor": "#F8F8F4"
         }
       }
-    ]
+    ],
+    "@react-native-community/datetimepicker"
   ],
   "orientation": "portrait",
   "android": {

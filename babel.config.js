@@ -11,6 +11,8 @@ module.exports = {
           '#constants': './src/constants',
           '#theme': './src/theme',
           '#assets': './src/assets',
+          '#utils': './src/utils',
+          '#types': './src/types',
           '#lang': './src/lang',
         },
       },
