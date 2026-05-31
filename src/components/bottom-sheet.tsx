@@ -68,6 +68,7 @@ const BottomSheet = forwardRef<BottomSheetModal, Props>(
         android_keyboardInputMode={android_keyboardInputMode}
         backgroundStyle={{
           borderRadius: theme.borderRadius['4xl'],
+          backgroundColor: theme.colors.background.MODAL,
         }}
         style={{
           marginHorizontal: detached ? theme.spacing[4] : theme.spacing[0],

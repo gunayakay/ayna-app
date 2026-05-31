@@ -39,6 +39,7 @@ const Svg = forwardRef<View, SvgProps>(
         <RenderedIcon
           width={width}
           height={height}
+          color={stroke}
           stroke={stroke}
           strokeWidth={strokeWidth}
           fill={fill}
