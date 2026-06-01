@@ -21,21 +21,21 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SLIDES = [
   {
     id: '1',
-    title: 'Kendinle Yuzles.',
+    title: 'Kendinle Yüzleş.',
     description:
-      'Ayna, sadece yaptiklarini degil, yapmaktan kactiklarini da gosterir. Gercek potansiyelini kesfet.',
+      'Ayna, sadece yaptıklarını değil, yapmaktan kaçtıklarını da gösterir. Gerçek potansiyelini keşfet.',
   },
   {
     id: '2',
-    title: 'Zinciri Kirma.',
+    title: 'Zinciri Kırma.',
     description:
-      'Her gun kendine hesap ver. Ufak adimlar at, devasa sonuclar insa et.',
+      'Her gün kendine hesap ver. Ufak adımlar at, devasa sonuçlar inşa et.',
   },
   {
     id: '3',
-    title: 'Degisim Baslasin.',
+    title: 'Değişim Başlasın.',
     description:
-      'Ister yeni bir sen insa et, ister seni tutanlardan kurtul. Secim senin.',
+      'İster yeni bir sen inşa et, ister seni tutanlardan kurtul. Seçim senin.',
   },
 ];
 
@@ -165,7 +165,7 @@ export default function WelcomeScreen() {
           },
         ]}>
         <TouchableOpacity activeOpacity={0.7} onPress={handleSkip}>
-          <Text style={styles.skipText}>Gec</Text>
+          <Text style={styles.skipText}>Geç</Text>
         </TouchableOpacity>
       </Animated.View>
 
@@ -216,7 +216,7 @@ export default function WelcomeScreen() {
           onPress={handleContinue}
           style={styles.continueButton}>
           <Text style={styles.continueButtonText}>
-            {isLastSlide ? 'Aynayi Olustur!' : 'Devam Et'}
+            {isLastSlide ? 'Aynayı Oluştur!' : 'Devam Et'}
           </Text>
           <View style={styles.checkmarkContainer}>
             <Text style={styles.checkmark}>✓</Text>

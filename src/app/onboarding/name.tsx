@@ -34,7 +34,7 @@ export default function NameScreen() {
 
         <View style={styles.content}>
           {/* Title */}
-          <Text style={styles.title}>Sana nasil hitap{'\n'}edelim?</Text>
+          <Text style={styles.title}>Sana nasıl hitap{'\n'}edelim?</Text>
 
           {/* Name Input */}
           <View style={styles.inputContainer}>
