@@ -30,6 +30,12 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
   const { styles, theme } = useStyles(stylesheet);
   const sheetRef = useRef<BottomSheetModal>(null);
 
+  const [mode, setMode] = useState<'abstinence' | 'limit'>('abstinence');
+  const [limitPeriod, setLimitPeriod] = useState<'daily' | 'weekly'>('weekly');
+  const [limit, setLimit] = useState(3);
+  const [usesCurrent, setUsesCurrent] = useState(0);
+  const [usesPrevious, setUsesPrevious] = useState(0);
+
   const [sessionStart, setSessionStart] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [personalBest, setPersonalBest] = useState<number | null>(null);
@@ -49,12 +55,45 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
   }, [sessionStart]);
 
   const loadStats = async () => {
+    const config = await goalStorage.getAddictionConfig(id);
+    setMode(config.mode);
+    if (config.mode === 'limit') {
+      const period = config.limitPeriod ?? 'weekly';
+      setLimitPeriod(period);
+      setLimit(config.limit ?? 3);
+      const { current, previous } = await addictionStorage.getUsage(id, period);
+      setUsesCurrent(current);
+      setUsesPrevious(previous);
+      return;
+    }
     const stats = await addictionStorage.getStats(id);
     setSessionStart(stats.currentSessionStart);
     setPersonalBest(stats.personalBestMs);
     if (stats.currentSessionStart !== null) {
       setElapsed(Date.now() - stats.currentSessionStart);
     }
+  };
+
+  const refreshUsage = async () => {
+    const { current, previous } = await addictionStorage.getUsage(id, limitPeriod);
+    setUsesCurrent(current);
+    setUsesPrevious(previous);
+  };
+
+  const handleLogUse = async () => {
+    await addictionStorage.logUse(id);
+    await refreshUsage();
+  };
+
+  const handleUndoUse = async () => {
+    await addictionStorage.undoLastUse(id);
+    await refreshUsage();
+  };
+
+  const changeLimit = async (delta: number) => {
+    const next = Math.max(1, limit + delta);
+    setLimit(next);
+    await goalStorage.setAddictionConfig(id, { mode: 'limit', limitPeriod, limit: next });
   };
 
   const openPicker = (mode: PickerMode) => {
@@ -118,12 +157,30 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
         onPress={() => { setPickerMode(null); sheetRef.current?.present(); }}
         style={styles.card}>
         <Text style={styles.cardHeader}>{icon} {title}</Text>
-        <Text style={styles.timerLabel}>AKTİF TUR</Text>
-        <Text style={styles.timerValue} numberOfLines={1} adjustsFontSizeToFit>
-          {sessionStart !== null ? formatDuration(elapsed) : '—'}
-        </Text>
-        {personalBest !== null && (
-          <Text style={styles.recordText}>🏆 {formatDuration(personalBest)}</Text>
+        {mode === 'limit' ? (
+          <>
+            <Text style={styles.timerLabel}>{limitPeriod === 'daily' ? 'BUGÜN' : 'BU HAFTA'}</Text>
+            <Text style={styles.timerValue} numberOfLines={1} adjustsFontSizeToFit>
+              {usesCurrent} / {limit}
+            </Text>
+            <Text style={styles.recordText}>
+              {usesCurrent < limit
+                ? `${limit - usesCurrent} hakkın kaldı`
+                : usesCurrent === limit
+                  ? `${limitPeriod === 'daily' ? 'Bugünkü' : 'Bu haftaki'} sınırdasın`
+                  : `${usesCurrent - limit} fazla`}
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text style={styles.timerLabel}>AKTİF TUR</Text>
+            <Text style={styles.timerValue} numberOfLines={1} adjustsFontSizeToFit>
+              {sessionStart !== null ? formatDuration(elapsed) : '—'}
+            </Text>
+            {personalBest !== null && (
+              <Text style={styles.recordText}>🏆 {formatDuration(personalBest)}</Text>
+            )}
+          </>
         )}
       </TouchableOpacity>
 
@@ -137,36 +194,92 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
           contentContainerStyle={styles.sheetContent}
           keyboardShouldPersistTaps="handled">
           {pickerMode === null ? (
-            <>
-              {/* Actions */}
-              <View style={styles.sheetHeader}>
-                <Text style={styles.sheetTitle}>{icon}  {title}</Text>
-                {sessionStart !== null && (
-                  <Text style={styles.sheetSubtitle}>Aktif tur: {formatDuration(elapsed)}</Text>
+            mode === 'limit' ? (
+              <>
+                {/* Limit mode actions */}
+                <View style={styles.sheetHeader}>
+                  <Text style={styles.sheetTitle}>{icon}  {title}</Text>
+                  <Text style={styles.sheetSubtitle}>
+                    {limitPeriod === 'daily' ? 'Bugün' : 'Bu hafta'}: {usesCurrent} / {limit}
+                    {usesPrevious > 0
+                      ? `   ·   ${limitPeriod === 'daily' ? 'dün' : 'geçen hafta'} ${usesPrevious}`
+                      : ''}
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.actionBtn}
+                  activeOpacity={0.7}
+                  onPress={handleLogUse}>
+                  <Text style={styles.actionBtnText}>Kullandım (+1)</Text>
+                </TouchableOpacity>
+
+                {usesCurrent > 0 && (
+                  <TouchableOpacity
+                    style={styles.actionBtn}
+                    activeOpacity={0.7}
+                    onPress={handleUndoUse}>
+                    <Text style={styles.actionBtnText}>Geri al (−1)</Text>
+                  </TouchableOpacity>
                 )}
-              </View>
 
-              <TouchableOpacity
-                style={styles.actionBtn}
-                activeOpacity={0.7}
-                onPress={() => openPicker('edit-start')}>
-                <Text style={styles.actionBtnText}>Başlangıcı Düzenle</Text>
-              </TouchableOpacity>
+                <View style={styles.limitEditor}>
+                  <TouchableOpacity
+                    style={styles.limitBtn}
+                    activeOpacity={0.7}
+                    onPress={() => changeLimit(-1)}>
+                    <Text style={styles.limitBtnText}>−</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.limitLabel}>
+                    {limitPeriod === 'daily' ? 'Günlük' : 'Haftalık'} izin: {limit}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.limitBtn}
+                    activeOpacity={0.7}
+                    onPress={() => changeLimit(1)}>
+                    <Text style={styles.limitBtnText}>+</Text>
+                  </TouchableOpacity>
+                </View>
 
-              <TouchableOpacity
-                style={styles.actionBtn}
-                activeOpacity={0.7}
-                onPress={() => openPicker('new-round')}>
-                <Text style={styles.actionBtnText}>Yeni Tur Başlat</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.dangerBtn}
+                  activeOpacity={0.7}
+                  onPress={handleRemoveTap}>
+                  <Text style={styles.dangerBtnText}>Kaldır</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                {/* Abstinence mode actions */}
+                <View style={styles.sheetHeader}>
+                  <Text style={styles.sheetTitle}>{icon}  {title}</Text>
+                  {sessionStart !== null && (
+                    <Text style={styles.sheetSubtitle}>Aktif tur: {formatDuration(elapsed)}</Text>
+                  )}
+                </View>
 
-              <TouchableOpacity
-                style={styles.dangerBtn}
-                activeOpacity={0.7}
-                onPress={handleRemoveTap}>
-                <Text style={styles.dangerBtnText}>Kaldır</Text>
-              </TouchableOpacity>
-            </>
+                <TouchableOpacity
+                  style={styles.actionBtn}
+                  activeOpacity={0.7}
+                  onPress={() => openPicker('edit-start')}>
+                  <Text style={styles.actionBtnText}>Başlangıcı Düzenle</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.actionBtn}
+                  activeOpacity={0.7}
+                  onPress={() => openPicker('new-round')}>
+                  <Text style={styles.actionBtnText}>Yeni Tur Başlat</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.dangerBtn}
+                  activeOpacity={0.7}
+                  onPress={handleRemoveTap}>
+                  <Text style={styles.dangerBtnText}>Kaldır</Text>
+                </TouchableOpacity>
+              </>
+            )
           ) : (
             <>
               {/* Time picker */}
@@ -356,6 +469,40 @@ const stylesheet = StyleSheet.create(theme => ({
     fontFamily: theme.fontFamily.medium,
     color: theme.colors.typography.SECONDARY,
     opacity: 0.55,
+  },
+
+  // ── Limit mode editor ──────────────────────────────────────────────────────
+  limitEditor: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[4],
+    marginTop: theme.spacing[1],
+    marginBottom: theme.spacing[3],
+    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[4],
+    backgroundColor: theme.colors.background.PRIMARY,
+    borderRadius: theme.borderRadius['5xl'],
+  },
+  limitBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  limitBtnText: {
+    fontSize: theme.fontSizes.xl,
+    fontFamily: theme.fontFamily.medium,
+    color: theme.colors.typography.PRIMARY,
+    lineHeight: 26,
+  },
+  limitLabel: {
+    flex: 1,
+    fontSize: theme.fontSizes.base,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.typography.PRIMARY,
+    textAlign: 'center',
   },
 
   // ── Picker ─────────────────────────────────────────────────────────────────

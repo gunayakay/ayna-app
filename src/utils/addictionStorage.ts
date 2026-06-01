@@ -1,6 +1,30 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const KEY = '@ayna/addiction_sessions';
+const USES_KEY = '@ayna/addiction_uses';
+
+// One logged use in "limit" mode (harm-reduction). Each tap = one allowance spent.
+export interface AddictionUse {
+  goalId: string;
+  time: number;
+}
+
+// Start of the week (Monday 00:00) for the given week offset back from now.
+function startOfWeek(offsetWeeks = 0): number {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  const dayFromMonday = (d.getDay() + 6) % 7; // Mon=0 … Sun=6
+  d.setDate(d.getDate() - dayFromMonday - offsetWeeks * 7);
+  return d.getTime();
+}
+
+// Start of the day (00:00) for the given day offset back from now.
+function startOfDay(offsetDays = 0): number {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - offsetDays);
+  return d.getTime();
+}
 
 // One resistance attempt: from "I'm quitting" to relapse (or still active)
 export interface AddictionSession {
@@ -143,6 +167,58 @@ const addictionStorage = {
     return all
       .filter(s => s.goalId === goalId)
       .sort((a, b) => b.startTime - a.startTime);
+  },
+
+  // ── Limit (sınırlama) modu: kullanım kaydı ──────────────────────────────────
+
+  async logUse(goalId: string, time = Date.now()): Promise<void> {
+    const raw = await AsyncStorage.getItem(USES_KEY);
+    const uses: AddictionUse[] = raw ? JSON.parse(raw) : [];
+    uses.push({ goalId, time });
+    await AsyncStorage.setItem(USES_KEY, JSON.stringify(uses));
+  },
+
+  async getUses(goalId: string): Promise<AddictionUse[]> {
+    const raw = await AsyncStorage.getItem(USES_KEY);
+    const uses: AddictionUse[] = raw ? JSON.parse(raw) : [];
+    return uses.filter(u => u.goalId === goalId).sort((a, b) => b.time - a.time);
+  },
+
+  // Undo the most recent use of this goal (mis-tap correction).
+  async undoLastUse(goalId: string): Promise<void> {
+    const raw = await AsyncStorage.getItem(USES_KEY);
+    const uses: AddictionUse[] = raw ? JSON.parse(raw) : [];
+    let latestIdx = -1;
+    let latestTime = -1;
+    uses.forEach((u, i) => {
+      if (u.goalId === goalId && u.time > latestTime) {
+        latestTime = u.time;
+        latestIdx = i;
+      }
+    });
+    if (latestIdx !== -1) {
+      uses.splice(latestIdx, 1);
+      await AsyncStorage.setItem(USES_KEY, JSON.stringify(uses));
+    }
+  },
+
+  // Usage counts for the current period and the previous one (for trend).
+  // period 'daily'  → bugün / dün
+  // period 'weekly' → bu hafta / geçen hafta
+  async getUsage(
+    goalId: string,
+    period: 'daily' | 'weekly'
+  ): Promise<{ current: number; previous: number }> {
+    const uses = await this.getUses(goalId);
+    const currentStart = period === 'daily' ? startOfDay(0) : startOfWeek(0);
+    const previousStart = period === 'daily' ? startOfDay(1) : startOfWeek(1);
+    let current = 0;
+    let previous = 0;
+    for (const u of uses) {
+      if (u.time >= currentStart) current++;
+      else if (u.time >= previousStart) previous++;
+    }
+    return { current, previous };
   },
 
   async getStats(goalId: string): Promise<AddictionStats> {

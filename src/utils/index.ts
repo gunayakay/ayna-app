@@ -24,9 +24,17 @@ export { truncateText } from './turncateText';
 export { onboardingStorage } from './onboardingStorage';
 export type { OnboardingData } from './onboardingStorage';
 export { goalStorage } from './goalStorage';
-export type { ConfrontationLog, GoalSettings, GoalCategory, HabitFrequency } from './goalStorage';
+export type {
+  ConfrontationLog,
+  GoalSettings,
+  GoalCategory,
+  HabitFrequency,
+  AddictionMode,
+  AddictionConfig,
+  LimitPeriod,
+} from './goalStorage';
 export { default as battleStorage } from './battleStorage';
 export type { HabitBattle, HabitStats } from './battleStorage';
 export { default as addictionStorage, formatDuration } from './addictionStorage';
-export type { AddictionSession, AddictionStats } from './addictionStorage';
+export type { AddictionSession, AddictionStats, AddictionUse } from './addictionStorage';
 export { addGoalSheetRef } from './addGoalSheetRef';

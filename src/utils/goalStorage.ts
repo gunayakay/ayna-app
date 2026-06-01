@@ -5,9 +5,24 @@ const STORAGE_KEYS = {
   CONFRONTATION_LOGS: '@ayna/confrontation_logs',
   GOAL_SETTINGS: '@ayna/goal_settings',
   GOAL_CATEGORIES: '@ayna/goal_categories',
+  ADDICTION_CONFIG: '@ayna/addiction_config',
 } as const;
 
 export type GoalCategory = 'habit' | 'addiction';
+
+// How a bağımlılık goal is approached:
+// - abstinence: tamamen bırak (direnç turu + kişisel rekor)
+// - limit: sınırla (periyot başına izin, kademeli azaltma)
+export type AddictionMode = 'abstinence' | 'limit';
+
+// Sınırlama periyodu: yüksek-sıklıklı için günlük, seyrek için haftalık
+export type LimitPeriod = 'daily' | 'weekly';
+
+export interface AddictionConfig {
+  mode: AddictionMode;
+  limitPeriod?: LimitPeriod; // yalnızca 'limit' modunda
+  limit?: number;            // periyot başına izin sayısı
+}
 
 // How often a habit is expected to be done
 export type HabitFrequency =
@@ -89,6 +104,22 @@ export const goalStorage = {
 
   async getAllGoalCategories(): Promise<Record<string, GoalCategory>> {
     const raw = await AsyncStorage.getItem(STORAGE_KEYS.GOAL_CATEGORIES);
+    return raw ? JSON.parse(raw) : {};
+  },
+
+  async setAddictionConfig(goalId: string, config: AddictionConfig): Promise<void> {
+    const all = await this.getAllAddictionConfigs();
+    all[goalId] = config;
+    await AsyncStorage.setItem(STORAGE_KEYS.ADDICTION_CONFIG, JSON.stringify(all));
+  },
+
+  async getAddictionConfig(goalId: string): Promise<AddictionConfig> {
+    const all = await this.getAllAddictionConfigs();
+    return all[goalId] ?? { mode: 'abstinence' };
+  },
+
+  async getAllAddictionConfigs(): Promise<Record<string, AddictionConfig>> {
+    const raw = await AsyncStorage.getItem(STORAGE_KEYS.ADDICTION_CONFIG);
     return raw ? JSON.parse(raw) : {};
   },
 };

@@ -57,7 +57,20 @@ const ADDICTION_ITEMS = [
   { id: 'gaming', name: 'Aşırı Oyun', icon: '🎮' },
   { id: 'sugar', name: 'Şeker / Atıştırma', icon: '🍭' },
   { id: 'binge_watch', name: 'Dizi / Binge', icon: '📺' },
+  { id: 'pornography', name: 'Pornografi', icon: '🔞' },
 ];
+
+// Sınırlama modu için bağımlılığa göre akıllı varsayılan (periyot + sayı)
+const ADDICTION_LIMIT_DEFAULTS: Record<string, { period: 'daily' | 'weekly'; limit: number }> = {
+  smoking: { period: 'daily', limit: 10 },
+  alcohol: { period: 'weekly', limit: 3 },
+  social_media: { period: 'daily', limit: 5 },
+  gaming: { period: 'daily', limit: 2 },
+  sugar: { period: 'daily', limit: 2 },
+  binge_watch: { period: 'weekly', limit: 3 },
+  pornography: { period: 'weekly', limit: 2 },
+};
+const ADDICTION_LIMIT_FALLBACK = { period: 'weekly' as const, limit: 3 };
 
 const HABIT_DEFAULTS: Record<string, { unit?: string; maxValue: number; step?: number }> = {
   water: { maxValue: 8 },
@@ -152,12 +165,18 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
   const [targetValue, setTargetValue] = useState(1);
   const [freqType, setFreqType] = useState<'daily' | 'weekly' | 'interval'>('daily');
   const [freqCount, setFreqCount] = useState(3);
+  const [addictionMode, setAddictionMode] = useState<'abstinence' | 'limit'>('abstinence');
+  const [limitPeriod, setLimitPeriod] = useState<'daily' | 'weekly'>('weekly');
+  const [limitCount, setLimitCount] = useState(3);
 
   const snapPoints = useMemo(() => {
     if (viewState === 'category') return ['38%'];
     if (viewState === 'catalog') return ['80%'];
+    if (selectedItem?.category === 'addiction') {
+      return addictionMode === 'limit' ? ['82%'] : ['58%'];
+    }
     return ['90%'];
-  }, [viewState]);
+  }, [viewState, selectedItem, addictionMode]);
 
   const getFrequency = (): HabitFrequency => {
     if (freqType === 'daily') return { type: 'daily' };
@@ -179,6 +198,9 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
     setFreqType('daily');
     setFreqCount(3);
     setTargetValue(1);
+    setAddictionMode('abstinence');
+    setLimitPeriod('weekly');
+    setLimitCount(3);
   };
 
   const dismiss = () => {
@@ -224,6 +246,10 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
 
     if (item.category === 'addiction') {
       setSelectedItem(item);
+      setAddictionMode('abstinence');
+      const d = ADDICTION_LIMIT_DEFAULTS[item.id] ?? ADDICTION_LIMIT_FALLBACK;
+      setLimitPeriod(d.period);
+      setLimitCount(d.limit);
       snapTo('settings');
       return;
     }
@@ -261,7 +287,15 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
     if (!selectedItem) return;
     await goalStorage.addGoal(selectedItem.id);
     await goalStorage.setGoalCategory(selectedItem.id, 'addiction');
-    await addictionStorage.startSession(selectedItem.id);
+    await goalStorage.setAddictionConfig(
+      selectedItem.id,
+      addictionMode === 'limit'
+        ? { mode: 'limit', limitPeriod, limit: limitCount }
+        : { mode: 'abstinence' }
+    );
+    if (addictionMode === 'abstinence') {
+      await addictionStorage.startSession(selectedItem.id);
+    }
     onGoalAdded?.();
     dismiss();
   };
@@ -275,7 +309,10 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
     backdropComponent: renderBackdrop,
     onChange: handleSheetChange,
     handleComponent: () => null, // remove drag handle indicator
-    backgroundStyle: { borderRadius: theme.borderRadius['4xl'] },
+    backgroundStyle: {
+      borderRadius: theme.borderRadius['4xl'],
+      backgroundColor: theme.colors.background.MODAL,
+    },
     bottomInset: bottom > 0 ? bottom : theme.spacing[4],
     keyboardBehavior: 'interactive' as const,
     keyboardBlurBehavior: 'restore' as const,
@@ -411,24 +448,112 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
         </View>
 
         {isAddiction ? (
-          // ── Addiction confirm ──────────────────────────────────────────────
+          // ── Addiction: mod seçimi + ayar ───────────────────────────────────
           <View style={styles.addictionBlock}>
-            <View style={styles.addictionCallout}>
-              <Text style={styles.addictionCalloutText}>
-                Savaş başlar başlamaz zamanlayıcı çalışacak.
-              </Text>
+            {/* Mod seçimi */}
+            <View style={styles.modeRow}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setAddictionMode('abstinence')}
+                style={[styles.modeCard, addictionMode === 'abstinence' && styles.modeCardActive]}>
+                <Text
+                  style={[
+                    styles.modeCardTitle,
+                    addictionMode === 'abstinence' && styles.modeCardTitleActive,
+                  ]}>
+                  Tamamen Bırak
+                </Text>
+                <Text style={styles.modeCardDesc}>Sıfır tolerans · tur + rekor</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setAddictionMode('limit')}
+                style={[styles.modeCard, addictionMode === 'limit' && styles.modeCardActive]}>
+                <Text
+                  style={[
+                    styles.modeCardTitle,
+                    addictionMode === 'limit' && styles.modeCardTitleActive,
+                  ]}>
+                  Sınırla
+                </Text>
+                <Text style={styles.modeCardDesc}>Haftalık izin · kademeli azalt</Text>
+              </TouchableOpacity>
             </View>
 
-            <Text style={styles.addictionDesc}>
-              Ömür boyu değil, sadece{'\n'}bir sonraki turu düşün.
-            </Text>
-            <Text style={styles.addictionNote}>
-              Geri düşersen sıfırlanır — bu bir başarısızlık değil, yeni bir tur.
-              Önemli olan kaç kez ayağa kalktığın.
-            </Text>
+            {addictionMode === 'abstinence' ? (
+              <>
+                <Text style={styles.addictionDesc}>
+                  Ömür boyu değil, sadece{'\n'}bir sonraki turu düşün.
+                </Text>
+                <Text style={styles.addictionNote}>
+                  Geri düşersen sıfırlanır — bu bir başarısızlık değil, yeni bir tur. Önemli olan
+                  kaç kez ayağa kalktığın.
+                </Text>
+              </>
+            ) : (
+              <>
+                {/* Periyot: günlük / haftalık */}
+                <View style={styles.periodRow}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => setLimitPeriod('daily')}
+                    style={[styles.periodBtn, limitPeriod === 'daily' && styles.periodBtnActive]}>
+                    <Text
+                      style={[
+                        styles.periodBtnText,
+                        limitPeriod === 'daily' && styles.periodBtnTextActive,
+                      ]}>
+                      Günlük
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => setLimitPeriod('weekly')}
+                    style={[styles.periodBtn, limitPeriod === 'weekly' && styles.periodBtnActive]}>
+                    <Text
+                      style={[
+                        styles.periodBtnText,
+                        limitPeriod === 'weekly' && styles.periodBtnTextActive,
+                      ]}>
+                      Haftalık
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.sectionQuestion}>
+                  {limitPeriod === 'daily'
+                    ? 'Günde kaç kez izin veriyorsun?'
+                    : 'Haftada kaç kez izin veriyorsun?'}
+                </Text>
+                <View style={styles.freqCounter}>
+                  <TouchableOpacity
+                    style={styles.freqCountBtn}
+                    activeOpacity={0.7}
+                    onPress={() => setLimitCount(c => Math.max(1, c - 1))}>
+                    <Text style={styles.freqCountBtnText}>−</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.freqCountValue}>
+                    {limitPeriod === 'daily'
+                      ? `Günde ${limitCount} kez`
+                      : `Haftada ${limitCount} kez`}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.freqCountBtn}
+                    activeOpacity={0.7}
+                    onPress={() => setLimitCount(c => Math.min(50, c + 1))}>
+                    <Text style={styles.freqCountBtnText}>+</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.addictionNote}>
+                  Amaç sıfır değil, kontrol. İzni zamanla azaltarak ilerleyebilirsin. Hakkını aşman
+                  bir başarısızlık değil — sadece veri.
+                </Text>
+              </>
+            )}
 
             <Button onPress={handleStartAddiction} style={styles.actionButton}>
-              Savaşı Başlat
+              {addictionMode === 'abstinence' ? 'Savaşı Başlat' : 'Takibi Başlat'}
             </Button>
           </View>
         ) : (
@@ -914,6 +1039,61 @@ const stylesheet = createStyleSheet(theme => ({
   // ── Settings: addiction ───────────────────────────────────────────────────
   addictionBlock: {
     gap: theme.spacing[4],
+  },
+  modeRow: {
+    flexDirection: 'row',
+    gap: theme.spacing[3],
+  },
+  modeCard: {
+    flex: 1,
+    padding: theme.spacing[4],
+    borderRadius: theme.borderRadius['2xl'],
+    borderWidth: 1.5,
+    borderColor: theme.colors.border.PRIMARY,
+    backgroundColor: theme.colors.white,
+    gap: theme.spacing[1],
+  },
+  modeCardActive: {
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primaryLightest,
+  },
+  modeCardTitle: {
+    fontSize: theme.fontSizes.base,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.typography.PRIMARY,
+  },
+  modeCardTitleActive: {
+    color: theme.colors.primary,
+  },
+  modeCardDesc: {
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fontFamily.regular,
+    color: theme.colors.typography.SECONDARY,
+  },
+  periodRow: {
+    flexDirection: 'row',
+    gap: theme.spacing[2],
+    backgroundColor: theme.colors.background.PRIMARY,
+    borderRadius: theme.borderRadius.full,
+    padding: theme.spacing[1],
+  },
+  periodBtn: {
+    flex: 1,
+    paddingVertical: theme.spacing[2],
+    borderRadius: theme.borderRadius.full,
+    alignItems: 'center',
+  },
+  periodBtnActive: {
+    backgroundColor: theme.colors.white,
+  },
+  periodBtnText: {
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fontFamily.medium,
+    color: theme.colors.typography.SECONDARY,
+  },
+  periodBtnTextActive: {
+    color: theme.colors.primary,
+    fontFamily: theme.fontFamily.semiBold,
   },
   addictionCallout: {
     backgroundColor: '#FEF2F2',
