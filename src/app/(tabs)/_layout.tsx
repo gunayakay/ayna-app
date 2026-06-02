@@ -23,10 +23,10 @@ export default function TabsLayout() {
         initialRouteName={ROUTES.HOME}
         screenOptions={{ headerShown: false }}
         tabBar={props => <TabBar {...props} />}>
-        <Tabs.Screen name={ROUTES.HOME} options={{ title: 'Home' }} />
-        <Tabs.Screen name={ROUTES.HISTORY} options={{ title: 'History' }} />
-        <Tabs.Screen name={ROUTES.ANALYTICS} options={{ title: 'Analytics' }} />
-        <Tabs.Screen name={ROUTES.ACCOUNT} options={{ title: 'Account' }} />
+        <Tabs.Screen name={ROUTES.HOME} options={{ title: 'Ana Sayfa' }} />
+        <Tabs.Screen name={ROUTES.HISTORY} options={{ title: 'Geçmiş' }} />
+        <Tabs.Screen name={ROUTES.ANALYTICS} options={{ title: 'İstatistik' }} />
+        <Tabs.Screen name={ROUTES.ACCOUNT} options={{ title: 'Profil' }} />
       </Tabs>
 
       <AddGoalSheet
