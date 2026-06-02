@@ -57,8 +57,8 @@ export default function LoadingScreen() {
           />
         </Animated.View>
 
-        <Text style={styles.title}>Ayna parlatiliyor...</Text>
-        <Text style={styles.subtitle}>Gercekler analiz ediliyor.</Text>
+        <Text style={styles.title}>Ayna parlatılıyor...</Text>
+        <Text style={styles.subtitle}>Gerçekler analiz ediliyor.</Text>
       </View>
     </View>
   );
