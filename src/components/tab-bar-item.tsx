@@ -34,10 +34,10 @@ const ACTIVE_ICONS: Record<string, SvgComponent> = {
 };
 
 const LABELS: Record<string, string> = {
-  [ROUTES.HOME]: 'Home',
-  [ROUTES.ACCOUNT]: 'Account',
-  [ROUTES.HISTORY]: 'History',
-  [ROUTES.ANALYTICS]: 'Analytics',
+  [ROUTES.HOME]: 'Ana Sayfa',
+  [ROUTES.ACCOUNT]: 'Profil',
+  [ROUTES.HISTORY]: 'Geçmiş',
+  [ROUTES.ANALYTICS]: 'İstatistik',
 };
 
 const AnimatedText = Animated.createAnimatedComponent(Text);
