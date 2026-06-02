@@ -38,6 +38,10 @@ export const onboardingStorage = {
     await AsyncStorage.setItem(STORAGE_KEYS.USER_NAME, name);
   },
 
+  async getUserName(): Promise<string | null> {
+    return AsyncStorage.getItem(STORAGE_KEYS.USER_NAME);
+  },
+
   async markOnboardingCompleted(): Promise<void> {
     await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETED, 'true');
   },
@@ -57,13 +61,15 @@ export const onboardingStorage = {
         AsyncStorage.getItem(STORAGE_KEYS.USER_NAME),
       ]);
 
-      if (!categories || !actions || !userName) {
+      // v1 onboarding yalnızca ismi toplar; categories/actions adımları kaldırıldı.
+      // Bu yüzden tek zorunlu alan userName — yoksa onboarding yapılmamış sayılır.
+      if (!userName) {
         return null;
       }
 
       return {
-        categories: JSON.parse(categories),
-        actions: JSON.parse(actions),
+        categories: categories ? JSON.parse(categories) : [],
+        actions: actions ? JSON.parse(actions) : [],
         blockers: blockers ? JSON.parse(blockers) : [],
         disciplineLevel: disciplineLevel ? parseInt(disciplineLevel, 10) : 50,
         userName,
