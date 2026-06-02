@@ -1,19 +1,54 @@
-import { Alert, TouchableOpacity } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, TouchableOpacity, TextInput, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Container, Text } from '#components/atoms';
+import { Text } from '#components/atoms';
 import { StyleSheet, useStyles } from '#theme/unistyles';
+import { onboardingStorage } from '#/utils';
 
 export default function AccountScreen() {
-  const { styles } = useStyles(stylesheet);
+  const { styles, theme } = useStyles(stylesheet);
+  const insets = useSafeAreaInsets();
 
-  const handleReset = async () => {
+  const [name, setName] = useState('');
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+
+  useFocusEffect(
+    useCallback(() => {
+      let alive = true;
+      onboardingStorage.getUserName().then(n => {
+        if (alive) setName(n ?? '');
+      });
+      return () => {
+        alive = false;
+      };
+    }, [])
+  );
+
+  const initial = (name.trim().charAt(0) || '?').toUpperCase();
+
+  const startEdit = () => {
+    setDraft(name);
+    setEditing(true);
+  };
+
+  const saveName = async () => {
+    const trimmed = draft.trim();
+    if (!trimmed) return;
+    await onboardingStorage.saveUserName(trimmed);
+    setName(trimmed);
+    setEditing(false);
+  };
+
+  const handleReset = () => {
     Alert.alert(
-      'Reset Onboarding',
-      'Tüm veriler silinecek ve onboarding baştan başlayacak.',
+      'Verileri Sıfırla',
+      'Tüm verilerin — ismin, bağımlılıkların, turların, kayıtların — kalıcı olarak silinecek. Bu işlem geri alınamaz.',
       [
-        { text: 'İptal', style: 'cancel' },
+        { text: 'Vazgeç', style: 'cancel' },
         {
           text: 'Sıfırla',
           style: 'destructive',
@@ -22,46 +57,193 @@ export default function AccountScreen() {
             router.replace('/onboarding/welcome');
           },
         },
-      ],
+      ]
     );
   };
 
   return (
-    <Container style={styles.container}>
-      <Text style={styles.title}>Account</Text>
-      <Text>Manage your profile here.</Text>
+    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 96 }]}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Profil</Text>
+      </View>
 
-      {__DEV__ && (
-        <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-          <Text style={styles.resetButtonText}>Reset Onboarding (Dev Only)</Text>
+      {/* Avatar + isim */}
+      <View style={styles.profileCard}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{initial}</Text>
+        </View>
+
+        {editing ? (
+          <View style={styles.editRow}>
+            <TextInput
+              style={styles.input}
+              value={draft}
+              onChangeText={setDraft}
+              placeholder="İsmin"
+              placeholderTextColor={theme.colors.typography.TERTIARY}
+              autoFocus
+              autoCapitalize="words"
+              autoCorrect={false}
+              returnKeyType="done"
+              onSubmitEditing={saveName}
+            />
+            <View style={styles.editButtons}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setEditing(false)}
+                style={styles.cancelBtn}>
+                <Text style={styles.cancelBtnText}>İptal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={saveName}
+                disabled={draft.trim().length === 0}
+                style={[styles.saveBtn, draft.trim().length === 0 && styles.saveBtnDisabled]}>
+                <Text style={styles.saveBtnText}>Kaydet</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <>
+            <Text style={styles.name}>{name || 'İsimsiz'}</Text>
+            <TouchableOpacity activeOpacity={0.7} onPress={startEdit} style={styles.editLink}>
+              <Text style={styles.editLinkText}>İsmi Düzenle</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
+
+      {/* Tehlikeli bölge */}
+      <View style={styles.footer}>
+        <TouchableOpacity activeOpacity={0.7} onPress={handleReset} style={styles.resetButton}>
+          <Text style={styles.resetButtonText}>Verileri Sıfırla</Text>
         </TouchableOpacity>
-      )}
-    </Container>
+        <Text style={styles.resetHint}>
+          Her şey yalnızca bu cihazda tutulur. Hesap yok, bulut yok.
+        </Text>
+      </View>
+    </View>
   );
 }
 
 const stylesheet = StyleSheet.create(theme => ({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background.PRIMARY,
+  },
+  header: {
+    paddingHorizontal: theme.spacing[4],
+    paddingVertical: theme.spacing[4],
+  },
+  headerTitle: {
+    fontSize: theme.fontSizes['2xl'],
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.typography.PRIMARY,
+  },
+
+  profileCard: {
+    backgroundColor: theme.colors.white,
+    marginHorizontal: theme.spacing[4],
+    borderRadius: theme.borderRadius['5xl'],
+    padding: theme.spacing[6],
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.white,
+    marginBottom: theme.spacing[4],
   },
-  title: {
-    marginBottom: theme.spacing[2],
+  avatarText: {
+    fontSize: 36,
     fontFamily: theme.fontFamily.bold,
-    fontSize: theme.fontSizes.lg,
+    color: theme.colors.white,
   },
-  resetButton: {
-    marginTop: theme.spacing[8],
-    backgroundColor: theme.colors.danger,
-    borderRadius: theme.borderRadius.full,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
+  name: {
+    fontSize: theme.fontSizes['2xl'],
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.typography.PRIMARY,
+    marginBottom: theme.spacing[2],
   },
-  resetButtonText: {
+  editLink: {
+    paddingVertical: theme.spacing[1],
+    paddingHorizontal: theme.spacing[2],
+  },
+  editLinkText: {
     fontSize: theme.fontSizes.sm,
     fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.primary,
+  },
+
+  editRow: {
+    width: '100%',
+    gap: theme.spacing[3],
+  },
+  input: {
+    fontSize: theme.fontSizes.xl,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.typography.PRIMARY,
+    textAlign: 'center',
+    paddingVertical: theme.spacing[2],
+    borderBottomWidth: 2,
+    borderBottomColor: theme.colors.primary,
+  },
+  editButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: theme.spacing[3],
+  },
+  cancelBtn: {
+    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[5],
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.background.PRIMARY,
+  },
+  cancelBtnText: {
+    fontSize: theme.fontSizes.base,
+    fontFamily: theme.fontFamily.medium,
+    color: theme.colors.typography.SECONDARY,
+  },
+  saveBtn: {
+    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[5],
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.typography.PRIMARY,
+  },
+  saveBtnDisabled: {
+    opacity: 0.4,
+  },
+  saveBtnText: {
+    fontSize: theme.fontSizes.base,
+    fontFamily: theme.fontFamily.semiBold,
     color: theme.colors.white,
+  },
+
+  footer: {
+    marginTop: 'auto',
+    padding: theme.spacing[6],
+    alignItems: 'center',
+  },
+  resetButton: {
+    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[6],
+    borderRadius: theme.borderRadius.full,
+    borderWidth: 1.5,
+    borderColor: theme.colors.danger.text,
+  },
+  resetButtonText: {
+    fontSize: theme.fontSizes.base,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.danger.text,
+  },
+  resetHint: {
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fontFamily.regular,
+    color: theme.colors.typography.TERTIARY,
+    textAlign: 'center',
+    marginTop: theme.spacing[3],
   },
 }));
