@@ -169,6 +169,17 @@ const addictionStorage = {
       .sort((a, b) => b.startTime - a.startTime);
   },
 
+  // Bir hedef silinince/yeniden eklenince tüm tur ve kullanım kayıtlarını temizle.
+  async purgeGoal(goalId: string): Promise<void> {
+    const sessionsRaw = await AsyncStorage.getItem(KEY);
+    const sessions: AddictionSession[] = sessionsRaw ? JSON.parse(sessionsRaw) : [];
+    await AsyncStorage.setItem(KEY, JSON.stringify(sessions.filter(s => s.goalId !== goalId)));
+
+    const usesRaw = await AsyncStorage.getItem(USES_KEY);
+    const uses: AddictionUse[] = usesRaw ? JSON.parse(usesRaw) : [];
+    await AsyncStorage.setItem(USES_KEY, JSON.stringify(uses.filter(u => u.goalId !== goalId)));
+  },
+
   // ── Limit (sınırlama) modu: kullanım kaydı ──────────────────────────────────
 
   async logUse(goalId: string, time = Date.now()): Promise<void> {

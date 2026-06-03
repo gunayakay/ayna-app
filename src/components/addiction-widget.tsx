@@ -143,6 +143,7 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
 
   const handleConfirmRemove = async () => {
     await goalStorage.removeGoal(id);
+    await addictionStorage.purgeGoal(id);
     setShowRemoveModal(false);
     onRemove?.();
   };

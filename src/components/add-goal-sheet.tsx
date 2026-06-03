@@ -64,7 +64,7 @@ const ADDICTION_ITEMS = [
 const ADDICTION_LIMIT_DEFAULTS: Record<string, { period: 'daily' | 'weekly'; limit: number }> = {
   smoking: { period: 'daily', limit: 10 },
   alcohol: { period: 'weekly', limit: 3 },
-  social_media: { period: 'daily', limit: 5 },
+  social_media: { period: 'daily', limit: 8 },
   gaming: { period: 'daily', limit: 2 },
   sugar: { period: 'daily', limit: 2 },
   binge_watch: { period: 'weekly', limit: 3 },
@@ -239,6 +239,7 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
   const handleItemPress = async (item: CatalogItem) => {
     if (activeGoals.includes(item.id)) {
       await goalStorage.removeGoal(item.id);
+      await addictionStorage.purgeGoal(item.id);
       setActiveGoals(prev => prev.filter(id => id !== item.id));
       onGoalAdded?.();
       return;

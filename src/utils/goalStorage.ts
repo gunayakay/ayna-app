@@ -58,8 +58,29 @@ export const goalStorage = {
 
   async removeGoal(goalId: string): Promise<void> {
     const goals = await this.getActiveGoals();
-    const filtered = goals.filter(id => id !== goalId);
-    await AsyncStorage.setItem(STORAGE_KEYS.ACTIVE_GOALS, JSON.stringify(filtered));
+    await AsyncStorage.setItem(
+      STORAGE_KEYS.ACTIVE_GOALS,
+      JSON.stringify(goals.filter(id => id !== goalId))
+    );
+
+    // İlişkili kayıtları da temizle (yetim veri bırakma)
+    const settings = await this.getAllGoalSettings();
+    if (settings[goalId]) {
+      delete settings[goalId];
+      await AsyncStorage.setItem(STORAGE_KEYS.GOAL_SETTINGS, JSON.stringify(settings));
+    }
+
+    const categories = await this.getAllGoalCategories();
+    if (categories[goalId]) {
+      delete categories[goalId];
+      await AsyncStorage.setItem(STORAGE_KEYS.GOAL_CATEGORIES, JSON.stringify(categories));
+    }
+
+    const configs = await this.getAllAddictionConfigs();
+    if (configs[goalId]) {
+      delete configs[goalId];
+      await AsyncStorage.setItem(STORAGE_KEYS.ADDICTION_CONFIG, JSON.stringify(configs));
+    }
   },
 
   async saveConfrontationLog(log: ConfrontationLog): Promise<void> {
