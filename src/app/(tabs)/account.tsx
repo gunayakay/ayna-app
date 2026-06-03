@@ -159,6 +159,17 @@ export default function AccountScreen() {
         )}
       </View>
 
+      {/* Geliştirme aracı — yalnızca dev modda */}
+      {__DEV__ && (
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => router.push('/test-scenarios')}
+          style={styles.devRow}>
+          <Text style={styles.devRowText}>🧪 Test Senaryoları</Text>
+          <Text style={styles.devRowHint}>Yalnızca geliştirme ›</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Tehlikeli bölge */}
       <View style={styles.footer}>
         <TouchableOpacity activeOpacity={0.7} onPress={handleReset} style={styles.resetButton}>
@@ -272,6 +283,27 @@ const stylesheet = StyleSheet.create(theme => ({
     color: theme.colors.white,
   },
 
+  devRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: theme.spacing[4],
+    marginTop: theme.spacing[4],
+    paddingVertical: theme.spacing[4],
+    paddingHorizontal: theme.spacing[5],
+    backgroundColor: theme.colors.white,
+    borderRadius: theme.borderRadius['4xl'],
+  },
+  devRowText: {
+    fontSize: theme.fontSizes.base,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.typography.PRIMARY,
+  },
+  devRowHint: {
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fontFamily.medium,
+    color: theme.colors.typography.SECONDARY,
+  },
   footer: {
     marginTop: 'auto',
     padding: theme.spacing[6],
