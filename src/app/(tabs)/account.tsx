@@ -3,8 +3,12 @@ import { View, TouchableOpacity, TextInput, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
 
 import { Text } from '#components/atoms';
+import Svg from '#components/atoms/svg';
+import MirrorAvatar from '#components/mirror-avatar';
+import { Camera } from '#assets/svg';
 import { StyleSheet, useStyles } from '#theme/unistyles';
 import { onboardingStorage } from '#/utils';
 
@@ -15,12 +19,16 @@ export default function AccountScreen() {
   const [name, setName] = useState('');
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       let alive = true;
       onboardingStorage.getUserName().then(n => {
         if (alive) setName(n ?? '');
+      });
+      onboardingStorage.getAvatarUri().then(uri => {
+        if (alive) setAvatarUri(uri);
       });
       return () => {
         alive = false;
@@ -29,6 +37,39 @@ export default function AccountScreen() {
   );
 
   const initial = (name.trim().charAt(0) || '?').toUpperCase();
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets && result.assets[0]) {
+      const uri = result.assets[0].uri;
+      await onboardingStorage.saveAvatarUri(uri);
+      setAvatarUri(uri);
+    }
+  };
+
+  const handleAvatarPress = () => {
+    if (avatarUri) {
+      Alert.alert('Profil Fotoğrafı', undefined, [
+        { text: 'Değiştir', onPress: pickImage },
+        {
+          text: 'Kaldır',
+          style: 'destructive',
+          onPress: async () => {
+            await onboardingStorage.clearAvatarUri();
+            setAvatarUri(null);
+          },
+        },
+        { text: 'Vazgeç', style: 'cancel' },
+      ]);
+    } else {
+      pickImage();
+    }
+  };
 
   const startEdit = () => {
     setDraft(name);
@@ -69,8 +110,13 @@ export default function AccountScreen() {
 
       {/* Avatar + isim */}
       <View style={styles.profileCard}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initial}</Text>
+        <View style={styles.avatarWrap}>
+          <TouchableOpacity activeOpacity={0.85} onPress={handleAvatarPress}>
+            <MirrorAvatar uri={avatarUri} initial={initial} size={84} />
+          </TouchableOpacity>
+          <View style={styles.cameraBadge} pointerEvents="none">
+            <Svg Icon={Camera} width={14} height={14} stroke={theme.colors.white} strokeWidth={1.5} />
+          </View>
         </View>
 
         {editing ? (
@@ -148,19 +194,23 @@ const stylesheet = StyleSheet.create(theme => ({
     padding: theme.spacing[6],
     alignItems: 'center',
   },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: theme.borderRadius.full,
-    backgroundColor: theme.colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+  avatarWrap: {
+    width: 84,
+    height: 84,
     marginBottom: theme.spacing[4],
   },
-  avatarText: {
-    fontSize: 36,
-    fontFamily: theme.fontFamily.bold,
-    color: theme.colors.white,
+  cameraBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 26,
+    height: 26,
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.primary,
+    borderWidth: 2,
+    borderColor: theme.colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   name: {
     fontSize: theme.fontSizes['2xl'],

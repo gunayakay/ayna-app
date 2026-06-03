@@ -6,6 +6,7 @@ import { useFocusEffect } from 'expo-router';
 
 import { Text } from '#components/atoms';
 import AddictionWidget from '#components/addiction-widget';
+import MirrorAvatar from '#components/mirror-avatar';
 import CheckInSheet, { InputMode } from '#components/check-in-sheet';
 import GhostWidget from '#components/ghost-widget';
 import ProgressBar from '#components/progress-bar';
@@ -75,6 +76,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
 
   const [userData, setUserData] = useState<OnboardingData | null>(null);
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [widgetValues, setWidgetValues] = useState<Record<string, number>>({});
   const [goalSettings, setGoalSettings] = useState<Record<string, GoalSettings>>({});
   const [goalCategories, setGoalCategories] = useState<Record<string, GoalCategory>>({});
@@ -95,6 +97,7 @@ export default function HomeScreen() {
   }, []);
 
   const loadUserData = async () => {
+    setAvatarUri(await onboardingStorage.getAvatarUri());
     const data = await onboardingStorage.getOnboardingData();
     if (data) {
       setUserData(data);
@@ -192,9 +195,7 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{userInitial}</Text>
-            </View>
+            <MirrorAvatar uri={avatarUri} initial={userInitial} size={48} />
           </View>
           <View style={styles.greetingContainer}>
             <Text style={styles.greeting}>
@@ -409,19 +410,6 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   avatarContainer: {
     marginRight: theme.spacing[3],
-  },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: theme.borderRadius.full,
-    backgroundColor: theme.colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    fontSize: theme.fontSizes.xl,
-    fontFamily: theme.fontFamily.bold,
-    color: theme.colors.white,
   },
   greetingContainer: {
     flex: 1,

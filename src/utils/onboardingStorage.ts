@@ -7,6 +7,7 @@ const STORAGE_KEYS = {
   SELECTED_BLOCKERS: '@ayna/selected_blockers',
   DISCIPLINE_LEVEL: '@ayna/discipline_level',
   USER_NAME: '@ayna/user_name',
+  AVATAR_URI: '@ayna/avatar_uri',
 } as const;
 
 export interface OnboardingData {
@@ -40,6 +41,18 @@ export const onboardingStorage = {
 
   async getUserName(): Promise<string | null> {
     return AsyncStorage.getItem(STORAGE_KEYS.USER_NAME);
+  },
+
+  async saveAvatarUri(uri: string): Promise<void> {
+    await AsyncStorage.setItem(STORAGE_KEYS.AVATAR_URI, uri);
+  },
+
+  async getAvatarUri(): Promise<string | null> {
+    return AsyncStorage.getItem(STORAGE_KEYS.AVATAR_URI);
+  },
+
+  async clearAvatarUri(): Promise<void> {
+    await AsyncStorage.removeItem(STORAGE_KEYS.AVATAR_URI);
   },
 
   async markOnboardingCompleted(): Promise<void> {
@@ -87,6 +100,7 @@ export const onboardingStorage = {
       STORAGE_KEYS.SELECTED_BLOCKERS,
       STORAGE_KEYS.DISCIPLINE_LEVEL,
       STORAGE_KEYS.USER_NAME,
+      STORAGE_KEYS.AVATAR_URI,
     ]);
   },
 };
