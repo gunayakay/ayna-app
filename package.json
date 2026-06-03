@@ -12,7 +12,7 @@
     "ios": "expo run:ios",
     "prebuild": "expo prebuild",
     "test": "jest",
-    "prepare": "husky",
+    "prepare": "husky || true",
     "commit": "cz"
   },
   "dependencies": {
