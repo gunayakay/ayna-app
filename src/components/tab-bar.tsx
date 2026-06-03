@@ -54,18 +54,20 @@ export default function TabBar({ state, descriptors, navigation }: BottomTabBarP
               onPress={onPress}
             />
             {index === midPoint - 1 && (
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={handleAddPress}
-                style={styles.addButton}>
-                <Svg
-                  Icon={PlusIcon}
-                  width={28}
-                  height={28}
-                  stroke={theme.colors.primaryDarker}
-                  strokeWidth={2.5}
-                />
-              </TouchableOpacity>
+              <View style={styles.addSlot}>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={handleAddPress}
+                  style={styles.addButton}>
+                  <Svg
+                    Icon={PlusIcon}
+                    width={28}
+                    height={28}
+                    stroke={theme.colors.primaryDarker}
+                    strokeWidth={2.5}
+                  />
+                </TouchableOpacity>
+              </View>
             )}
           </React.Fragment>
         );
@@ -93,6 +95,11 @@ const stylesheet = StyleSheet.create(theme => ({
     shadowOpacity: 0.15,
     shadowRadius: 10,
   },
+  addSlot: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
   addButton: {
     width: 56,
     height: 56,
@@ -100,10 +107,7 @@ const stylesheet = StyleSheet.create(theme => ({
     borderRadius: theme.borderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    top: -20,
-    left: '50%',
-    marginLeft: -28,
+    marginTop: -20,
     elevation: 8,
     shadowColor: theme.colors.black,
     shadowOffset: {

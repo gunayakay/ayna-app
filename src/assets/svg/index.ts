@@ -55,5 +55,6 @@ export const AddIcon = require('./add-icon.svg');
 export const Heart = require('./heart.svg');
 export const People = require('./people.svg');
 export const Clock = require('./clock.svg');
+export const Chart = require('./chart.svg');
 export const TicketBgV2 = require('./ticket-bg-v2.svg');
 export const Reward = require('./reward.svg');

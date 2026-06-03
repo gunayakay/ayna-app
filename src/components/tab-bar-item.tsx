@@ -4,7 +4,7 @@ import { ActivityIndicator, View, ViewStyle } from 'react-native';
 import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { Home, HomeFilled, User, UserFilled } from '#assets/svg';
+import { Home, HomeFilled, User, UserFilled, Clock, Chart } from '#assets/svg';
 import { ROUTES } from '#constants';
 import { StyleSheet, useStyles } from '#theme/unistyles';
 
@@ -22,16 +22,19 @@ interface TabBarItemProps extends RippleWrapperProps {
 const ICONS: Record<string, SvgComponent> = {
   [ROUTES.HOME]: Home,
   [ROUTES.ACCOUNT]: User,
-  [ROUTES.HISTORY]: Home,
-  [ROUTES.ANALYTICS]: User,
+  [ROUTES.HISTORY]: Clock,
+  [ROUTES.ANALYTICS]: Chart,
 };
 
 const ACTIVE_ICONS: Record<string, SvgComponent> = {
   [ROUTES.HOME]: HomeFilled,
   [ROUTES.ACCOUNT]: UserFilled,
-  [ROUTES.HISTORY]: HomeFilled,
-  [ROUTES.ANALYTICS]: UserFilled,
+  [ROUTES.HISTORY]: Clock,
+  [ROUTES.ANALYTICS]: Chart,
 };
+
+// Bu ikonların "filled" varyantı yok; odakta dolgu yerine primary kontur kullan.
+const OUTLINE_ONLY = new Set<string>([ROUTES.HISTORY, ROUTES.ANALYTICS]);
 
 const LABELS: Record<string, string> = {
   [ROUTES.HOME]: 'Ana Sayfa',
@@ -84,9 +87,9 @@ export default function TabBarItem({
             Icon={isFocused ? ACTIVE_ICONS[name] : ICONS[name]}
             width={24}
             height={24}
-            fill={isFocused ? theme.colors.primary : 'transparent'}
+            fill={!OUTLINE_ONLY.has(name) && isFocused ? theme.colors.primary : 'transparent'}
             stroke={isFocused ? theme.colors.primary : theme.colors.typography.PRIMARY}
-            strokeWidth={isFocused ? 0 : 1.5}
+            strokeWidth={OUTLINE_ONLY.has(name) ? 1.5 : isFocused ? 0 : 1.5}
           />
         )}
         <AnimatedText
