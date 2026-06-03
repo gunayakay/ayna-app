@@ -5,6 +5,19 @@
 
 ---
 
+## Kullanımdan gelen (cihaz testi)
+
+- **Esnek alışkanlık girişi** — hedefi aşan / serbest miktar girilebilmeli. (Örn. günlük 5
+  hedefiyken o gün 15 sayfa okudum → şu an giremiyorum.) Tüm sayı-bazlı alışkanlıklar için.
+  JS — OTA'lanabilir.
+- **Süre-bazlı limit (ekran süresi)** — sosyal medya gibi ekran bağımlılıkları "kaç kez açtın"
+  yerine **süre** ile ölçülmeli:
+  - (a) Manuel dakika girişi — yakın, JS.
+  - (b) iOS Screen Time'dan otomatik çekme (Family Controls / DeviceActivity) — ağır:
+    Apple entitlement + gizlilik incelemesi + native. v2+ araştırma.
+- **Ölçüm tipi genelleştirme** — sayı / süre / miktar gibi farklı ölçüm tipleri
+  (mevcut model çoğunlukla "kaç kez" tek tipi varsayıyor).
+
 ## v2 — yakın
 
 - **Pozitif alışkanlık loop'u** — "yaptım / yapamadım" + "Seni ne durdurdu?" yüzleşme.
