@@ -24,7 +24,9 @@
     },
     "production": {
       "autoIncrement": true,
-      "ios": {},
+      "ios": {
+        "image": "latest"
+      },
       "android": {
         "credentialsSource": "local",
         "gradleCommand": ":app:bundleRelease"

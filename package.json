@@ -13,7 +13,8 @@
     "prebuild": "expo prebuild",
     "test": "jest",
     "prepare": "husky || true",
-    "commit": "cz"
+    "commit": "cz",
+    "eas-build-pre-install": "corepack enable"
   },
   "dependencies": {
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
