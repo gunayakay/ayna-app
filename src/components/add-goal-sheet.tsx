@@ -9,7 +9,6 @@ import {
   BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from './atoms';
 import Svg from './atoms/svg';
@@ -155,7 +154,6 @@ export interface AddGoalSheetProps {
 
 const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAdded }, ref) => {
   const { styles, theme } = useStyles(stylesheet);
-  const { bottom } = useSafeAreaInsets();
 
   const [viewState, setViewState] = useState<SheetView>('category');
   const [selectedCategory, setSelectedCategory] = useState<GoalCategory | null>(null);
@@ -314,7 +312,7 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
       borderRadius: theme.borderRadius['4xl'],
       backgroundColor: theme.colors.background.MODAL,
     },
-    bottomInset: bottom > 0 ? bottom : theme.spacing[4],
+    bottomInset: 0,
     keyboardBehavior: 'interactive' as const,
     keyboardBlurBehavior: 'restore' as const,
   };

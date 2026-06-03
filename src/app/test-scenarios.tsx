@@ -157,14 +157,6 @@ export default function TestScenariosScreen() {
     return md;
   };
 
-  if (!__DEV__) {
-    return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <Text style={styles.muted}>Bu sayfa yalnızca geliştirme modunda kullanılır.</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>

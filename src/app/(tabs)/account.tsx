@@ -159,16 +159,14 @@ export default function AccountScreen() {
         )}
       </View>
 
-      {/* Geliştirme aracı — yalnızca dev modda */}
-      {__DEV__ && (
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={() => router.push('/test-scenarios')}
-          style={styles.devRow}>
-          <Text style={styles.devRowText}>🧪 Test Senaryoları</Text>
-          <Text style={styles.devRowHint}>Yalnızca geliştirme ›</Text>
-        </TouchableOpacity>
-      )}
+      {/* Test aracı — TestFlight/dahili sürümde görünür; halka açık sürümden önce gizlenecek */}
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={() => router.push('/test-scenarios')}
+        style={styles.devRow}>
+        <Text style={styles.devRowText}>🧪 Test Senaryoları</Text>
+        <Text style={styles.devRowHint}>Test turları ›</Text>
+      </TouchableOpacity>
 
       {/* Tehlikeli bölge */}
       <View style={styles.footer}>
