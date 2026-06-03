@@ -13,14 +13,16 @@
       "android": {
         "credentialsSource": "local",
         "gradleCommand": ":app:assembleDebug"
-      }
+      },
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
       "ios": {},
       "android": {
         "buildType": "apk"
-      }
+      },
+      "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
@@ -30,7 +32,8 @@
       "android": {
         "credentialsSource": "local",
         "gradleCommand": ":app:bundleRelease"
-      }
+      },
+      "channel": "production"
     }
   },
   "submit": {

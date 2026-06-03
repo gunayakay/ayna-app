@@ -56,5 +56,9 @@
       "projectId": "19c2b77d-fc0f-41c5-aad3-b4bb46e40232"
     }
   },
-  "owner": "gakay"
+  "owner": "gakay",
+  "runtimeVersion": "1.0.0",
+  "updates": {
+    "url": "https://u.expo.dev/19c2b77d-fc0f-41c5-aad3-b4bb46e40232"
+  }
 }
