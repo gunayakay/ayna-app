@@ -17,6 +17,12 @@
     Apple entitlement + gizlilik incelemesi + native. v2+ araştırma.
 - **Ölçüm tipi genelleştirme** — sayı / süre / miktar gibi farklı ölçüm tipleri
   (mevcut model çoğunlukla "kaç kez" tek tipi varsayıyor).
+- **Kurallı / koşullu limit** — sayısal kota yerine kişisel kural ("aç karına içme",
+  "öğleden önce yok"). Tam bırakamasan da küçük, sürdürülebilir sınırlar. Güçlü,
+  insani harm-reduction; çok on-brand. (Güçlü v2 adayı.)
+- **İçerikli alışkanlık (habit + arşiv)** — alışkanlığa bağlı not/kayıt: öğrenilen
+  tarifler (haftada 1 yeni yemek), okuma notları, denenen şeyler. Alışkanlık +
+  küçük bir günlük/arşiv boyutu.
 
 ## v2 — yakın
 
