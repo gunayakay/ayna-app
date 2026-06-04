@@ -33,6 +33,7 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
   const [mode, setMode] = useState<'abstinence' | 'limit'>('abstinence');
   const [limitPeriod, setLimitPeriod] = useState<'daily' | 'weekly'>('weekly');
   const [limit, setLimit] = useState(3);
+  const [unit, setUnit] = useState<'count' | 'minutes'>('count');
   const [usesCurrent, setUsesCurrent] = useState(0);
   const [usesPrevious, setUsesPrevious] = useState(0);
 
@@ -61,6 +62,7 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
       const period = config.limitPeriod ?? 'weekly';
       setLimitPeriod(period);
       setLimit(config.limit ?? 3);
+      setUnit(config.unit ?? 'count');
       const { current, previous } = await addictionStorage.getUsage(id, period);
       setUsesCurrent(current);
       setUsesPrevious(previous);
@@ -80,8 +82,8 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
     setUsesPrevious(previous);
   };
 
-  const handleLogUse = async () => {
-    await addictionStorage.logUse(id);
+  const handleLogUse = async (amount = 1) => {
+    await addictionStorage.logUse(id, amount);
     await refreshUsage();
   };
 
@@ -90,10 +92,11 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
     await refreshUsage();
   };
 
-  const changeLimit = async (delta: number) => {
-    const next = Math.max(1, limit + delta);
+  const changeLimit = async (direction: number) => {
+    const step = unit === 'minutes' ? 15 : 1;
+    const next = Math.max(step, limit + direction * step);
     setLimit(next);
-    await goalStorage.setAddictionConfig(id, { mode: 'limit', limitPeriod, limit: next });
+    await goalStorage.setAddictionConfig(id, { mode: 'limit', limitPeriod, limit: next, unit });
   };
 
   const openPicker = (mode: PickerMode) => {
@@ -163,13 +166,18 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
             <Text style={styles.timerLabel}>{limitPeriod === 'daily' ? 'BUGÜN' : 'BU HAFTA'}</Text>
             <Text style={styles.timerValue} numberOfLines={1} adjustsFontSizeToFit>
               {usesCurrent} / {limit}
+              {unit === 'minutes' ? ' dk' : ''}
             </Text>
             <Text style={styles.recordText}>
               {usesCurrent < limit
-                ? `${limit - usesCurrent} hakkın kaldı`
+                ? unit === 'minutes'
+                  ? `${limit - usesCurrent} dk kaldı`
+                  : `${limit - usesCurrent} hakkın kaldı`
                 : usesCurrent === limit
                   ? `${limitPeriod === 'daily' ? 'Bugünkü' : 'Bu haftaki'} sınırdasın`
-                  : `${usesCurrent - limit} fazla`}
+                  : unit === 'minutes'
+                    ? `${usesCurrent - limit} dk fazla`
+                    : `${usesCurrent - limit} fazla`}
             </Text>
           </>
         ) : (
@@ -202,25 +210,44 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
                   <Text style={styles.sheetTitle}>{icon}  {title}</Text>
                   <Text style={styles.sheetSubtitle}>
                     {limitPeriod === 'daily' ? 'Bugün' : 'Bu hafta'}: {usesCurrent} / {limit}
+                    {unit === 'minutes' ? ' dk' : ''}
                     {usesPrevious > 0
-                      ? `   ·   ${limitPeriod === 'daily' ? 'dün' : 'geçen hafta'} ${usesPrevious}`
+                      ? `   ·   ${limitPeriod === 'daily' ? 'dün' : 'geçen hafta'} ${usesPrevious}${
+                          unit === 'minutes' ? ' dk' : ''
+                        }`
                       : ''}
                   </Text>
                 </View>
 
-                <TouchableOpacity
-                  style={styles.actionBtn}
-                  activeOpacity={0.7}
-                  onPress={handleLogUse}>
-                  <Text style={styles.actionBtnText}>Kullandım (+1)</Text>
-                </TouchableOpacity>
+                {unit === 'minutes' ? (
+                  <View style={styles.quickAddRow}>
+                    {[15, 30, 60].map(m => (
+                      <TouchableOpacity
+                        key={m}
+                        style={[styles.actionBtn, styles.quickAddBtn]}
+                        activeOpacity={0.7}
+                        onPress={() => handleLogUse(m)}>
+                        <Text style={styles.actionBtnText}>+{m} dk</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.actionBtn}
+                    activeOpacity={0.7}
+                    onPress={() => handleLogUse(1)}>
+                    <Text style={styles.actionBtnText}>Kullandım (+1)</Text>
+                  </TouchableOpacity>
+                )}
 
                 {usesCurrent > 0 && (
                   <TouchableOpacity
                     style={styles.actionBtn}
                     activeOpacity={0.7}
                     onPress={handleUndoUse}>
-                    <Text style={styles.actionBtnText}>Geri al (−1)</Text>
+                    <Text style={styles.actionBtnText}>
+                      {unit === 'minutes' ? 'Son girişi geri al' : 'Geri al (−1)'}
+                    </Text>
                   </TouchableOpacity>
                 )}
 
@@ -233,6 +260,7 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
                   </TouchableOpacity>
                   <Text style={styles.limitLabel}>
                     {limitPeriod === 'daily' ? 'Günlük' : 'Haftalık'} izin: {limit}
+                    {unit === 'minutes' ? ' dk' : ''}
                   </Text>
                   <TouchableOpacity
                     style={styles.limitBtn}
@@ -504,6 +532,13 @@ const stylesheet = StyleSheet.create(theme => ({
     fontFamily: theme.fontFamily.semiBold,
     color: theme.colors.typography.PRIMARY,
     textAlign: 'center',
+  },
+  quickAddRow: {
+    flexDirection: 'row',
+    gap: theme.spacing[2],
+  },
+  quickAddBtn: {
+    flex: 1,
   },
 
   // ── Picker ─────────────────────────────────────────────────────────────────

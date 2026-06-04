@@ -59,17 +59,18 @@ const ADDICTION_ITEMS = [
   { id: 'pornography', name: 'Pornografi', icon: '🔞' },
 ];
 
-// Sınırlama modu için bağımlılığa göre akıllı varsayılan (periyot + sayı)
-const ADDICTION_LIMIT_DEFAULTS: Record<string, { period: 'daily' | 'weekly'; limit: number }> = {
-  smoking: { period: 'daily', limit: 10 },
-  alcohol: { period: 'weekly', limit: 3 },
-  social_media: { period: 'daily', limit: 8 },
-  gaming: { period: 'daily', limit: 2 },
-  sugar: { period: 'daily', limit: 2 },
-  binge_watch: { period: 'weekly', limit: 3 },
-  pornography: { period: 'weekly', limit: 2 },
+// Sınırlama modu için bağımlılığa göre akıllı varsayılan (periyot + miktar + birim)
+type LimitDefault = { period: 'daily' | 'weekly'; limit: number; unit: 'count' | 'minutes' };
+const ADDICTION_LIMIT_DEFAULTS: Record<string, LimitDefault> = {
+  smoking: { period: 'daily', limit: 10, unit: 'count' },
+  alcohol: { period: 'weekly', limit: 3, unit: 'count' },
+  social_media: { period: 'daily', limit: 90, unit: 'minutes' },
+  gaming: { period: 'daily', limit: 60, unit: 'minutes' },
+  sugar: { period: 'daily', limit: 2, unit: 'count' },
+  binge_watch: { period: 'daily', limit: 90, unit: 'minutes' },
+  pornography: { period: 'weekly', limit: 2, unit: 'count' },
 };
-const ADDICTION_LIMIT_FALLBACK = { period: 'weekly' as const, limit: 3 };
+const ADDICTION_LIMIT_FALLBACK: LimitDefault = { period: 'weekly', limit: 3, unit: 'count' };
 
 const HABIT_DEFAULTS: Record<string, { unit?: string; maxValue: number; step?: number }> = {
   water: { maxValue: 8 },
@@ -166,6 +167,7 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
   const [addictionMode, setAddictionMode] = useState<'abstinence' | 'limit'>('abstinence');
   const [limitPeriod, setLimitPeriod] = useState<'daily' | 'weekly'>('weekly');
   const [limitCount, setLimitCount] = useState(3);
+  const [limitUnit, setLimitUnit] = useState<'count' | 'minutes'>('count');
 
   const snapPoints = useMemo(() => {
     if (viewState === 'category') return ['38%'];
@@ -199,6 +201,7 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
     setAddictionMode('abstinence');
     setLimitPeriod('weekly');
     setLimitCount(3);
+    setLimitUnit('count');
   };
 
   const dismiss = () => {
@@ -249,6 +252,7 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
       const d = ADDICTION_LIMIT_DEFAULTS[item.id] ?? ADDICTION_LIMIT_FALLBACK;
       setLimitPeriod(d.period);
       setLimitCount(d.limit);
+      setLimitUnit(d.unit);
       snapTo('settings');
       return;
     }
@@ -289,7 +293,7 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
     await goalStorage.setAddictionConfig(
       selectedItem.id,
       addictionMode === 'limit'
-        ? { mode: 'limit', limitPeriod, limit: limitCount }
+        ? { mode: 'limit', limitPeriod, limit: limitCount, unit: limitUnit }
         : { mode: 'abstinence' }
     );
     if (addictionMode === 'abstinence') {
@@ -520,27 +524,68 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
                   </TouchableOpacity>
                 </View>
 
+                {/* Birim: kez / dakika */}
+                <View style={[styles.periodRow, { marginTop: theme.spacing[2] }]}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      setLimitUnit('count');
+                      setLimitCount(5);
+                    }}
+                    style={[styles.periodBtn, limitUnit === 'count' && styles.periodBtnActive]}>
+                    <Text
+                      style={[
+                        styles.periodBtnText,
+                        limitUnit === 'count' && styles.periodBtnTextActive,
+                      ]}>
+                      Kez
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      setLimitUnit('minutes');
+                      setLimitCount(60);
+                    }}
+                    style={[styles.periodBtn, limitUnit === 'minutes' && styles.periodBtnActive]}>
+                    <Text
+                      style={[
+                        styles.periodBtnText,
+                        limitUnit === 'minutes' && styles.periodBtnTextActive,
+                      ]}>
+                      Dakika
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
                 <Text style={styles.sectionQuestion}>
-                  {limitPeriod === 'daily'
-                    ? 'Günde kaç kez izin veriyorsun?'
-                    : 'Haftada kaç kez izin veriyorsun?'}
+                  {`${limitPeriod === 'daily' ? 'Günde' : 'Haftada'} kaç ${
+                    limitUnit === 'minutes' ? 'dakika' : 'kez'
+                  } izin veriyorsun?`}
                 </Text>
                 <View style={styles.freqCounter}>
                   <TouchableOpacity
                     style={styles.freqCountBtn}
                     activeOpacity={0.7}
-                    onPress={() => setLimitCount(c => Math.max(1, c - 1))}>
+                    onPress={() => {
+                      const step = limitUnit === 'minutes' ? 15 : 1;
+                      setLimitCount(c => Math.max(step, c - step));
+                    }}>
                     <Text style={styles.freqCountBtnText}>−</Text>
                   </TouchableOpacity>
                   <Text style={styles.freqCountValue}>
-                    {limitPeriod === 'daily'
-                      ? `Günde ${limitCount} kez`
-                      : `Haftada ${limitCount} kez`}
+                    {`${limitPeriod === 'daily' ? 'Günde' : 'Haftada'} ${limitCount} ${
+                      limitUnit === 'minutes' ? 'dk' : 'kez'
+                    }`}
                   </Text>
                   <TouchableOpacity
                     style={styles.freqCountBtn}
                     activeOpacity={0.7}
-                    onPress={() => setLimitCount(c => Math.min(50, c + 1))}>
+                    onPress={() => {
+                      const step = limitUnit === 'minutes' ? 15 : 1;
+                      const max = limitUnit === 'minutes' ? 600 : 50;
+                      setLimitCount(c => Math.min(max, c + step));
+                    }}>
                     <Text style={styles.freqCountBtnText}>+</Text>
                   </TouchableOpacity>
                 </View>

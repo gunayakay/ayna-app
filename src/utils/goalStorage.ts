@@ -18,10 +18,14 @@ export type AddictionMode = 'abstinence' | 'limit';
 // Sınırlama periyodu: yüksek-sıklıklı için günlük, seyrek için haftalık
 export type LimitPeriod = 'daily' | 'weekly';
 
+// Ölçü birimi: 'count' = kaç kez, 'minutes' = kaç dakika (ekran bağımlılıkları için)
+export type LimitUnit = 'count' | 'minutes';
+
 export interface AddictionConfig {
   mode: AddictionMode;
   limitPeriod?: LimitPeriod; // yalnızca 'limit' modunda
-  limit?: number;            // periyot başına izin sayısı
+  limit?: number;            // periyot başına izin (kez ya da dakika)
+  unit?: LimitUnit;          // 'count' (varsayılan) | 'minutes'
 }
 
 // How often a habit is expected to be done

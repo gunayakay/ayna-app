@@ -43,6 +43,10 @@ const SCENARIOS: { group: string; items: string[] }[] = [
       'Geri al (−1) çalışıyor',
       'İzni düzenle çalışıyor',
       'BUGÜN / BU HAFTA etiketi doğru',
+      'Birim seçimi (Kez / Dakika) çalışıyor',
+      'Sosyal medya varsayılan: dakika',
+      'Dakika modunda +15/+30/+60 ile süre ekleniyor',
+      'Widget dakika gösteriyor (örn. 45/90 dk)',
     ],
   },
   {

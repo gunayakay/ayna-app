@@ -3,10 +3,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const KEY = '@ayna/addiction_sessions';
 const USES_KEY = '@ayna/addiction_uses';
 
-// One logged use in "limit" mode (harm-reduction). Each tap = one allowance spent.
+// One logged use in "limit" mode (harm-reduction).
+// amount: 'count' biriminde 1 (bir kez); 'minutes' biriminde eklenen dakika.
 export interface AddictionUse {
   goalId: string;
   time: number;
+  amount?: number;
 }
 
 // Start of the week (Monday 00:00) for the given week offset back from now.
@@ -182,10 +184,10 @@ const addictionStorage = {
 
   // ── Limit (sınırlama) modu: kullanım kaydı ──────────────────────────────────
 
-  async logUse(goalId: string, time = Date.now()): Promise<void> {
+  async logUse(goalId: string, amount = 1, time = Date.now()): Promise<void> {
     const raw = await AsyncStorage.getItem(USES_KEY);
     const uses: AddictionUse[] = raw ? JSON.parse(raw) : [];
-    uses.push({ goalId, time });
+    uses.push({ goalId, time, amount });
     await AsyncStorage.setItem(USES_KEY, JSON.stringify(uses));
   },
 
@@ -226,8 +228,9 @@ const addictionStorage = {
     let current = 0;
     let previous = 0;
     for (const u of uses) {
-      if (u.time >= currentStart) current++;
-      else if (u.time >= previousStart) previous++;
+      const amount = u.amount ?? 1;
+      if (u.time >= currentStart) current += amount;
+      else if (u.time >= previousStart) previous += amount;
     }
     return { current, previous };
   },

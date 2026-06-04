@@ -32,6 +32,7 @@ export type {
   AddictionMode,
   AddictionConfig,
   LimitPeriod,
+  LimitUnit,
 } from './goalStorage';
 export { default as battleStorage } from './battleStorage';
 export type { HabitBattle, HabitStats } from './battleStorage';
