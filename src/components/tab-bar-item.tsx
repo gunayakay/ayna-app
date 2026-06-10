@@ -92,12 +92,6 @@ export default function TabBarItem({
             strokeWidth={OUTLINE_ONLY.has(name) ? 1.5 : isFocused ? 0 : 1.5}
           />
         )}
-        <AnimatedText
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          style={[styles.text, animatedFocusStyle]}>
-          {LABELS[name]}
-        </AnimatedText>
       </View>
     </RippleWrapper>
   );

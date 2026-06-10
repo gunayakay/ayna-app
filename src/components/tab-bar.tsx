@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
 
 import { StyleSheet, useStyles } from '#theme/unistyles';
 import { PlusIcon } from '#assets/svg';
@@ -14,13 +15,6 @@ export default function TabBar({ state, descriptors, navigation }: BottomTabBarP
   const { styles, theme } = useStyles(stylesheet);
   const insets = useSafeAreaInsets();
 
-  const wrapperStyle = {
-    height: theme.spacing[12] + insets.bottom + 2 * theme.spacing[2],
-    paddingTop: theme.spacing[2],
-    paddingBottom: insets.bottom > 0 ? insets.bottom : theme.spacing[2],
-    paddingHorizontal: insets.left + insets.right + theme.spacing[2],
-  };
-
   const handleAddPress = () => {
     addGoalSheetRef.open();
   };
@@ -28,93 +22,103 @@ export default function TabBar({ state, descriptors, navigation }: BottomTabBarP
   const midPoint = Math.floor(state.routes.length / 2);
 
   return (
-    <View style={[styles.container, wrapperStyle]}>
-      {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const isFocused = state.index === index;
+    <View
+      style={[styles.wrapper, { bottom: (insets.bottom || 12) }]}
+      pointerEvents="box-none">
+      <View style={styles.shadow}>
+        <BlurView intensity={32} tint="light" style={styles.pill}>
+          <View style={styles.tint} pointerEvents="none" />
+          {state.routes.map((route, index) => {
+            const { options } = descriptors[route.key];
+            const isFocused = state.index === index;
 
-        const onPress = () => {
-          const event = navigation.emit({
-            type: 'tabPress',
-            target: route.key,
-            canPreventDefault: true,
-          });
+            const onPress = () => {
+              const event = navigation.emit({
+                type: 'tabPress',
+                target: route.key,
+                canPreventDefault: true,
+              });
+              if (!isFocused && !event.defaultPrevented) {
+                navigation.navigate(route.name, route.params);
+              }
+            };
 
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name, route.params);
-          }
-        };
+            return (
+              <React.Fragment key={route.key}>
+                <TabBarItem
+                  name={route.name}
+                  isFocused={isFocused}
+                  options={options}
+                  onPress={onPress}
+                />
+                {index === midPoint - 1 && <View style={styles.fabSlot} />}
+              </React.Fragment>
+            );
+          })}
+        </BlurView>
+      </View>
 
-        return (
-          <React.Fragment key={route.key}>
-            <TabBarItem
-              name={route.name}
-              isFocused={isFocused}
-              options={options}
-              onPress={onPress}
-            />
-            {index === midPoint - 1 && (
-              <View style={styles.addSlot}>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={handleAddPress}
-                  style={styles.addButton}>
-                  <Svg
-                    Icon={PlusIcon}
-                    width={28}
-                    height={28}
-                    stroke={theme.colors.primaryDarker}
-                    strokeWidth={2.5}
-                  />
-                </TouchableOpacity>
-              </View>
-            )}
-          </React.Fragment>
-        );
-      })}
+      {/* Kalkık turuncu FAB (+) — pill'in dışında, kırpılmaz */}
+      <TouchableOpacity activeOpacity={0.85} onPress={handleAddPress} style={styles.fab}>
+        <Svg
+          Icon={PlusIcon}
+          width={28}
+          height={28}
+          stroke={theme.colors.typography.PRIMARY}
+          strokeWidth={2.6}
+        />
+      </TouchableOpacity>
     </View>
   );
 }
 
 const stylesheet = StyleSheet.create(theme => ({
-  container: {
+  wrapper: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: theme.colors.white,
+    left: theme.spacing[4],
+    right: theme.spacing[4],
+  },
+  shadow: {
+    borderRadius: 33,
+    shadowColor: 'rgba(120,90,40,1)',
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 14,
+    backgroundColor: 'rgba(255,255,255,0.001)',
+  },
+  pill: {
+    height: 66,
     flexDirection: 'row',
-    borderTopLeftRadius: theme.borderRadius['4xl'],
-    borderTopRightRadius: theme.borderRadius['4xl'],
-    elevation: 20,
-    shadowColor: theme.colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-  },
-  addSlot: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-around',
+    borderRadius: 33,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.7)',
   },
-  addButton: {
+  tint: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.55)',
+  },
+  fabSlot: {
+    width: 64,
+  },
+  fab: {
+    position: 'absolute',
+    top: -16,
+    left: '50%',
+    marginLeft: -28,
     width: 56,
     height: 56,
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius.full,
+    borderRadius: 28,
+    backgroundColor: theme.colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -20,
-    elevation: 8,
-    shadowColor: theme.colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowColor: theme.colors.primary,
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 10,
   },
 }));
