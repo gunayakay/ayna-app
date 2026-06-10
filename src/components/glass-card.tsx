@@ -49,7 +49,11 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   // camın beyazımsı tonu (blur tek başına yeterince opak değil)
   tintOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(255,255,255,0.45)',
     borderRadius: 24,
   },

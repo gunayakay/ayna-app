@@ -189,10 +189,19 @@ export default function HomeScreen() {
 
   const hasAnyWidget = addictionWidgets.length > 0 || habitWidgets.length > 0;
 
-  // ── Hero (B sesi) ──
+  // ── Hero (B sesi + ayna berraklığı) ──
   const doneCount = habitWidgets.filter(w => w.maxValue > 0 && w.value >= w.maxValue).length;
   const totalCount = habitWidgets.length;
   const hero = computeHero(userName, doneCount, totalCount, hasAnyWidget);
+  // Ayna berraklığı: bugünkü ortalama ilerleme (ihmal → buğu). Hedef yoksa berrak.
+  // (Kümülatif/streak mantığı sonraki faz.)
+  const clarity =
+    totalCount > 0
+      ? habitWidgets.reduce(
+          (s, w) => s + (w.maxValue > 0 ? Math.min(1, w.value / w.maxValue) : 0),
+          0
+        ) / totalCount
+      : 1;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -215,7 +224,7 @@ export default function HomeScreen() {
         {/* HERO — büyük ayna + B sesi */}
         <GlassCard radius={28} intensity={26} style={styles.hero}>
           <View style={styles.heroRow}>
-            <MirrorAvatar uri={avatarUri} initial={userInitial} size={84} />
+            <MirrorAvatar uri={avatarUri} initial={userInitial} size={84} clarity={clarity} />
             <View style={styles.heroText}>
               <Text style={styles.heroTitle}>{hero.title}</Text>
               <Text style={styles.heroSub}>{hero.sub}</Text>
