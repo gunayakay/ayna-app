@@ -88,7 +88,7 @@ export default function TabBarItem({
             width={24}
             height={24}
             fill={!OUTLINE_ONLY.has(name) && isFocused ? theme.colors.primary : 'transparent'}
-            stroke={isFocused ? theme.colors.primary : theme.colors.typography.PRIMARY}
+            stroke={isFocused ? theme.colors.primary : theme.colors.typography.SECONDARY}
             strokeWidth={OUTLINE_ONLY.has(name) ? 1.5 : isFocused ? 0 : 1.5}
           />
         )}

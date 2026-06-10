@@ -3,6 +3,7 @@ import { View, TouchableOpacity } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { StyleSheet, useStyles } from '#theme/unistyles';
 import { PlusIcon } from '#assets/svg';
@@ -58,15 +59,21 @@ export default function TabBar({ state, descriptors, navigation }: BottomTabBarP
         </BlurView>
       </View>
 
-      {/* Kalkık turuncu FAB (+) — pill'in dışında, kırpılmaz */}
+      {/* Kalkık gradient FAB (+) — pill'in dışında, kırpılmaz */}
       <TouchableOpacity activeOpacity={0.85} onPress={handleAddPress} style={styles.fab}>
-        <Svg
-          Icon={PlusIcon}
-          width={28}
-          height={28}
-          stroke={theme.colors.typography.PRIMARY}
-          strokeWidth={2.6}
-        />
+        <LinearGradient
+          colors={['#FFB463', '#F0860F']}
+          start={{ x: 0.25, y: 0 }}
+          end={{ x: 0.8, y: 1 }}
+          style={styles.fabFill}>
+          <Svg
+            Icon={PlusIcon}
+            width={28}
+            height={28}
+            stroke={theme.colors.typography.PRIMARY}
+            strokeWidth={2.6}
+          />
+        </LinearGradient>
       </TouchableOpacity>
     </View>
   );
@@ -112,13 +119,17 @@ const stylesheet = StyleSheet.create(theme => ({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: theme.colors.primary,
+    shadowColor: '#F0860F',
+    shadowOpacity: 0.55,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 7 },
+    elevation: 10,
+  },
+  fabFill: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: theme.colors.primary,
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 10,
   },
 }));
