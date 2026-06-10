@@ -82,6 +82,7 @@ export default function HomeScreen() {
   const [goalSettings, setGoalSettings] = useState<Record<string, GoalSettings>>({});
   const [goalCategories, setGoalCategories] = useState<Record<string, GoalCategory>>({});
   const [activeSheetId, setActiveSheetId] = useState<string | null>(null);
+  const [clarity, setClarity] = useState(1); // ayna berraklığı (kümülatif, son 3 gün)
 
   const sheetRef = useRef<BottomSheetModal>(null);
 
@@ -137,6 +138,41 @@ export default function HomeScreen() {
     }
 
     setWidgetValues(initialValues);
+
+    // ── Ayna berraklığı (kümülatif, son 3 gün · recency-ağırlıklı) ──
+    // İhmal → buğu birikir; ardışık iyi günler → berraklaşır (~3 gün streak temizler).
+    const habitGoalIds = activeGoals.filter(
+      gid => WIDGET_CONFIG[gid] && categories[gid] !== 'addiction'
+    );
+    if (habitGoalIds.length === 0) {
+      setClarity(1);
+    } else {
+      const weights = [1, 0.7, 0.45]; // bugün, dün, evvelsi gün
+      let wsum = 0;
+      let csum = 0;
+      for (let i = 0; i < weights.length; i++) {
+        const dk = getDayKey(Date.now() - i * 86400000);
+        let goalSum = 0;
+        let goalN = 0;
+        for (const gid of habitGoalIds) {
+          const cfg = WIDGET_CONFIG[gid];
+          const mx = settings[gid]?.targetValue ?? cfg.maxValue;
+          if (mx <= 0) continue;
+          let dayVal = 0;
+          for (const b of allBattles) {
+            if (b.goalId === gid && getDayKey(b.timestamp) === dk) {
+              dayVal = Math.max(dayVal, b.value);
+            }
+          }
+          goalSum += Math.min(1, dayVal / mx);
+          goalN++;
+        }
+        const dayCompletion = goalN > 0 ? goalSum / goalN : 0;
+        csum += dayCompletion * weights[i];
+        wsum += weights[i];
+      }
+      setClarity(wsum > 0 ? csum / wsum : 1);
+    }
   };
 
   const greeting = getGreeting();
@@ -195,15 +231,7 @@ export default function HomeScreen() {
   const doneCount = habitWidgets.filter(w => w.maxValue > 0 && w.value >= w.maxValue).length;
   const totalCount = habitWidgets.length;
   const hero = computeHero(userName, doneCount, totalCount, hasAnyWidget);
-  // Ayna berraklığı: bugünkü ortalama ilerleme (ihmal → buğu). Hedef yoksa berrak.
-  // (Kümülatif/streak mantığı sonraki faz.)
-  const clarity =
-    totalCount > 0
-      ? habitWidgets.reduce(
-          (s, w) => s + (w.maxValue > 0 ? Math.min(1, w.value / w.maxValue) : 0),
-          0
-        ) / totalCount
-      : 1;
+  // clarity artık state'te (loadUserData'da kümülatif son-3-gün hesaplanıyor)
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
