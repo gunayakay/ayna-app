@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Text } from '#components/atoms';
 import AddictionWidget from '#components/addiction-widget';
@@ -74,6 +74,7 @@ function deriveInputMode(config: { maxValue: number; unit?: string }): InputMode
 export default function HomeScreen() {
   const { styles, theme } = useStyles(stylesheet);
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   const [userData, setUserData] = useState<OnboardingData | null>(null);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
@@ -95,6 +96,7 @@ export default function HomeScreen() {
   useEffect(() => {
     return addGoalSheetRef.onGoalsChanged(loadUserData);
   }, []);
+
 
   const loadUserData = async () => {
     setAvatarUri(await onboardingStorage.getAvatarUri());
@@ -277,7 +279,19 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     key={widget.id}
                     activeOpacity={0.85}
-                    onPress={() => handleWidgetPress(widget.id)}>
+                    onPress={() =>
+                      router.push({
+                        pathname: '/goal/[id]',
+                        params: {
+                          id: widget.id,
+                          icon: widget.icon,
+                          title: widget.title,
+                          unit: unitLabel,
+                          maxValue: String(widget.maxValue),
+                          value: String(widget.value),
+                        },
+                      })
+                    }>
                     <GlassCard radius={22}>
                       <View style={styles.row}>
                         <Text style={styles.rowEmoji}>{widget.icon}</Text>
@@ -290,7 +304,12 @@ export default function HomeScreen() {
                             {' / '}{widget.maxValue} {unitLabel}
                           </Text>
                         </View>
-                        <ProgressRing progress={progress} mode={done ? 'done' : 'plus'} />
+                        <TouchableOpacity
+                          activeOpacity={0.7}
+                          onPress={() => handleWidgetPress(widget.id)}
+                          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                          <ProgressRing progress={progress} mode={done ? 'done' : 'plus'} />
+                        </TouchableOpacity>
                       </View>
                     </GlassCard>
                   </TouchableOpacity>
