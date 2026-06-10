@@ -4,7 +4,7 @@ import { TouchableOpacity, View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Camera, Gallery } from '#assets/svg';
 
@@ -68,7 +68,7 @@ ImagePickerUploadSheet.displayName = 'ImagePickerUploadSheet';
 
 export default memo(ImagePickerUploadSheet);
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     padding: theme.spacing[4],
     justifyContent: 'center',

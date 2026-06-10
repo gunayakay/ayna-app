@@ -1,6 +1,6 @@
 import { TouchableOpacity } from 'react-native';
 
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from '#components/atoms';
 
@@ -18,7 +18,7 @@ export default function ActionLink({ text, onPress }: ActionLinkProps) {
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   linkText: {
     fontFamily: theme.fontFamily.medium,
     color: theme.colors.typography.PRIMARY[800],

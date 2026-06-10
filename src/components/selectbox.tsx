@@ -12,7 +12,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { FlashList } from '@shopify/flash-list';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Check, DownArrowIcon } from '#assets/svg';
 
@@ -238,7 +238,7 @@ const SelectBox = forwardRef(
   }
 );
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   textInputWrapper: {
     position: 'relative',
   },

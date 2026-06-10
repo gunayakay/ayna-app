@@ -1,6 +1,6 @@
 import { StyleProp, View, ViewStyle } from 'react-native';
 
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 interface RowProps {
   children: React.ReactNode;
@@ -20,7 +20,7 @@ export default function Row({ children, gap = 8, style, justifyContent }: RowPro
   return <View style={[styles.container(gap), { justifyContent }, style]}>{children}</View>;
 }
 
-const stylesheet = createStyleSheet(() => ({
+const stylesheet = StyleSheet.create(() => ({
   container: (gap: number) => ({
     flexDirection: 'row',
     alignItems: 'center',

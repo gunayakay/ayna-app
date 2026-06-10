@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 export interface ProgressBarProps {
   progress: number; // 0-1
@@ -39,7 +39,7 @@ export default function ProgressBar({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     width: '100%',
     borderRadius: theme.borderRadius.full,

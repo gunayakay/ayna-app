@@ -22,7 +22,7 @@ import {
 
 import { MaskedTextInput, MaskedTextInputProps } from 'react-native-mask-text';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import Svg, { SvgComponent } from './svg';
 import Text from './text';
@@ -244,7 +244,7 @@ const TextInput = forwardRef<TextInputHandle, TextInputProps>(
   }
 );
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: variant => ({
     alignItems: 'stretch',
     justifyContent: variant === 'textArea' ? 'flex-start' : 'center',

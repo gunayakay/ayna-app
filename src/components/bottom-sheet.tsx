@@ -10,7 +10,7 @@ import {
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 export interface Props extends BottomSheetModalProps {
   children: React.ReactNode;
@@ -89,7 +89,7 @@ const BottomSheet = forwardRef<BottomSheetModal, Props>(
   }
 );
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     flex: 1,
   },

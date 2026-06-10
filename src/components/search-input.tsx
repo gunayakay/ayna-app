@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 
 import { useTranslation } from 'react-i18next';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import TextInput from './atoms/text-input';
 
@@ -27,7 +27,7 @@ export default function SearchInput({
   );
 }
 
-const stylesheet = createStyleSheet(() => ({
+const stylesheet = StyleSheet.create(() => ({
   searchContainer: {
     width: '100%',
   },

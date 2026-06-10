@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from '../atoms';
 
@@ -66,7 +66,7 @@ export default function TimeQuickPick({ value, maxValue, unit, onValueChange }: 
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     alignItems: 'center',
     gap: theme.spacing[4],

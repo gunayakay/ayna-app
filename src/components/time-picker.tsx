@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import { Path, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { TIME_DATA } from '#constants';
 
@@ -63,7 +63,7 @@ export default function TimePicker<
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   title: {
     fontSize: theme.fontSizes.md,
     color: theme.colors.typography.PRIMARY[900],

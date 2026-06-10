@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { Text as RNText, TextProps as RNTextProps } from 'react-native';
 
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 interface TextProps extends RNTextProps {
   children?: React.ReactNode;
@@ -25,7 +25,7 @@ const Text = forwardRef<RNText, TextProps>(({ children, style, ...rest }, ref) =
   );
 });
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   text: {
     fontFamily: theme.fontFamily.PRIMARY,
     color: theme.colors.typography.PRIMARY[600],

@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { UseQueryResult } from '@tanstack/react-query';
 import { FieldValues, useController, UseControllerProps } from 'react-hook-form';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { ISelectOption } from '#types/select';
 import { normalizePlainText, Result } from '#utils';
@@ -98,7 +98,7 @@ export default function ControlledRemoteSelectBox<
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   controlledInputWrapper: {
     width: '100%',
   },

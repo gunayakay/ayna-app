@@ -2,7 +2,7 @@ import { createRef, forwardRef, useCallback, useImperativeHandle } from 'react';
 import { Linking, Platform } from 'react-native';
 
 import { useTranslation } from 'react-i18next';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Button } from '#components';
 import { useModal } from '#hooks';
@@ -58,7 +58,7 @@ VersionModal.hide = function () {
   modalRef.current?.hideModal();
 };
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   modalDescription: {
     fontFamily: theme.fontFamily.regular,
     color: theme.colors.typography.PRIMARY[500],

@@ -2,7 +2,7 @@ import React, { forwardRef, useCallback, useMemo, useState } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from './atoms';
 import Svg from './atoms/svg';
@@ -181,7 +181,7 @@ const CheckInSheet = forwardRef<BottomSheetModal, CheckInSheetProps>(
   }
 );
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     padding: theme.spacing[5],
     alignItems: 'center',

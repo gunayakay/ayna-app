@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 
 import { ToastConfigParams } from 'react-native-toast-message';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Cross } from '#assets/svg';
 import { hide } from '#lib';
@@ -25,7 +25,8 @@ export interface ToastProps extends ToastConfigParams<BaseToastProps> {}
  * @returns {React.ReactElement} The Toast component.
  */
 export default function Toast({ props: { variant = 'success', content } }: ToastProps) {
-  const { styles, theme } = useStyles(stylesheet, { variant: variant });
+  const { styles, theme } = useStyles(stylesheet);
+  styles.useVariants({ variant });
 
   return (
     <View style={styles.container}>
@@ -51,7 +52,7 @@ export const toastConfig = {
   },
 };
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     width: '95%',
     marginTop: theme.spacing[5],

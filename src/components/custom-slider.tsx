@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, PanResponder, LayoutChangeEvent } from 'react-native';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 export interface CustomSliderProps {
   value: number;
@@ -91,7 +91,7 @@ export default function CustomSlider({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     height: 40,
     justifyContent: 'center',

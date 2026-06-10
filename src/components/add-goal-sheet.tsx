@@ -8,7 +8,7 @@ import {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from './atoms';
 import Svg from './atoms/svg';
@@ -764,7 +764,7 @@ function CatalogCard({
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   // ── Category ──────────────────────────────────────────────────────────────
   categoryContainer: {
     flex: 1,

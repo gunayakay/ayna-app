@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { StyleProp, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 import Constants from 'expo-constants';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Container, Svg, Text } from './atoms';
 import { SvgComponent } from './atoms/svg';
@@ -65,7 +65,7 @@ export default function MainHeader({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: (headerPercentage: any) => ({
     position: 'relative',
     height: headerPercentage,

@@ -1,6 +1,6 @@
 import { TouchableOpacity, View } from 'react-native';
 
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Close } from '#assets/svg';
 
@@ -26,7 +26,7 @@ export default function BottomSheetHeader({ title, handleClose }: BottomSheetHea
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   bottomSheetHeader: {
     justifyContent: 'flex-start',
     borderBottomWidth: 1,

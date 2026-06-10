@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef, useState } from 'react';
-import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
+import { Dimensions, Pressable, View } from 'react-native';
 
 import { Portal } from '@gorhom/portal';
 import Animated, {
@@ -9,7 +9,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 import { SnapbackZoom } from 'react-native-zoom-toolkit';
 
 export interface ZoomToCenterProps {
@@ -133,7 +133,7 @@ function ZoomToCenter({
 
 export default memo(ZoomToCenter);
 
-const stylesheet = createStyleSheet(() => ({
+const stylesheet = StyleSheet.create(() => ({
   container: {
     flex: 1,
     ...StyleSheet.absoluteFillObject,

@@ -2,7 +2,7 @@ import { forwardRef, useCallback } from 'react';
 import { View } from 'react-native';
 
 import MapView, { Region } from 'react-native-maps';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { LocationPin } from '#assets/svg';
 import { Loading } from '#components';
@@ -72,7 +72,7 @@ const MapPicker = forwardRef<MapView, MapPickerProps>(
   }
 );
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     flex: 1,
     width: '100%',

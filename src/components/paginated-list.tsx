@@ -3,7 +3,7 @@ import { ActivityIndicator, View } from 'react-native';
 
 import { FlashList, FlashListProps } from '@shopify/flash-list';
 import { useTranslation } from 'react-i18next';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from './atoms';
 
@@ -57,7 +57,7 @@ export default function PaginatedList<T>({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   loading: {
     padding: theme.spacing[4],
   },

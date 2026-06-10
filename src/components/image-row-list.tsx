@@ -3,7 +3,7 @@ import { RefreshControl, View } from 'react-native';
 
 import { FlashList } from '@shopify/flash-list';
 import { useTranslation } from 'react-i18next';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Item } from '#types/item';
 
@@ -61,7 +61,7 @@ export default function ImageRowList({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',

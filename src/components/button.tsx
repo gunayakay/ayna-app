@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { RippleWrapper, Text } from './atoms';
 import { RippleWrapperProps } from './atoms/ripple-wrapper';
@@ -37,7 +37,8 @@ export default function Button({
   enableLoading = false,
   ...rest
 }: ButtonProps) {
-  const { styles, theme } = useStyles(stylesheet, { variant: variant });
+  const { styles, theme } = useStyles(stylesheet);
+  styles.useVariants({ variant });
 
   const VARIANT_SVG_FILL_COLORS = {
     primary: theme.colors.white,
@@ -88,7 +89,7 @@ export default function Button({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   button: {
     width: '100%',
     backgroundColor: theme.colors.primary,

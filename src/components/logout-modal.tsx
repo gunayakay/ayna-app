@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 
 import { useTranslation } from 'react-i18next';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Button, Modal } from '#components';
 import { Text } from '#components/atoms';
@@ -33,7 +33,7 @@ export default function ProfileModal({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   modalMessage: {
     textAlign: 'center',
     fontSize: theme.fontSizes.sm,

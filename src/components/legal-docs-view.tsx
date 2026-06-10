@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { ROUTES } from '#constants';
 
@@ -36,7 +36,7 @@ export default function LegalDocsView() {
   );
 }
 
-const stylesheet = createStyleSheet(() => ({
+const stylesheet = StyleSheet.create(() => ({
   container: {
     flex: 1,
   },

@@ -7,7 +7,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Check } from '#assets/svg';
 
@@ -118,7 +118,7 @@ export default function Checkbox({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: disabled => ({
     flexDirection: 'row-reverse',
     justifyContent: 'flex-end',
