@@ -45,7 +45,10 @@
   },
   "ios": {
     "bundleIdentifier": "com.ayna",
-    "infoPlist": {}
+    "infoPlist": {
+      "ITSAppUsesNonExemptEncryption": false,
+      "NSPhotoLibraryUsageDescription": "Profil fotoğrafını seçebilmen için galerine erişim gerekiyor. Fotoğraf yalnızca bu cihazda saklanır."
+    }
   },
   "newArchEnabled": true,
   "extra": {
