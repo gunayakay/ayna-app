@@ -5,6 +5,8 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 
 import { StyleSheet, useStyles } from '#theme/unistyles';
 import { Text } from './atoms';
+import GlassCard from './glass-card';
+import ProgressRing from './progress-ring';
 import { addictionStorage, formatDuration, goalStorage } from '#/utils';
 
 type PickerMode = 'edit-start' | 'new-round';
@@ -153,44 +155,62 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
 
   const snapPoints = useMemo(() => ['50%', '85%'], []);
 
+  // dolma halka: limit modunda kullanım/sınır, direniş modunda aktif tur/rekor
+  const best = personalBest ?? 0;
+  const ringPct =
+    mode === 'limit'
+      ? limit > 0
+        ? Math.min(1, usesCurrent / limit)
+        : 0
+      : best > 0
+        ? Math.min(1, elapsed / best)
+        : 0;
+
   return (
     <>
-      {/* ── Small card ─────────────────────────────────────────────────────── */}
+      {/* ── Kompakt glass satır (anasayfa) ─────────────────────────────────── */}
       <TouchableOpacity
         activeOpacity={0.85}
-        onPress={() => { setPickerMode(null); sheetRef.current?.present(); }}
-        style={styles.card}>
-        <Text style={styles.cardHeader}>{icon} {title}</Text>
-        {mode === 'limit' ? (
-          <>
-            <Text style={styles.timerLabel}>{limitPeriod === 'daily' ? 'BUGÜN' : 'BU HAFTA'}</Text>
-            <Text style={styles.timerValue} numberOfLines={1} adjustsFontSizeToFit>
-              {usesCurrent} / {limit}
-              {unit === 'minutes' ? ' dk' : ''}
-            </Text>
-            <Text style={styles.recordText}>
-              {usesCurrent < limit
-                ? unit === 'minutes'
-                  ? `${limit - usesCurrent} dk kaldı`
-                  : `${limit - usesCurrent} hakkın kaldı`
-                : usesCurrent === limit
-                  ? `${limitPeriod === 'daily' ? 'Bugünkü' : 'Bu haftaki'} sınırdasın`
-                  : unit === 'minutes'
-                    ? `${usesCurrent - limit} dk fazla`
-                    : `${usesCurrent - limit} fazla`}
-            </Text>
-          </>
-        ) : (
-          <>
-            <Text style={styles.timerLabel}>AKTİF TUR</Text>
-            <Text style={styles.timerValue} numberOfLines={1} adjustsFontSizeToFit>
-              {sessionStart !== null ? formatDuration(elapsed) : '—'}
-            </Text>
-            {personalBest !== null && (
-              <Text style={styles.recordText}>🏆 {formatDuration(personalBest)}</Text>
-            )}
-          </>
-        )}
+        onPress={() => { setPickerMode(null); sheetRef.current?.present(); }}>
+        <GlassCard radius={22}>
+          <View style={styles.row}>
+            <Text style={styles.rowEmoji}>{icon}</Text>
+            <View style={styles.rowMid}>
+              <Text style={styles.rowName}>{title}</Text>
+              {mode === 'limit' ? (
+                <Text style={styles.rowSub} numberOfLines={1}>
+                  {limitPeriod === 'daily' ? 'bugün ' : 'bu hafta '}
+                  <Text style={styles.rowVal}>
+                    {usesCurrent}/{limit}{unit === 'minutes' ? ' dk' : ''}
+                  </Text>
+                  {usesCurrent < limit
+                    ? unit === 'minutes'
+                      ? ` · ${limit - usesCurrent} dk kaldı`
+                      : ` · ${limit - usesCurrent} hakkın kaldı`
+                    : usesCurrent === limit
+                      ? ' · sınırdasın'
+                      : unit === 'minutes'
+                        ? ` · ${usesCurrent - limit} dk fazla`
+                        : ` · ${usesCurrent - limit} fazla`}
+                </Text>
+              ) : (
+                <Text style={styles.rowSub} numberOfLines={1}>
+                  aktif tur{' '}
+                  <Text style={styles.rowVal}>
+                    {sessionStart !== null ? formatDuration(elapsed) : '—'}
+                  </Text>
+                  {best > 0 ? ` · 🏆 ${formatDuration(best)}` : ''}
+                </Text>
+              )}
+            </View>
+            <ProgressRing
+              progress={ringPct}
+              mode="percent"
+              label={`${Math.round(ringPct * 100)}%`}
+              color={mode === 'limit' ? '#FFB86B' : undefined}
+            />
+          </View>
+        </GlassCard>
       </TouchableOpacity>
 
       {/* ── Bottom sheet ────────────────────────────────────────────────────── */}
@@ -414,7 +434,33 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
 }
 
 const stylesheet = StyleSheet.create(theme => ({
-  // ── Card ──────────────────────────────────────────────────────────────────
+  // ── Kompakt glass satır ─────────────────────────────────────────────────────
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[3],
+    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[4],
+  },
+  rowEmoji: { fontSize: 24, width: 32, textAlign: 'center' },
+  rowMid: { flex: 1, minWidth: 0 },
+  rowName: {
+    fontSize: theme.fontSizes.base,
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.typography.PRIMARY,
+  },
+  rowSub: {
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.typography.SECONDARY,
+    marginTop: 2,
+  },
+  rowVal: {
+    fontFamily: theme.fontFamily.extraBold,
+    color: theme.colors.typography.PRIMARY,
+  },
+
+  // ── Card (eski, kullanılmıyor) ──────────────────────────────────────────────
   card: {
     backgroundColor: theme.colors.white,
     borderRadius: theme.borderRadius['6xl'],
