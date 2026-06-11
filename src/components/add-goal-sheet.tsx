@@ -15,7 +15,7 @@ import { Text } from './atoms';
 import Svg from './atoms/svg';
 import Button from './button';
 import { BackArrow } from '#assets/svg';
-import { goalStorage, addictionStorage } from '#/utils';
+import { goalStorage, addictionStorage, discoveryStorage } from '#/utils';
 import type { GoalCategory, HabitFrequency } from '#/utils';
 
 // ─── Catalog data ─────────────────────────────────────────────────────────────
@@ -139,7 +139,7 @@ const FREQ_OPTIONS = [
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type SheetView = 'category' | 'catalog' | 'settings';
+type SheetView = 'category' | 'catalog' | 'settings' | 'discovery';
 
 interface CatalogItem {
   id: string;
@@ -167,12 +167,14 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
   const [freqCount, setFreqCount] = useState(3);
   const [addictionMode, setAddictionMode] = useState<'abstinence' | 'limit' | 'rule'>('abstinence');
   const [rule, setRule] = useState('');
+  const [discoveryName, setDiscoveryName] = useState('');
   const [limitPeriod, setLimitPeriod] = useState<'daily' | 'weekly'>('weekly');
   const [limitCount, setLimitCount] = useState(3);
   const [limitUnit, setLimitUnit] = useState<'count' | 'minutes'>('count');
 
   const snapPoints = useMemo(() => {
     if (viewState === 'category') return ['38%'];
+    if (viewState === 'discovery') return ['54%'];
     if (viewState === 'catalog') return ['80%'];
     if (selectedItem?.category === 'addiction') {
       return addictionMode === 'limit' ? ['82%'] : addictionMode === 'rule' ? ['72%'] : ['58%'];
@@ -307,6 +309,15 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
     dismiss();
   };
 
+  const handleCreateDiscovery = async () => {
+    const t = discoveryName.trim();
+    if (!t) return;
+    await discoveryStorage.addItem('🌱', t);
+    setDiscoveryName('');
+    onGoalAdded?.();
+    dismiss();
+  };
+
   // ── Shared modal props ───────────────────────────────────────────────────────
 
   const sharedModalProps = {
@@ -351,6 +362,55 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
               <Text style={styles.categoryCardDesc}>Durdurmak istediğin şeyler</Text>
             </TouchableOpacity>
           </View>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => snapTo('discovery')}
+            style={styles.discoveryCard}>
+            <Text style={styles.discoveryIcon}>✨</Text>
+            <View style={styles.discoveryText}>
+              <Text style={styles.categoryCardTitle}>Keşfet</Text>
+              <Text style={styles.categoryCardDesc}>Yeni bir şey dene, arşivle (haftada 1 yeni yemek gibi)</Text>
+            </View>
+          </TouchableOpacity>
+        </BottomSheetView>
+      </BottomSheetModal>
+    );
+  }
+
+  // ── Discovery (yeni keşif) view ──────────────────────────────────────────────
+
+  if (viewState === 'discovery') {
+    return (
+      <BottomSheetModal {...sharedModalProps}>
+        <BottomSheetView style={styles.categoryContainer}>
+          <View style={styles.sheetHeader}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => snapTo('category')}
+              style={styles.iconBtn}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <Svg Icon={BackArrow} width={22} height={22} stroke={theme.colors.typography.PRIMARY} />
+            </TouchableOpacity>
+            <Text style={styles.sheetTitle}>Yeni keşif</Text>
+          </View>
+          <Text style={styles.discoveryHint}>
+            Denemek istediğin yeni bir şey — yeni yemek, dil, enstrüman, tarif… Denedikçe arşive birikir.
+          </Text>
+          <BottomSheetTextInput
+            style={styles.ruleInput}
+            value={discoveryName}
+            onChangeText={setDiscoveryName}
+            placeholder="Örn. Yeni yemek dene"
+            placeholderTextColor={theme.colors.typography.TERTIARY}
+            autoFocus
+          />
+          <Button
+            onPress={handleCreateDiscovery}
+            style={styles.actionButton}
+            disabled={discoveryName.trim().length === 0}>
+            Keşfe Başla
+          </Button>
         </BottomSheetView>
       </BottomSheetModal>
     );
@@ -851,6 +911,25 @@ const stylesheet = StyleSheet.create(theme => ({
     fontFamily: theme.fontFamily.regular,
     color: theme.colors.typography.SECONDARY,
     textAlign: 'center',
+  },
+  discoveryCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[3],
+    marginTop: theme.spacing[3],
+    padding: theme.spacing[4],
+    borderRadius: theme.borderRadius['4xl'],
+    backgroundColor: theme.colors.primaryLightest,
+  },
+  discoveryIcon: { fontSize: 28 },
+  discoveryText: { flex: 1 },
+  discoveryHint: {
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fontFamily.regular,
+    color: theme.colors.typography.SECONDARY,
+    lineHeight: 21,
+    marginTop: theme.spacing[2],
+    marginBottom: theme.spacing[2],
   },
 
   // ── Shared header ──────────────────────────────────────────────────────────

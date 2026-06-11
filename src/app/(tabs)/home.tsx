@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -189,18 +189,6 @@ export default function HomeScreen() {
     setDiscoveryWeek(await discoveryStorage.getThisWeekByItem());
   };
 
-  const handleAddDiscovery = () => {
-    Alert.prompt?.(
-      'Yeni keşif',
-      'Denemek istediğin yeni bir şey (ör. yeni yemek, dil, enstrüman)',
-      async (text?: string) => {
-        const t = (text ?? '').trim();
-        if (!t) return;
-        await discoveryStorage.addItem('🌱', t);
-        loadUserData();
-      }
-    );
-  };
 
   const greeting = getGreeting();
   const userName = userData?.userName || 'Kullanıcı';
@@ -374,51 +362,41 @@ export default function HomeScreen() {
           </>
         )}
 
-        {/* Keşfet — içerikli alışkanlık (dene + arşiv) */}
-        <Text style={styles.sectionTitle}>Keşfet</Text>
-        <View style={styles.rows}>
-          {discoveryItems.map(item => {
-            const week = discoveryWeek[item.id];
-            return (
-              <TouchableOpacity
-                key={item.id}
-                activeOpacity={0.85}
-                onPress={() =>
-                  router.push({
-                    pathname: '/discovery/[id]',
-                    params: { id: item.id, emoji: item.emoji, title: item.title },
-                  })
-                }>
-                <GlassCard radius={22}>
-                  <View style={styles.row}>
-                    <Text style={styles.rowEmoji}>{item.emoji}</Text>
-                    <View style={styles.rowMid}>
-                      <Text style={styles.rowName}>{item.title}</Text>
-                      <Text style={styles.rowSub} numberOfLines={1}>
-                        haftada 1 · {week ? <Text style={styles.rowVal}>{week.text}</Text> : 'bu hafta eklenmedi'}
-                      </Text>
-                    </View>
-                    <ProgressRing progress={week ? 1 : 0} mode={week ? 'done' : 'plus'} />
-                  </View>
-                </GlassCard>
-              </TouchableOpacity>
-            );
-          })}
-          <TouchableOpacity activeOpacity={0.7} onPress={handleAddDiscovery}>
-            <GlassCard radius={22}>
-              <View style={styles.row}>
-                <Text style={styles.rowEmoji}>✨</Text>
-                <View style={styles.rowMid}>
-                  <Text style={[styles.rowName, { color: theme.colors.typography.SECONDARY }]}>
-                    Yeni keşif ekle
-                  </Text>
-                  <Text style={styles.rowSub}>dene, arşivle</Text>
-                </View>
-                <Text style={styles.addPlus}>+</Text>
-              </View>
-            </GlassCard>
-          </TouchableOpacity>
-        </View>
+        {/* Keşfet — içerikli alışkanlık (dene + arşiv). Ekleme + butonundan. */}
+        {discoveryItems.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Keşfet</Text>
+            <View style={styles.rows}>
+              {discoveryItems.map(item => {
+                const week = discoveryWeek[item.id];
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    activeOpacity={0.85}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/discovery/[id]',
+                        params: { id: item.id, emoji: item.emoji, title: item.title },
+                      })
+                    }>
+                    <GlassCard radius={22}>
+                      <View style={styles.row}>
+                        <Text style={styles.rowEmoji}>{item.emoji}</Text>
+                        <View style={styles.rowMid}>
+                          <Text style={styles.rowName}>{item.title}</Text>
+                          <Text style={styles.rowSub} numberOfLines={1}>
+                            haftada 1 · {week ? <Text style={styles.rowVal}>{week.text}</Text> : 'bu hafta eklenmedi'}
+                          </Text>
+                        </View>
+                        <ProgressRing progress={week ? 1 : 0} mode={week ? 'done' : 'plus'} />
+                      </View>
+                    </GlassCard>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </>
+        )}
 
         {/* Boş durum */}
         {!hasAnyWidget && discoveryItems.length === 0 && (
@@ -625,13 +603,6 @@ const stylesheet = StyleSheet.create(theme => ({
   rowVal: {
     fontFamily: theme.fontFamily.extraBold,
     color: theme.colors.typography.PRIMARY,
-  },
-  addPlus: {
-    width: 44,
-    textAlign: 'center',
-    fontSize: 24,
-    fontFamily: theme.fontFamily.medium,
-    color: theme.colors.primaryDarker,
   },
   // empty
   emptyState: {
