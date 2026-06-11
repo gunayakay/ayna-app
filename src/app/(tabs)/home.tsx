@@ -98,7 +98,6 @@ export default function HomeScreen() {
     return addGoalSheetRef.onGoalsChanged(loadUserData);
   }, []);
 
-
   const loadUserData = async () => {
     setAvatarUri(await onboardingStorage.getAvatarUri());
     const data = await onboardingStorage.getOnboardingData();

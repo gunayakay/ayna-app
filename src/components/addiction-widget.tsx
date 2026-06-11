@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Modal, Platform, TouchableOpacity, View } from 'react-native';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { useRouter } from 'expo-router';
 
 import { StyleSheet, useStyles } from '#theme/unistyles';
 import { Text } from './atoms';
@@ -30,6 +31,7 @@ export interface AddictionWidgetProps {
 
 export default function AddictionWidget({ id, icon, title, onRemove }: AddictionWidgetProps) {
   const { styles, theme } = useStyles(stylesheet);
+  const router = useRouter();
   const sheetRef = useRef<BottomSheetModal>(null);
 
   const [mode, setMode] = useState<'abstinence' | 'limit'>('abstinence');
@@ -171,7 +173,9 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
       {/* ── Kompakt glass satır (anasayfa) ─────────────────────────────────── */}
       <TouchableOpacity
         activeOpacity={0.85}
-        onPress={() => { setPickerMode(null); sheetRef.current?.present(); }}>
+        onPress={() =>
+          router.push({ pathname: '/addiction/[id]', params: { id, icon, title } })
+        }>
         <GlassCard radius={22}>
           <View style={styles.row}>
             <Text style={styles.rowEmoji}>{icon}</Text>
@@ -203,12 +207,17 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
                 </Text>
               )}
             </View>
-            <ProgressRing
-              progress={ringPct}
-              mode="percent"
-              label={`${Math.round(ringPct * 100)}%`}
-              color={mode === 'limit' ? '#FFB86B' : undefined}
-            />
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => { setPickerMode(null); sheetRef.current?.present(); }}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <ProgressRing
+                progress={ringPct}
+                mode="percent"
+                label={`${Math.round(ringPct * 100)}%`}
+                color={mode === 'limit' ? '#FFB86B' : undefined}
+              />
+            </TouchableOpacity>
           </View>
         </GlassCard>
       </TouchableOpacity>
