@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ayna — Kartlar + gerçek ikon seti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#F8F8F4; --ink:#1E1E1E; --ink2:#757575; --ink3:#A0A0A0;
+    --accent:#FF9F43; --accent-deep:#F08C2E; --success:#36B37E; --glass:rgba(255,255,255,0.55); --radius:30px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:#E7E7E1;min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:34px 16px 70px;gap:14px;color:var(--ink);
+    background-image:radial-gradient(520px 360px at 80% -2%,rgba(255,159,67,.16),transparent 70%);}
+  h1{font-size:22px;font-weight:800;letter-spacing:-.4px;text-align:center;}
+  .sub{color:#6b6b6b;font-size:13px;text-align:center;max-width:540px;line-height:1.55;}
+  .sub b{color:var(--ink);}
+  .sech{font-size:12px;font-weight:700;color:var(--ink2);letter-spacing:1.2px;text-transform:uppercase;
+    align-self:flex-start;margin:20px 0 2px 6px;max-width:430px;width:100%;}
+  .col{width:100%;max-width:430px;display:flex;flex-direction:column;gap:13px;}
+  .grid{display:flex;flex-wrap:wrap;gap:13px;}
+
+  .card{position:relative;background:var(--glass);backdrop-filter:blur(22px) saturate(140%);
+    -webkit-backdrop-filter:blur(22px) saturate(140%);border-radius:var(--radius);
+    border:1px solid rgba(255,255,255,0.6);
+    box-shadow:0 8px 26px rgba(120,90,40,0.10),inset 0 1px 0 rgba(255,255,255,0.9);
+    padding:18px;overflow:hidden;}
+  .card::after{content:"";position:absolute;top:0;left:0;right:40%;height:50%;
+    background:linear-gradient(135deg,rgba(255,255,255,0.55),transparent 75%);pointer-events:none;}
+  .half{flex:1;min-width:46%;}
+
+  .htop{display:flex;align-items:flex-start;justify-content:space-between;}
+  .cat{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px;
+    background:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.8);box-shadow:0 2px 8px rgba(0,0,0,.04);}
+  /* CHECK RING — real tick icon */
+  .check{width:34px;height:34px;border-radius:50%;border:2px solid rgba(120,120,120,0.3);
+    background:rgba(255,255,255,0.5);display:grid;place-items:center;flex:none;}
+  .check svg{width:16px;height:12px;}
+  .check.empty svg{display:none;}
+  .check.empty::after{content:"";width:13px;height:13px;border-radius:50%;}
+  .check.done{background:var(--success);border-color:var(--success);box-shadow:0 4px 12px rgba(54,179,126,0.38);}
+  .check.hint{border-color:var(--accent);animation:pulse 2s infinite;}
+  .check.hint svg path{stroke:var(--accent);}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,0)}50%{box-shadow:0 0 0 6px rgba(255,159,67,0.14)}}
+
+  .name{font-size:15px;font-weight:600;color:var(--ink);margin-top:12px;}
+  .valrow{display:flex;align-items:center;gap:6px;margin-top:2px;}
+  .val{font-size:21px;font-weight:800;color:var(--ink);letter-spacing:-0.4px;}
+  .val small{font-size:12px;font-weight:500;color:var(--ink2);}
+  .unitic{width:14px;height:14px;opacity:.55;}
+  .spark{margin-top:12px;}
+  .done-card .val,.done-card .name{color:var(--success);}
+
+  /* resistance */
+  .ttl{font-size:15px;font-weight:600;color:var(--ink2);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+  .ttl .ci{font-size:17px;}
+  .ringwrap{display:flex;align-items:center;gap:13px;}
+  .meta .lab{font-size:11px;font-weight:600;color:var(--ink2);letter-spacing:1px;}
+  .meta .big{font-size:21px;font-weight:800;color:var(--ink);letter-spacing:-0.4px;margin-top:2px;}
+  .meta .rec{font-size:11px;font-weight:600;color:var(--accent-deep);margin-top:5px;display:flex;align-items:center;gap:5px;}
+  .meta .rec svg{width:14px;height:14px;}
+
+  /* tab bar */
+  .tabbar{width:100%;max-width:430px;margin-top:24px;height:66px;border-radius:30px;
+    background:rgba(255,255,255,0.66);backdrop-filter:blur(28px) saturate(160%);
+    -webkit-backdrop-filter:blur(28px) saturate(160%);border:1px solid rgba(255,255,255,0.75);
+    box-shadow:0 12px 34px rgba(120,90,40,0.16),inset 0 1px 0 rgba(255,255,255,0.9);
+    display:flex;align-items:center;justify-content:space-around;}
+  .tab{width:26px;height:26px;color:var(--ink);opacity:.42;}
+  .tab.active{opacity:1;color:var(--accent-deep);}
+  .fab{width:56px;height:56px;border-radius:50%;background:linear-gradient(150deg,var(--accent),var(--accent-deep));
+    display:grid;place-items:center;color:#1E1E1E;box-shadow:0 10px 24px rgba(255,140,46,0.5),inset 0 2px 4px rgba(255,255,255,0.5);
+    transform:translateY(-14px);} .fab svg{width:26px;height:26px;}
+
+  .note{background:rgba(255,159,67,.08);border:1px solid rgba(255,159,67,.25);border-radius:16px;
+    padding:13px 16px;font-size:12.5px;line-height:1.6;color:#5a4a32;max-width:430px;margin-top:24px;}
+  .note b{color:var(--accent-deep);}
+</style>
+</head>
+<body>
+  <h1>Kartlar · gerçek ikon seti</h1>
+  <p class="sub">Tüm <b>chrome ikonları</b> artık app'in kendi SVG setinden (<code>src/assets/svg</code>):
+  check halkası <b>tick</b>, stepper <b>plus/minus</b>, rekor <b>reward</b> (kupa), birim <b>clock</b>,
+  tab bar <b>home/chart/user</b>. Kategori görselleri (spor/su…) emoji kaldı — sette özel kategori ikonu yok.</p>
+
+  <div class="sech">Hedefler</div>
+  <div class="col">
+    <div class="grid">
+      <!-- in progress, hint -->
+      <div class="card half">
+        <div class="htop">
+          <div class="cat">🏃</div>
+          <div class="check hint">
+            <svg viewBox="0 0 13 9" fill="none"><path d="M1 4.5L4.66235 8L12 1" stroke="#FF9F43" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="name">Spor</div>
+        <div class="valrow">
+          <span class="val">40 <small>/ 60</small></span>
+          <svg class="unitic" viewBox="0 0 24 24" fill="none"><path d="M22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12Z" stroke="#757575" stroke-width="1.6" stroke-linecap="round"/><path d="M15.71 15.18L12.61 13.33C12.07 13.01 11.63 12.24 11.63 11.61V7.51" stroke="#757575" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <small style="color:var(--ink2);font-weight:600;font-size:12px">dk</small>
+        </div>
+        <svg class="spark" width="100%" height="32" viewBox="0 0 140 32" preserveAspectRatio="none">
+          <g fill="rgba(255,159,67,0.8)">
+            <rect x="2" y="13" width="13" height="19" rx="3"/><rect x="20" y="6" width="13" height="26" rx="3"/>
+            <rect x="38" y="19" width="13" height="13" rx="3"/><rect x="56" y="3" width="13" height="29" rx="3"/>
+            <rect x="74" y="11" width="13" height="21" rx="3"/><rect x="92" y="21" width="13" height="11" rx="3"/>
+            <rect x="110" y="15" width="13" height="17" rx="3" fill="rgba(255,159,67,0.45)"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- done -->
+      <div class="card half done-card">
+        <div class="htop">
+          <div class="cat">💧</div>
+          <div class="check done">
+            <svg viewBox="0 0 13 9" fill="none"><path d="M1 4.5L4.66235 8L12 1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="name">Su</div>
+        <div class="valrow"><span class="val">8 <small>/ 8 bardak</small></span></div>
+        <svg class="spark" width="100%" height="32" viewBox="0 0 140 32" preserveAspectRatio="none">
+          <g fill="rgba(54,179,126,0.8)">
+            <rect x="2" y="6" width="13" height="26" rx="3"/><rect x="20" y="9" width="13" height="23" rx="3"/>
+            <rect x="38" y="4" width="13" height="28" rx="3"/><rect x="56" y="13" width="13" height="19" rx="3"/>
+            <rect x="74" y="6" width="13" height="26" rx="3"/><rect x="92" y="8" width="13" height="24" rx="3"/>
+            <rect x="110" y="2" width="13" height="30" rx="3"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- empty / not started -->
+      <div class="card half">
+        <div class="htop">
+          <div class="cat">🧘</div>
+          <div class="check empty"><span style="width:13px;height:13px;border-radius:50%;background:rgba(120,120,120,.18)"></span></div>
+        </div>
+        <div class="name">Meditasyon</div>
+        <div class="valrow"><span class="val">0 <small>/ 30</small></span>
+          <svg class="unitic" viewBox="0 0 24 24" fill="none"><path d="M22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12Z" stroke="#757575" stroke-width="1.6"/><path d="M15.71 15.18L12.61 13.33C12.07 13.01 11.63 12.24 11.63 11.61V7.51" stroke="#757575" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <small style="color:var(--ink2);font-weight:600;font-size:12px">dk</small>
+        </div>
+        <svg class="spark" width="100%" height="32" viewBox="0 0 140 32" preserveAspectRatio="none">
+          <g fill="rgba(255,159,67,0.6)">
+            <rect x="2" y="17" width="13" height="15" rx="3"/><rect x="20" y="9" width="13" height="23" rx="3"/>
+            <rect x="38" y="21" width="13" height="11" rx="3"/><rect x="56" y="13" width="13" height="19" rx="3"/>
+            <rect x="74" y="7" width="13" height="25" rx="3"/><rect x="92" y="19" width="13" height="13" rx="3"/>
+            <rect x="110" y="28" width="13" height="4" rx="2" fill="rgba(0,0,0,0.08)"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- reading, line spark -->
+      <div class="card half">
+        <div class="htop">
+          <div class="cat">📚</div>
+          <div class="check empty"><span style="width:13px;height:13px;border-radius:50%;background:rgba(120,120,120,.18)"></span></div>
+        </div>
+        <div class="name">Kitap</div>
+        <div class="valrow"><span class="val">12 <small>/ 50 sf</small></span></div>
+        <svg class="spark" width="100%" height="32" viewBox="0 0 140 32" preserveAspectRatio="none">
+          <polyline points="4,24 26,18 48,22 70,9 92,15 114,7 134,17" fill="none"
+            stroke="#FF9F43" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="134" cy="17" r="3.5" fill="#F08C2E"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="sech">Direniş</div>
+  <div class="col">
+    <div class="card half" style="min-width:100%">
+      <div class="ttl"><span class="ci">🚬</span> Sigara</div>
+      <div class="ringwrap">
+        <svg width="62" height="62" viewBox="0 0 62 62" style="flex:none">
+          <circle cx="31" cy="31" r="26" fill="none" stroke="rgba(0,0,0,0.07)" stroke-width="7"/>
+          <circle cx="31" cy="31" r="26" fill="none" stroke="#FF9F43" stroke-width="7" stroke-linecap="round"
+                  stroke-dasharray="163" stroke-dashoffset="61" transform="rotate(-90 31 31)"/>
+          <text x="31" y="35" text-anchor="middle" font-size="15" font-weight="800" fill="#1E1E1E" font-family="Plus Jakarta Sans">63%</text>
+        </svg>
+        <div class="meta">
+          <div class="lab">AKTİF TUR</div>
+          <div class="big">2g 7sa</div>
+          <div class="rec">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M19 9C19 10.45 18.57 11.78 17.83 12.89C16.75 14.49 15.04 15.62 13.05 15.91C12.71 15.97 12.36 16 12 16C11.64 16 11.29 15.97 10.95 15.91C8.96 15.62 7.25 14.49 6.17 12.89C5.43 11.78 5 10.45 5 9C5 5.13 8.13 2 12 2C15.87 2 19 5.13 19 9Z" stroke="#F08C2E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M21.25 18.47L19.6 18.86C19.23 18.95 18.94 19.23 18.86 19.6L18.51 21.07C18.32 21.87 17.3 22.11 16.77 21.48L12 16L7.23 21.49C6.7 22.12 5.68 21.88 5.49 21.08L5.14 19.61C5.05 19.24 4.76 18.95 4.4 18.87L2.75 18.48C1.99 18.3 1.72 17.35 2.27 16.8L6.17 12.9" stroke="#F08C2E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            rekor 5g 12sa
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB BAR with real icons -->
+  <div class="tabbar">
+    <svg class="tab active" viewBox="0 0 25 25" fill="none"><path d="M20.54 7.32L14.78 3.29C13.21 2.19 10.8 2.25 9.29 3.42L4.28 7.33C3.28 8.11 2.49 9.71 2.49 10.97V17.87C2.49 20.42 4.56 22.5 7.11 22.5H17.89C20.44 22.5 22.51 20.43 22.51 17.88V11.1C22.51 9.75 21.64 8.09 20.54 7.32ZM13.25 18.5C13.25 18.91 12.91 19.25 12.5 19.25C12.09 19.25 11.75 18.91 11.75 18.5V15.5C11.75 15.09 12.09 14.75 12.5 14.75C12.91 14.75 13.25 15.09 13.25 15.5V18.5Z" fill="currentColor"/></svg>
+    <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M3 21H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 21V11.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 21V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 21V14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="fab"><svg viewBox="0 0 24 24" fill="none"><path d="M6 12H18" stroke="#1E1E1E" stroke-width="2.6" stroke-linecap="round"/><path d="M12 18V6" stroke="#1E1E1E" stroke-width="2.6" stroke-linecap="round"/></svg></div>
+    <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12Z" stroke="currentColor" stroke-width="1.6"/><path d="M15.71 15.18L12.61 13.33C12.07 13.01 11.63 12.24 11.63 11.61V7.51" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M12 12.5C14.76 12.5 17 10.26 17 7.5C17 4.74 14.76 2.5 12 2.5C9.24 2.5 7 4.74 7 7.5C7 10.26 9.24 12.5 12 12.5Z" stroke="currentColor" stroke-width="1.6"/><path d="M20.59 22.5C20.59 18.63 16.74 15.5 12 15.5C7.26 15.5 3.41 18.63 3.41 22.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+  </div>
+
+  <div class="note">
+    <b>Açık karar:</b> kategori görselleri (🏃💧📚🧘🚬). Sette bunlara karşılık özel ikon yok. Üç yol:
+    (a) <b>emoji kalsın</b> — sıcak, renkli, sıfır iş; (b) <b>tek çizgi-ikon seti</b> bul/üret — tutarlı ama emek;
+    (c) <b>hibrit</b> — chrome çizgi-ikon, kategori emoji (şu anki mockup bu).
+  </div>
+</body>
+</html>

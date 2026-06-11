@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ayna — Anasayfa (Liquid Glass mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #F8F8F4;
+    --ink: #1E1E1E;
+    --ink2: #757575;
+    --ink3: #A0A0A0;
+    --accent: #FF9F43;
+    --accent-deep: #F08C2E;
+    --success: #36B37E;
+    --glass: rgba(255,255,255,0.55);
+    --glass-strong: rgba(255,255,255,0.7);
+    --hairline: rgba(255,255,255,0.75);
+    --radius: 32px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #ECECE6;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 32px 16px 64px;
+    gap: 22px;
+  }
+  .caption { color: #6b6b6b; font-size: 13px; text-align: center; max-width: 390px; }
+  .caption b { color: #1E1E1E; }
+
+  /* ── iPhone frame ───────────────────────────── */
+  .phone {
+    width: 390px; height: 844px;
+    border-radius: 56px;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.28), 0 0 0 12px #111, 0 0 0 13px #2a2a2a;
+  }
+  /* Ambient warm light blooms — "buğulu camdan sızan ışık" */
+  .phone::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(420px 320px at 80% -4%, rgba(255,159,67,0.22), transparent 70%),
+      radial-gradient(360px 300px at -10% 18%, rgba(255,209,148,0.20), transparent 70%),
+      radial-gradient(500px 420px at 50% 108%, rgba(255,176,99,0.16), transparent 70%);
+  }
+  .notch {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 32px; background: #111; border-radius: 20px; z-index: 30;
+  }
+  .screen {
+    position: absolute; inset: 0; z-index: 1;
+    display: flex; flex-direction: column;
+    padding-top: 58px;
+  }
+  .scroll { flex: 1; overflow-y: auto; padding: 4px 20px 120px; }
+  .scroll::-webkit-scrollbar { display: none; }
+
+  /* ── Header ─────────────────────────────────── */
+  .header { display: flex; align-items: center; gap: 14px; padding: 6px 20px 18px; }
+  .avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(150deg, #fff 0%, #f0ede8 100%);
+    border: 1px solid var(--hairline);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 20px; color: var(--accent-deep);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.9), 0 4px 14px rgba(0,0,0,0.06);
+  }
+  .greet { font-size: 22px; font-weight: 800; color: var(--ink); letter-spacing: -0.4px; }
+  .date { font-size: 13px; font-weight: 500; color: var(--ink2); margin-top: 2px; }
+
+  /* ── Section label ──────────────────────────── */
+  .section { font-size: 12px; font-weight: 700; color: var(--ink2);
+    letter-spacing: 1.2px; text-transform: uppercase; margin: 14px 2px 12px; }
+
+  /* ── Glass card base ────────────────────────── */
+  .grid { display: flex; flex-wrap: wrap; gap: 13px; }
+  .card {
+    position: relative;
+    background: var(--glass);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,0.55);
+    box-shadow:
+      0 8px 28px rgba(120,90,40,0.10),
+      inset 0 1px 0 rgba(255,255,255,0.9);
+    padding: 20px;
+    overflow: hidden;
+  }
+  /* specular sheen — light on glass (the "mirror") */
+  .card::after {
+    content: ""; position: absolute; top: 0; left: 0; right: 40%; height: 50%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.55), transparent 75%);
+    pointer-events: none;
+  }
+  .half { flex: 1; min-width: 46%; }
+  .full { width: 100%; }
+
+  /* ── Direniş (addiction) hero card ──────────── */
+  .resist .ttl { font-size: 15px; font-weight: 600; color: var(--ink2); margin-bottom: 12px; }
+  .resist .lab { font-size: 11px; font-weight: 600; color: var(--ink2); letter-spacing: 1px; margin-bottom: 2px; }
+  .resist .big { font-size: 30px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; }
+  .resist .rec { font-size: 12px; font-weight: 500; color: var(--ink2); margin-top: 4px; }
+  .resist .rec.win { color: var(--accent-deep); }
+
+  /* ── Habit card with MERGED interaction ─────── */
+  .habit { display: flex; flex-direction: column; gap: 4px; }
+  .habit-top { display: flex; align-items: flex-start; justify-content: space-between; }
+  .ring {
+    width: 46px; height: 46px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 22px;
+    background: rgba(255,255,255,0.6);
+    border: 1px solid rgba(255,255,255,0.7);
+  }
+  /* the one-tap CHECK target (top-right) */
+  .check {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 2px solid rgba(120,120,120,0.35);
+    background: rgba(255,255,255,0.4);
+    display: grid; place-items: center;
+    color: transparent; font-size: 16px; font-weight: 800;
+    cursor: pointer; transition: all .18s;
+    flex: none;
+  }
+  .check.done {
+    background: var(--success); border-color: var(--success); color: #fff;
+    box-shadow: 0 4px 12px rgba(54,179,126,0.4);
+  }
+  .check.tap-hint { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,0.0);} 50%{box-shadow:0 0 0 6px rgba(255,159,67,0.12);} }
+  .habit .name { font-size: 15px; font-weight: 600; color: var(--ink); margin-top: 10px; }
+  .habit .val { font-size: 22px; font-weight: 800; color: var(--ink); margin-top: 2px; letter-spacing: -0.4px; }
+  .habit .val small { font-size: 13px; font-weight: 500; color: var(--ink2); }
+  .habit .sub { font-size: 12px; font-weight: 500; color: var(--ink3); margin-top: 2px; }
+  .habit.done-card .val, .habit.done-card .name { color: var(--success); }
+
+  /* progress bar (glass) */
+  .bar { height: 7px; border-radius: 99px; background: rgba(0,0,0,0.06); margin-top: 12px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-deep)); }
+
+  /* edit hint footer on card */
+  .edit-hint { font-size: 11px; font-weight: 500; color: var(--ink3); margin-top: 10px; display:flex; align-items:center; gap:4px; }
+
+  /* ── Tab bar (glass) ────────────────────────── */
+  .tabbar {
+    position: absolute; left: 16px; right: 16px; bottom: 22px; z-index: 20;
+    height: 66px; border-radius: 30px;
+    background: rgba(255,255,255,0.62);
+    backdrop-filter: blur(30px) saturate(160%);
+    -webkit-backdrop-filter: blur(30px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.7);
+    box-shadow: 0 12px 34px rgba(120,90,40,0.18), inset 0 1px 0 rgba(255,255,255,0.9);
+    display: flex; align-items: center; justify-content: space-around;
+  }
+  .tab { font-size: 22px; opacity: 0.4; }
+  .tab.active { opacity: 1; }
+  .fab {
+    width: 58px; height: 58px; border-radius: 50%;
+    background: linear-gradient(150deg, var(--accent), var(--accent-deep));
+    display: grid; place-items: center; color: #1E1E1E; font-size: 30px; font-weight: 600;
+    box-shadow: 0 10px 24px rgba(255,140,46,0.5), inset 0 2px 4px rgba(255,255,255,0.5);
+    transform: translateY(-14px);
+  }
+</style>
+</head>
+<body>
+  <div class="caption">Ayna — <b>Anasayfa · Liquid Glass</b>. Buzlu cam kartlar, sıcak ışık zemini, buğulanan ayna metaforu. Habit kartlarında <b>tek-dokunuş check halkası</b> (sağ üst) + <b>karta dokun → düzenle</b>.</div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <!-- Header -->
+      <div class="header">
+        <div class="avatar">G</div>
+        <div>
+          <div class="greet">İyi akşamlar, Günay.</div>
+          <div class="date">Perşembe, 5 Haziran</div>
+        </div>
+      </div>
+
+      <div class="scroll">
+        <!-- DİRENİŞ -->
+        <div class="section">Direniş</div>
+        <div class="grid">
+          <div class="card half resist">
+            <div class="ttl">🚬 Sigara</div>
+            <div class="lab">AKTİF TUR</div>
+            <div class="big">2g 7sa</div>
+            <div class="rec win">🏆 5g 12sa</div>
+          </div>
+          <div class="card half resist">
+            <div class="ttl">📱 Sosyal Medya</div>
+            <div class="lab">BUGÜN</div>
+            <div class="big">35 <small style="font-size:15px;font-weight:600;color:var(--ink2)">/ 60 dk</small></div>
+            <div class="rec">25 dk kaldı</div>
+          </div>
+        </div>
+
+        <!-- HEDEFLER -->
+        <div class="section">Hedefler</div>
+        <div class="grid">
+          <!-- check-type habit, NOT done — pulsing one-tap ring -->
+          <div class="card half habit">
+            <div class="habit-top">
+              <div class="ring">🧘</div>
+              <div class="check tap-hint" title="Tek dokunuş: yaptım"></div>
+            </div>
+            <div class="name">Meditasyon</div>
+            <div class="val">0 <small>/ 30 dk</small></div>
+            <div class="sub">Her gün</div>
+            <div class="bar"><i style="width:0%"></i></div>
+            <div class="edit-hint">⌁ düzenlemek için karta dokun</div>
+          </div>
+
+          <!-- circular habit, partial -->
+          <div class="card half habit">
+            <div class="habit-top">
+              <div class="ring">🏃</div>
+              <div class="check" title="Tek dokunuş: yaptım"></div>
+            </div>
+            <div class="name">Spor</div>
+            <div class="val">40 <small>/ 60 dk</small></div>
+            <div class="sub">Her gün</div>
+            <div class="bar"><i style="width:66%"></i></div>
+            <div class="edit-hint">⌁ düzenlemek için karta dokun</div>
+          </div>
+
+          <!-- check-type habit, DONE -->
+          <div class="card half habit done-card">
+            <div class="habit-top">
+              <div class="ring">💧</div>
+              <div class="check done">✓</div>
+            </div>
+            <div class="name">Su</div>
+            <div class="val">8 <small>/ 8 bardak</small></div>
+            <div class="sub" style="color:var(--success)">Tamamlandı</div>
+            <div class="bar"><i style="width:100%;background:var(--success)"></i></div>
+            <div class="edit-hint">⌁ düzenlemek için karta dokun</div>
+          </div>
+
+          <!-- reading -->
+          <div class="card half habit">
+            <div class="habit-top">
+              <div class="ring">📚</div>
+              <div class="check" title="Tek dokunuş: yaptım"></div>
+            </div>
+            <div class="name">Kitap</div>
+            <div class="val">12 <small>/ 50 sf</small></div>
+            <div class="sub">Her gün</div>
+            <div class="bar"><i style="width:24%"></i></div>
+            <div class="edit-hint">⌁ düzenlemek için karta dokun</div>
+          </div>
+
+          <!-- wide: yeni yemek (haftalık) -->
+          <div class="card full habit">
+            <div class="habit-top">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div class="ring">🍳</div>
+                <div>
+                  <div class="name" style="margin-top:0">Yeni Yemek Dene</div>
+                  <div class="sub">Haftada 1 · bu hafta 0/1</div>
+                </div>
+              </div>
+              <div class="check" title="Tek dokunuş: yaptım"></div>
+            </div>
+            <div class="edit-hint">⌁ düzenlemek için karta dokun</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab bar -->
+      <div class="tabbar">
+        <div class="tab active">⌂</div>
+        <div class="tab">▦</div>
+        <div class="fab">+</div>
+        <div class="tab">◷</div>
+        <div class="tab">○</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="caption" style="opacity:.8">
+    Yeşil ✓ = bugün tamamlandı · turuncu nabız = "tek dokunuşla işaretle" daveti.
+    Karta (gövdeye) dokunmak detay/düzenleme sheet'ini açar — iki davranış tek kartta.
+  </div>
+</body>
+</html>

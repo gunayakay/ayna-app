@@ -87,3 +87,7 @@ android/keystores/release.keystore
 
 expo-env.d.ts
 # @end expo-cli
+
+# local tooling & kişisel referanslar
+.claude/
+pdfs/
