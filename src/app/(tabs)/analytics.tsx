@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 
 import { Text } from '#components/atoms';
+import GlassCard from '#components/glass-card';
 import { StyleSheet, useStyles } from '#theme/unistyles';
 import {
   addictionStorage,
@@ -147,6 +148,7 @@ export default function AnalyticsScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.bloom} pointerEvents="none" />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>İstatistikler</Text>
         <Text style={styles.headerSubtitle}>Sadece gerçek verin</Text>
@@ -158,33 +160,38 @@ export default function AnalyticsScreen() {
         showsVerticalScrollIndicator={false}>
         {!data.hasData ? (
           // ── Dürüst boş durum ──────────────────────────────────────────────
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyIcon}>🪞</Text>
-            <Text style={styles.emptyTitle}>Henüz yeterli veri yok</Text>
-            <Text style={styles.emptyText}>
-              Birkaç gün kullandıkça istatistiklerin burada birikecek. Uydurma sayı göstermeyiz.
-            </Text>
-          </View>
+          <GlassCard radius={28} style={styles.emptyCard}>
+            <View style={styles.emptyPad}>
+              <Text style={styles.emptyIcon}>🪞</Text>
+              <Text style={styles.emptyTitle}>Henüz yeterli veri yok</Text>
+              <Text style={styles.emptyText}>
+                Birkaç gün kullandıkça istatistiklerin burada birikecek. Uydurma sayı göstermeyiz.
+              </Text>
+            </View>
+          </GlassCard>
         ) : (
           <>
             {/* Gerçek stat kartları */}
             {cards.length > 0 && (
               <View style={styles.statsGrid}>
                 {cards.map((c, i) => (
-                  <View key={i} style={styles.statCard}>
-                    <Text style={styles.statIcon}>{c.icon}</Text>
-                    <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>
-                      {c.value}
-                    </Text>
-                    <Text style={styles.statLabel}>{c.label}</Text>
-                  </View>
+                  <GlassCard key={i} radius={24} style={styles.statCard}>
+                    <View style={styles.statPad}>
+                      <Text style={styles.statIcon}>{c.icon}</Text>
+                      <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>
+                        {c.value}
+                      </Text>
+                      <Text style={styles.statLabel}>{c.label}</Text>
+                    </View>
+                  </GlassCard>
                 ))}
               </View>
             )}
 
             {/* Limit modu varsa: son 7 günün gerçek kullanım grafiği */}
             {data.hasLimitGoal && (
-              <View style={styles.chartCard}>
+              <GlassCard radius={24} style={styles.chartCard}>
+                <View style={styles.chartPad}>
                 <Text style={styles.chartTitle}>Son 7 Gün — Kullanım</Text>
                 {data.weekUsesTotal === 0 ? (
                   <Text style={styles.chartEmpty}>Bu hafta henüz kullanım kaydı yok.</Text>
@@ -210,11 +217,13 @@ export default function AnalyticsScreen() {
                     ))}
                   </View>
                 )}
-              </View>
+                </View>
+              </GlassCard>
             )}
 
             {/* Genel özet — gerçek */}
-            <View style={styles.summaryCard}>
+            <GlassCard radius={24} style={styles.summaryCard}>
+              <View style={styles.summaryPad}>
               <Text style={styles.summaryTitle}>Genel</Text>
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Aktif bağımlılık</Text>
@@ -230,7 +239,8 @@ export default function AnalyticsScreen() {
                   <Text style={styles.summaryValue}>{data.weekUsesTotal}</Text>
                 </View>
               )}
-            </View>
+              </View>
+            </GlassCard>
           </>
         )}
       </ScrollView>
@@ -266,14 +276,19 @@ const stylesheet = StyleSheet.create(theme => ({
     paddingBottom: theme.spacing[24],
   },
 
-  // Boş durum
-  emptyCard: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius['5xl'],
-    padding: theme.spacing[8],
-    alignItems: 'center',
-    marginTop: theme.spacing[6],
+  bloom: {
+    position: 'absolute',
+    top: -110,
+    right: -70,
+    width: 340,
+    height: 340,
+    borderRadius: 340,
+    backgroundColor: theme.colors.primaryLighter,
+    opacity: 0.4,
   },
+  // Boş durum
+  emptyCard: { marginTop: theme.spacing[6] },
+  emptyPad: { padding: theme.spacing[8], alignItems: 'center' },
   emptyIcon: {
     fontSize: 48,
     marginBottom: theme.spacing[4],
@@ -300,12 +315,12 @@ const stylesheet = StyleSheet.create(theme => ({
     marginBottom: theme.spacing[4],
   },
   statCard: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius['5xl'],
-    padding: theme.spacing[5],
-    alignItems: 'center',
     flex: 1,
     minWidth: '45%',
+  },
+  statPad: {
+    padding: theme.spacing[5],
+    alignItems: 'center',
   },
   statIcon: {
     fontSize: 36,
@@ -325,12 +340,8 @@ const stylesheet = StyleSheet.create(theme => ({
     textAlign: 'center',
   },
 
-  chartCard: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius['5xl'],
-    padding: theme.spacing[5],
-    marginBottom: theme.spacing[4],
-  },
+  chartCard: { marginBottom: theme.spacing[4] },
+  chartPad: { padding: theme.spacing[5] },
   chartTitle: {
     fontSize: theme.fontSizes.lg,
     fontFamily: theme.fontFamily.bold,
@@ -376,11 +387,8 @@ const stylesheet = StyleSheet.create(theme => ({
     color: theme.colors.typography.SECONDARY,
   },
 
-  summaryCard: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius['5xl'],
-    padding: theme.spacing[5],
-  },
+  summaryCard: {},
+  summaryPad: { padding: theme.spacing[5] },
   summaryTitle: {
     fontSize: theme.fontSizes.lg,
     fontFamily: theme.fontFamily.bold,
