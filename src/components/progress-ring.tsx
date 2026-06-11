@@ -37,7 +37,8 @@ export default function ProgressRing({
   const cx = size / 2;
   const cy = size / 2;
   const circumference = 2 * Math.PI * r;
-  const tickScale = r / 20; // tik 44px halkaya göre tunlandı; büyük halkalarda ölçekle
+  // app'in gerçek tick-icon'u (viewBox 13×9) — halka boyutuna ölçekle + ortala
+  const tickS = (size * 0.4) / 13;
   const clamped = Math.max(0, Math.min(1, progress));
   const ringColor = color ?? theme.colors.primary;
   const isDone = mode === 'done';
@@ -69,15 +70,16 @@ export default function ProgressRing({
             transform={`rotate(-90 ${cx} ${cy})`}
           />
         )}
-        {/* done tik — halka boyutuyla ölçeklenir */}
+        {/* done tik — app'in gerçek tick-icon SVG'si (mockup/chrome ile tutarlı) */}
         {isDone && (
           <Path
-            d={`M${cx - 6 * tickScale} ${cy + 0.5 * tickScale} L${cx - 1.5 * tickScale} ${cy + 4.5 * tickScale} L${cx + 6 * tickScale} ${cy - 3.5 * tickScale}`}
+            d="M1 4.5L4.66235 8L12 1"
             stroke={theme.colors.white}
-            strokeWidth={Math.max(2.6, 2.6 * tickScale)}
+            strokeWidth={1.8}
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
+            transform={`translate(${cx - 6.5 * tickS} ${cy - 4.5 * tickS}) scale(${tickS})`}
           />
         )}
       </Svg>
