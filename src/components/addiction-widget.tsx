@@ -167,7 +167,7 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
     onRemove?.();
   };
 
-  const snapPoints = useMemo(() => ['50%', '85%'], []);
+  const snapPoints = useMemo(() => ['86%'], []);
 
   // rule modu: bugünü "tuttum" işaretle (halkaya dokun)
   const handleRuleKept = async () => {

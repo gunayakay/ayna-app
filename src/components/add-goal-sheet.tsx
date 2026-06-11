@@ -168,16 +168,17 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
   const [addictionMode, setAddictionMode] = useState<'abstinence' | 'limit' | 'rule'>('abstinence');
   const [rule, setRule] = useState('');
   const [discoveryName, setDiscoveryName] = useState('');
+  const [discoveryEmoji, setDiscoveryEmoji] = useState('🌱');
   const [limitPeriod, setLimitPeriod] = useState<'daily' | 'weekly'>('weekly');
   const [limitCount, setLimitCount] = useState(3);
   const [limitUnit, setLimitUnit] = useState<'count' | 'minutes'>('count');
 
   const snapPoints = useMemo(() => {
-    if (viewState === 'category') return ['38%'];
-    if (viewState === 'discovery') return ['54%'];
-    if (viewState === 'catalog') return ['80%'];
+    if (viewState === 'category') return ['52%'];
+    if (viewState === 'discovery') return ['62%'];
+    if (viewState === 'catalog') return ['86%'];
     if (selectedItem?.category === 'addiction') {
-      return addictionMode === 'limit' ? ['82%'] : addictionMode === 'rule' ? ['72%'] : ['58%'];
+      return addictionMode === 'limit' ? ['86%'] : addictionMode === 'rule' ? ['76%'] : ['64%'];
     }
     return ['90%'];
   }, [viewState, selectedItem, addictionMode]);
@@ -312,8 +313,9 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
   const handleCreateDiscovery = async () => {
     const t = discoveryName.trim();
     if (!t) return;
-    await discoveryStorage.addItem('🌱', t);
+    await discoveryStorage.addItem(discoveryEmoji, t);
     setDiscoveryName('');
+    setDiscoveryEmoji('🌱');
     onGoalAdded?.();
     dismiss();
   };
@@ -397,6 +399,17 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
           <Text style={styles.discoveryHint}>
             Denemek istediğin yeni bir şey — yeni yemek, dil, enstrüman, tarif… Denedikçe arşive birikir.
           </Text>
+          <View style={styles.emojiRow}>
+            {['🍳', '🗣️', '🎸', '📖', '🎨', '🧗', '✍️', '🌱'].map(e => (
+              <TouchableOpacity
+                key={e}
+                activeOpacity={0.7}
+                onPress={() => setDiscoveryEmoji(e)}
+                style={[styles.emojiOpt, discoveryEmoji === e && styles.emojiOptOn]}>
+                <Text style={styles.emojiOptText}>{e}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
           <BottomSheetTextInput
             style={styles.ruleInput}
             value={discoveryName}
@@ -931,6 +944,27 @@ const stylesheet = StyleSheet.create(theme => ({
     marginTop: theme.spacing[2],
     marginBottom: theme.spacing[2],
   },
+  emojiRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing[2],
+    marginBottom: theme.spacing[2],
+  },
+  emojiOpt: {
+    width: 44,
+    height: 44,
+    borderRadius: theme.borderRadius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.background.PRIMARY,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+  },
+  emojiOptOn: {
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primaryLightest,
+  },
+  emojiOptText: { fontSize: 22 },
 
   // ── Shared header ──────────────────────────────────────────────────────────
   sheetHeader: {

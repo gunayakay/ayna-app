@@ -55,9 +55,9 @@ const CheckInSheet = forwardRef<BottomSheetModal, CheckInSheetProps>(
 
     // Dynamic snap points based on view state and input mode
     const snapPoints = useMemo(() => {
-      if (viewState === 'confrontation') return ['85%'];
-      if (inputMode === 'check') return ['40%'];
-      return ['50%'];
+      if (viewState === 'confrontation') return ['90%'];
+      if (inputMode === 'check') return ['54%'];
+      return ['64%'];
     }, [viewState, inputMode]);
 
     // Reset state when sheet closes
