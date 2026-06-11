@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 
 import { Text } from '#components/atoms';
+import GlassCard from '#components/glass-card';
 import { StyleSheet, useStyles } from '#theme/unistyles';
 import { battleStorage, addictionStorage, formatDuration } from '#/utils';
 import type { HabitBattle, AddictionSession } from '#/utils';
@@ -124,6 +125,7 @@ export default function HistoryScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.bloom} pointerEvents="none" />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Geçmiş</Text>
         <Text style={styles.headerSubtitle}>Tüm turların burada</Text>
@@ -150,7 +152,8 @@ export default function HistoryScreen() {
             {dayEntries.map(entry => {
               const allWon = entry.wonCount === entry.goals.length;
               return (
-                <View key={entry.dayKey} style={styles.dayCard}>
+                <GlassCard key={entry.dayKey} radius={24} style={styles.dayCard}>
+                  <View style={styles.cardPad}>
                   <View style={styles.dayHeader}>
                     <Text style={styles.dayLabel}>{entry.label}</Text>
                     <View style={[styles.winBadge, allWon && styles.winBadgeFull]}>
@@ -169,7 +172,8 @@ export default function HistoryScreen() {
                       </View>
                     ))}
                   </View>
-                </View>
+                  </View>
+                </GlassCard>
               );
             })}
           </>
@@ -184,7 +188,8 @@ export default function HistoryScreen() {
             {addictionSessions.map(session => {
               const meta = GOAL_LOOKUP[session.goalId];
               return (
-                <View key={session.id} style={styles.sessionCard}>
+                <GlassCard key={session.id} radius={24} style={styles.sessionCard}>
+                  <View style={styles.sessionPad}>
                   <View style={styles.sessionIconBox}>
                     <Text style={styles.sessionEmoji}>{meta?.icon ?? '❓'}</Text>
                   </View>
@@ -198,7 +203,8 @@ export default function HistoryScreen() {
                   <Text style={styles.sessionDuration}>
                     {formatDuration(session.durationMs ?? Date.now() - session.startTime)}
                   </Text>
-                </View>
+                  </View>
+                </GlassCard>
               );
             })}
           </>
@@ -271,13 +277,21 @@ const stylesheet = StyleSheet.create(theme => ({
     marginTop: theme.spacing[6],
   },
 
+  bloom: {
+    position: 'absolute',
+    top: -110,
+    right: -70,
+    width: 340,
+    height: 340,
+    borderRadius: 340,
+    backgroundColor: theme.colors.primaryLighter,
+    opacity: 0.4,
+  },
   // ── Day cards (habits) ─────────────────────────────────────────────────────
   dayCard: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius['5xl'],
-    padding: theme.spacing[4],
     marginBottom: theme.spacing[3],
   },
+  cardPad: { padding: theme.spacing[4] },
   dayHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -338,10 +352,10 @@ const stylesheet = StyleSheet.create(theme => ({
 
   // ── Session cards (addictions) ─────────────────────────────────────────────
   sessionCard: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius['5xl'],
-    padding: theme.spacing[4],
     marginBottom: theme.spacing[3],
+  },
+  sessionPad: {
+    padding: theme.spacing[4],
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing[3],
