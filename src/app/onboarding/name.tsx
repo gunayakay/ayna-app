@@ -24,6 +24,8 @@ export default function NameScreen() {
       style={styles.keyboardView}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={styles.bloomTop} pointerEvents="none" />
+        <View style={styles.bloomBottom} pointerEvents="none" />
         {/* Progress Header */}
         <View style={styles.progressHeader}>
           <View style={styles.progressBarContainer}>
@@ -80,6 +82,26 @@ const stylesheet = StyleSheet.create(theme => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background.PRIMARY,
+  },
+  bloomTop: {
+    position: 'absolute',
+    top: -120,
+    right: -80,
+    width: 380,
+    height: 380,
+    borderRadius: 380,
+    backgroundColor: theme.colors.primaryLighter,
+    opacity: 0.5,
+  },
+  bloomBottom: {
+    position: 'absolute',
+    bottom: -100,
+    left: -70,
+    width: 340,
+    height: 340,
+    borderRadius: 340,
+    backgroundColor: theme.colors.primaryLightest,
+    opacity: 0.6,
   },
   progressHeader: {
     flexDirection: 'row',
