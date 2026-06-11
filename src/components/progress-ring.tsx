@@ -37,6 +37,7 @@ export default function ProgressRing({
   const cx = size / 2;
   const cy = size / 2;
   const circumference = 2 * Math.PI * r;
+  const tickScale = r / 20; // tik 44px halkaya göre tunlandı; büyük halkalarda ölçekle
   const clamped = Math.max(0, Math.min(1, progress));
   const ringColor = color ?? theme.colors.primary;
   const isDone = mode === 'done';
@@ -44,14 +45,14 @@ export default function ProgressRing({
   return (
     <View style={{ width: size, height: size }}>
       <Svg width={size} height={size}>
-        {/* track */}
+        {/* track — done ise içi yeşil dolar (beyaz tik görünsün) */}
         <Circle
           cx={cx}
           cy={cy}
           r={r}
           stroke={isDone ? theme.colors.success : 'rgba(0,0,0,0.08)'}
           strokeWidth={stroke}
-          fill="none"
+          fill={isDone ? theme.colors.success : 'none'}
         />
         {/* progress arc (done değilse) */}
         {!isDone && clamped > 0 && (
@@ -68,12 +69,12 @@ export default function ProgressRing({
             transform={`rotate(-90 ${cx} ${cy})`}
           />
         )}
-        {/* done tik */}
+        {/* done tik — halka boyutuyla ölçeklenir */}
         {isDone && (
           <Path
-            d={`M${cx - 6} ${cy + 0.5} L${cx - 1.5} ${cy + 4.5} L${cx + 6} ${cy - 3.5}`}
+            d={`M${cx - 6 * tickScale} ${cy + 0.5 * tickScale} L${cx - 1.5 * tickScale} ${cy + 4.5 * tickScale} L${cx + 6 * tickScale} ${cy - 3.5 * tickScale}`}
             stroke={theme.colors.white}
-            strokeWidth={2.6}
+            strokeWidth={Math.max(2.6, 2.6 * tickScale)}
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
