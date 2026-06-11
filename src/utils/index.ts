@@ -41,3 +41,4 @@ export type { AddictionSession, AddictionStats, AddictionUse } from './addiction
 export { addGoalSheetRef } from './addGoalSheetRef';
 export { default as discoveryStorage } from './discoveryStorage';
 export type { DiscoveryItem, DiscoveryEntry } from './discoveryStorage';
+export { setupDailyReminder, cancelDailyReminder } from './notifications';

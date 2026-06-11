@@ -23,6 +23,7 @@ import {
   discoveryStorage,
   DiscoveryItem,
   DiscoveryEntry,
+  setupDailyReminder,
 } from '#/utils';
 
 // Widget configuration based on action IDs
@@ -101,6 +102,11 @@ export default function HomeScreen() {
   // Reload when a goal is added via AddGoalSheet (sheet doesn't trigger focus change)
   useEffect(() => {
     return addGoalSheetRef.onGoalsChanged(loadUserData);
+  }, []);
+
+  // Günlük 23:00 hatırlatma (ilk açılışta izin ister, bir kez kurar)
+  useEffect(() => {
+    setupDailyReminder();
   }, []);
 
   const loadUserData = async () => {
