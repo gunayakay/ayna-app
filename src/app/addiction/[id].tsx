@@ -10,7 +10,7 @@ import GlassCard from '#components/glass-card';
 import ProgressRing from '#components/progress-ring';
 import { BackArrow, Reward } from '#assets/svg';
 import { StyleSheet, useStyles } from '#theme/unistyles';
-import { addictionStorage, goalStorage, formatDuration } from '#/utils';
+import { addictionStorage, goalStorage, formatDuration, RuleStats } from '#/utils';
 
 const TR_DAY_SHORT = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
 
@@ -29,7 +29,10 @@ export default function AddictionDetailScreen() {
   const icon = params.icon ?? '🚭';
   const title = params.title ?? 'Direniş';
 
-  const [mode, setMode] = useState<'abstinence' | 'limit'>('abstinence');
+  const [mode, setMode] = useState<'abstinence' | 'limit' | 'rule'>('abstinence');
+  // rule
+  const [ruleText, setRuleText] = useState('');
+  const [ruleStats, setRuleStats] = useState<RuleStats | null>(null);
   // abstinence
   const [sessionStart, setSessionStart] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -56,6 +59,11 @@ export default function AddictionDetailScreen() {
   const load = async () => {
     const config = await goalStorage.getAddictionConfig(id);
     setMode(config.mode);
+    if (config.mode === 'rule') {
+      setRuleText(config.rule ?? '');
+      setRuleStats(await addictionStorage.getRuleStats(id));
+      return;
+    }
     if (config.mode === 'limit') {
       const p = config.limitPeriod ?? 'weekly';
       setPeriod(p);
@@ -102,6 +110,11 @@ export default function AddictionDetailScreen() {
     const next = Math.max(step, limit - step);
     setLimit(next);
     await goalStorage.setAddictionConfig(id, { mode: 'limit', limitPeriod: period, limit: next, unit });
+  };
+
+  const handleRuleMark = async (kept: boolean) => {
+    await addictionStorage.setRuleToday(id, kept);
+    setRuleStats(await addictionStorage.getRuleStats(id));
   };
 
   const u = unit === 'minutes' ? ' dk' : '';
@@ -182,6 +195,72 @@ export default function AddictionDetailScreen() {
 
             <Text style={styles.voice}>
               Ömür boyu düşünme — sadece bir sonraki turu. Önemli olan kaç kez düştüğün değil, kaç kez kalktığın.{rounds > 0 ? ` Şu ana kadar ${rounds}.` : ''}
+            </Text>
+          </>
+        ) : mode === 'rule' ? (
+          <>
+            {/* kural */}
+            <View style={styles.hero}>
+              <Text style={styles.ruleBig}>“{ruleText}”</Text>
+              <Text style={styles.heroLabel}>kuralın</Text>
+            </View>
+
+            <Text style={styles.askq}>Bugün kuralına uydun mu?</Text>
+            <View style={styles.ruleBtns}>
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={() => handleRuleMark(true)}
+                style={[styles.ruleBtn, ruleStats?.todayKept === true && styles.ruleBtnYes]}>
+                <Text style={[styles.ruleBtnText, ruleStats?.todayKept === true && styles.ruleBtnTextOn]}>
+                  ✓ Tuttum
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={() => handleRuleMark(false)}
+                style={[styles.ruleBtn, ruleStats?.todayKept === false && styles.ruleBtnNo]}>
+                <Text style={[styles.ruleBtnText, ruleStats?.todayKept === false && styles.ruleBtnTextOn]}>
+                  Tutamadım
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <GlassCard radius={20} style={styles.card}>
+              <View style={styles.cardPad}>
+                <View style={styles.recordRow}>
+                  <Text style={styles.streakBig}>🔥 {ruleStats?.currentStreak ?? 0} <Text style={styles.streakUnit}>gün</Text></Text>
+                  <View style={styles.cbCol}>
+                    <Text style={styles.cbNum}>{ruleStats?.thisWeekKept ?? 0}/7</Text>
+                    <Text style={styles.cbLabel}>bu hafta{'\n'}tuttun</Text>
+                  </View>
+                </View>
+                <Text style={styles.recLabel}>en uzun seri: {ruleStats?.bestStreak ?? 0} gün</Text>
+              </View>
+            </GlassCard>
+
+            <GlassCard radius={20} style={styles.card}>
+              <View style={styles.cardPad}>
+                <Text style={styles.cardLabel}>SON 7 GÜN</Text>
+                <View style={styles.weekDots}>
+                  {(ruleStats?.last7 ?? []).map((d, i) => (
+                    <View key={i} style={styles.dayCol}>
+                      <View
+                        style={[
+                          styles.dayDot,
+                          d.kept === true && styles.dayDotKept,
+                          d.kept === false && styles.dayDotMiss,
+                        ]}>
+                        {d.kept === true && <Text style={styles.dayTick}>✓</Text>}
+                      </View>
+                      <Text style={styles.dayLbl}>{d.label}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </GlassCard>
+
+            <Text style={styles.voice}>
+              Tutamadığın gün ceza değil — sadece veri. Tam bırakmak değil; kuralına uydukça savaşı küçük küçük kazanıyorsun.
             </Text>
           </>
         ) : (
@@ -273,4 +352,22 @@ const stylesheet = StyleSheet.create(theme => ({
   barLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: theme.spacing[2], paddingHorizontal: 4 },
   barLabel: { fontSize: 9, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.TERTIARY, width: 36, textAlign: 'center' },
   voice: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.medium, color: theme.colors.typography.SECONDARY, fontStyle: 'italic', textAlign: 'center', lineHeight: 20, paddingHorizontal: theme.spacing[4], paddingTop: theme.spacing[4] },
+  // rule
+  streakBig: { fontSize: theme.fontSizes['2xl'], fontFamily: theme.fontFamily.extraBold, color: theme.colors.primaryDarker },
+  streakUnit: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.SECONDARY },
+  ruleBig: { fontSize: theme.fontSizes['2xl'], fontFamily: theme.fontFamily.extraBold, color: theme.colors.typography.PRIMARY, textAlign: 'center', lineHeight: 32, paddingHorizontal: theme.spacing[2] },
+  askq: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.SECONDARY, textAlign: 'center', marginBottom: theme.spacing[3] },
+  ruleBtns: { flexDirection: 'row', gap: theme.spacing[3], marginBottom: theme.spacing[3] },
+  ruleBtn: { flex: 1, height: 52, borderRadius: theme.borderRadius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1.5, borderColor: theme.colors.border.PRIMARY },
+  ruleBtnYes: { backgroundColor: 'rgba(54,179,126,0.16)', borderColor: theme.colors.success },
+  ruleBtnNo: { backgroundColor: theme.colors.primaryLightest, borderColor: theme.colors.primary },
+  ruleBtnText: { fontSize: theme.fontSizes.base, fontFamily: theme.fontFamily.bold, color: theme.colors.typography.SECONDARY },
+  ruleBtnTextOn: { color: theme.colors.typography.PRIMARY },
+  weekDots: { flexDirection: 'row', justifyContent: 'space-between' },
+  dayCol: { alignItems: 'center', gap: 6 },
+  dayDot: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.06)' },
+  dayDotKept: { backgroundColor: theme.colors.success },
+  dayDotMiss: { backgroundColor: theme.colors.primaryLighter },
+  dayTick: { fontSize: 13, color: theme.colors.white, fontFamily: theme.fontFamily.bold },
+  dayLbl: { fontSize: 9, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.TERTIARY },
 }));

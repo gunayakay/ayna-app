@@ -34,7 +34,11 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
   const router = useRouter();
   const sheetRef = useRef<BottomSheetModal>(null);
 
-  const [mode, setMode] = useState<'abstinence' | 'limit'>('abstinence');
+  const [mode, setMode] = useState<'abstinence' | 'limit' | 'rule'>('abstinence');
+  const [ruleText, setRuleText] = useState('');
+  const [ruleTodayKept, setRuleTodayKept] = useState<boolean | null>(null);
+  const [ruleWeekKept, setRuleWeekKept] = useState(0);
+  const [ruleStreak, setRuleStreak] = useState(0);
   const [limitPeriod, setLimitPeriod] = useState<'daily' | 'weekly'>('weekly');
   const [limit, setLimit] = useState(3);
   const [unit, setUnit] = useState<'count' | 'minutes'>('count');
@@ -62,6 +66,14 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
   const loadStats = async () => {
     const config = await goalStorage.getAddictionConfig(id);
     setMode(config.mode);
+    if (config.mode === 'rule') {
+      setRuleText(config.rule ?? '');
+      const rs = await addictionStorage.getRuleStats(id);
+      setRuleTodayKept(rs.todayKept);
+      setRuleWeekKept(rs.thisWeekKept);
+      setRuleStreak(rs.currentStreak);
+      return;
+    }
     if (config.mode === 'limit') {
       const period = config.limitPeriod ?? 'weekly';
       setLimitPeriod(period);
@@ -157,6 +169,12 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
 
   const snapPoints = useMemo(() => ['50%', '85%'], []);
 
+  // rule modu: bugünü "tuttum" işaretle (halkaya dokun)
+  const handleRuleKept = async () => {
+    await addictionStorage.setRuleToday(id, true);
+    loadStats();
+  };
+
   // dolma halka: limit modunda kullanım/sınır, direniş modunda aktif tur/rekor
   const best = personalBest ?? 0;
   const ringPct =
@@ -197,6 +215,11 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
                         ? ` · ${usesCurrent - limit} dk fazla`
                         : ` · ${usesCurrent - limit} fazla`}
                 </Text>
+              ) : mode === 'rule' ? (
+                <Text style={styles.rowSub} numberOfLines={1}>
+                  {ruleText || 'kural'} · <Text style={styles.rowVal}>{ruleWeekKept}/7</Text> tuttun
+                  {ruleStreak > 0 ? ` · 🔥${ruleStreak}` : ''}
+                </Text>
               ) : (
                 <Text style={styles.rowSub} numberOfLines={1}>
                   aktif tur{' '}
@@ -209,14 +232,22 @@ export default function AddictionWidget({ id, icon, title, onRemove }: Addiction
             </View>
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() => { setPickerMode(null); sheetRef.current?.present(); }}
+              onPress={
+                mode === 'rule'
+                  ? handleRuleKept
+                  : () => { setPickerMode(null); sheetRef.current?.present(); }
+              }
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <ProgressRing
-                progress={ringPct}
-                mode="percent"
-                label={`${Math.round(ringPct * 100)}%`}
-                color={mode === 'limit' ? '#FFB86B' : undefined}
-              />
+              {mode === 'rule' ? (
+                <ProgressRing progress={ruleTodayKept ? 1 : 0} mode={ruleTodayKept ? 'done' : 'plus'} />
+              ) : (
+                <ProgressRing
+                  progress={ringPct}
+                  mode="percent"
+                  label={`${Math.round(ringPct * 100)}%`}
+                  color={mode === 'limit' ? '#FFB86B' : undefined}
+                />
+              )}
             </TouchableOpacity>
           </View>
         </GlassCard>

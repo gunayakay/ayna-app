@@ -13,7 +13,7 @@ export type GoalCategory = 'habit' | 'addiction';
 // How a bağımlılık goal is approached:
 // - abstinence: tamamen bırak (direnç turu + kişisel rekor)
 // - limit: sınırla (periyot başına izin, kademeli azaltma)
-export type AddictionMode = 'abstinence' | 'limit';
+export type AddictionMode = 'abstinence' | 'limit' | 'rule';
 
 // Sınırlama periyodu: yüksek-sıklıklı için günlük, seyrek için haftalık
 export type LimitPeriod = 'daily' | 'weekly';
@@ -26,6 +26,7 @@ export interface AddictionConfig {
   limitPeriod?: LimitPeriod; // yalnızca 'limit' modunda
   limit?: number;            // periyot başına izin (kez ya da dakika)
   unit?: LimitUnit;          // 'count' (varsayılan) | 'minutes'
+  rule?: string;             // yalnızca 'rule' modunda — kişisel kural metni ("aç karına içme")
 }
 
 // How often a habit is expected to be done

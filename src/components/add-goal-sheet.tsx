@@ -7,6 +7,7 @@ import {
   BottomSheetView,
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
+  BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
 import { StyleSheet, useStyles } from '#theme/unistyles';
 
@@ -164,7 +165,8 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
   const [targetValue, setTargetValue] = useState(1);
   const [freqType, setFreqType] = useState<'daily' | 'weekly' | 'interval'>('daily');
   const [freqCount, setFreqCount] = useState(3);
-  const [addictionMode, setAddictionMode] = useState<'abstinence' | 'limit'>('abstinence');
+  const [addictionMode, setAddictionMode] = useState<'abstinence' | 'limit' | 'rule'>('abstinence');
+  const [rule, setRule] = useState('');
   const [limitPeriod, setLimitPeriod] = useState<'daily' | 'weekly'>('weekly');
   const [limitCount, setLimitCount] = useState(3);
   const [limitUnit, setLimitUnit] = useState<'count' | 'minutes'>('count');
@@ -173,7 +175,7 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
     if (viewState === 'category') return ['38%'];
     if (viewState === 'catalog') return ['80%'];
     if (selectedItem?.category === 'addiction') {
-      return addictionMode === 'limit' ? ['82%'] : ['58%'];
+      return addictionMode === 'limit' ? ['82%'] : addictionMode === 'rule' ? ['72%'] : ['58%'];
     }
     return ['90%'];
   }, [viewState, selectedItem, addictionMode]);
@@ -294,7 +296,9 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
       selectedItem.id,
       addictionMode === 'limit'
         ? { mode: 'limit', limitPeriod, limit: limitCount, unit: limitUnit }
-        : { mode: 'abstinence' }
+        : addictionMode === 'rule'
+          ? { mode: 'rule', rule: rule.trim() }
+          : { mode: 'abstinence' }
     );
     if (addictionMode === 'abstinence') {
       await addictionStorage.startSession(selectedItem.id);
@@ -482,9 +486,23 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
                 </Text>
                 <Text style={styles.modeCardDesc}>Haftalık izin · kademeli azalt</Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setAddictionMode('rule')}
+                style={[styles.modeCard, addictionMode === 'rule' && styles.modeCardActive]}>
+                <Text
+                  style={[
+                    styles.modeCardTitle,
+                    addictionMode === 'rule' && styles.modeCardTitleActive,
+                  ]}>
+                  Kural
+                </Text>
+                <Text style={styles.modeCardDesc}>Kişisel kural · tut/tutma</Text>
+              </TouchableOpacity>
             </View>
 
-            {addictionMode === 'abstinence' ? (
+            {addictionMode === 'abstinence' && (
               <>
                 <Text style={styles.addictionDesc}>
                   Ömür boyu değil, sadece{'\n'}bir sonraki turu düşün.
@@ -494,7 +512,9 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
                   kaç kez ayağa kalktığın.
                 </Text>
               </>
-            ) : (
+            )}
+
+            {addictionMode === 'limit' && (
               <>
                 {/* Periyot: günlük / haftalık */}
                 <View style={styles.periodRow}>
@@ -596,8 +616,33 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
               </>
             )}
 
-            <Button onPress={handleStartAddiction} style={styles.actionButton}>
-              {addictionMode === 'abstinence' ? 'Savaşı Başlat' : 'Takibi Başlat'}
+            {addictionMode === 'rule' && (
+              <>
+                <Text style={styles.addictionDesc}>Bırakamasan da{'\n'}bir kural koy.</Text>
+                <BottomSheetTextInput
+                  style={styles.ruleInput}
+                  value={rule}
+                  onChangeText={setRule}
+                  placeholder="Örn. Aç karına içme"
+                  placeholderTextColor={theme.colors.typography.TERTIARY}
+                  multiline
+                />
+                <Text style={styles.addictionNote}>
+                  Her gün "kuralına uydun mu?" diye işaretlersin. Tam bırakmak değil; küçük,
+                  sürdürülebilir bir sınır. Tutamadığın gün ceza değil — sadece veri.
+                </Text>
+              </>
+            )}
+
+            <Button
+              onPress={handleStartAddiction}
+              style={styles.actionButton}
+              disabled={addictionMode === 'rule' && rule.trim().length === 0}>
+              {addictionMode === 'abstinence'
+                ? 'Savaşı Başlat'
+                : addictionMode === 'rule'
+                  ? 'Kuralı Koy'
+                  : 'Takibi Başlat'}
             </Button>
           </View>
         ) : (
@@ -1163,6 +1208,17 @@ const stylesheet = StyleSheet.create(theme => ({
     fontFamily: theme.fontFamily.regular,
     color: theme.colors.typography.SECONDARY,
     lineHeight: 22,
+  },
+  ruleInput: {
+    fontSize: theme.fontSizes.lg,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.typography.PRIMARY,
+    backgroundColor: theme.colors.background.PRIMARY,
+    borderRadius: theme.borderRadius['4xl'],
+    paddingHorizontal: theme.spacing[4],
+    paddingVertical: theme.spacing[3],
+    marginVertical: theme.spacing[3],
+    minHeight: 56,
   },
 }));
 
