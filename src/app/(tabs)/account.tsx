@@ -8,6 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Text } from '#components/atoms';
 import Svg from '#components/atoms/svg';
 import MirrorAvatar from '#components/mirror-avatar';
+import GlassCard from '#components/glass-card';
 import { Camera } from '#assets/svg';
 import { StyleSheet, useStyles } from '#theme/unistyles';
 import { onboardingStorage } from '#/utils';
@@ -104,12 +105,14 @@ export default function AccountScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 96 }]}>
+      <View style={styles.bloom} pointerEvents="none" />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profil</Text>
       </View>
 
       {/* Avatar + isim */}
-      <View style={styles.profileCard}>
+      <GlassCard radius={28} style={styles.profileCard}>
+        <View style={styles.profilePad}>
         <View style={styles.avatarWrap}>
           <TouchableOpacity activeOpacity={0.85} onPress={handleAvatarPress}>
             <MirrorAvatar uri={avatarUri} initial={initial} size={84} />
@@ -157,15 +160,19 @@ export default function AccountScreen() {
             </TouchableOpacity>
           </>
         )}
-      </View>
+        </View>
+      </GlassCard>
 
       {/* Test aracı — TestFlight/dahili sürümde görünür; halka açık sürümden önce gizlenecek */}
       <TouchableOpacity
         activeOpacity={0.7}
-        onPress={() => router.push('/test-scenarios')}
-        style={styles.devRow}>
-        <Text style={styles.devRowText}>🧪 Test Senaryoları</Text>
-        <Text style={styles.devRowHint}>Test turları ›</Text>
+        onPress={() => router.push('/test-scenarios')}>
+        <GlassCard radius={20} style={styles.devRow}>
+          <View style={styles.devRowInner}>
+            <Text style={styles.devRowText}>🧪 Test Senaryoları</Text>
+            <Text style={styles.devRowHint}>Test turları ›</Text>
+          </View>
+        </GlassCard>
       </TouchableOpacity>
 
       {/* Tehlikeli bölge */}
@@ -196,10 +203,20 @@ const stylesheet = StyleSheet.create(theme => ({
     color: theme.colors.typography.PRIMARY,
   },
 
+  bloom: {
+    position: 'absolute',
+    top: -110,
+    right: -70,
+    width: 340,
+    height: 340,
+    borderRadius: 340,
+    backgroundColor: theme.colors.primaryLighter,
+    opacity: 0.45,
+  },
   profileCard: {
-    backgroundColor: theme.colors.white,
     marginHorizontal: theme.spacing[4],
-    borderRadius: theme.borderRadius['5xl'],
+  },
+  profilePad: {
     padding: theme.spacing[6],
     alignItems: 'center',
   },
@@ -282,15 +299,15 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 
   devRow: {
+    marginHorizontal: theme.spacing[4],
+    marginTop: theme.spacing[4],
+  },
+  devRowInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginHorizontal: theme.spacing[4],
-    marginTop: theme.spacing[4],
     paddingVertical: theme.spacing[4],
     paddingHorizontal: theme.spacing[5],
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius['4xl'],
   },
   devRowText: {
     fontSize: theme.fontSizes.base,
