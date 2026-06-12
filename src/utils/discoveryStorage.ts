@@ -39,14 +39,14 @@ export interface ThemeSummary {
   recent: DiscoveryExperience[]; // en yeni 3
 }
 
-// ── Geçiş için eski (v1) tipler — Faz 7'de kaldırılacak ───────────────────────
-export interface DiscoveryItem {
+// v1 (eski) şekil — sadece migrasyon okuması için
+interface LegacyItem {
   id: string;
   emoji: string;
   title: string;
   createdAt: number;
 }
-export interface DiscoveryEntry {
+interface LegacyEntry {
   id: string;
   itemId: string;
   time: number;
@@ -55,14 +55,6 @@ export interface DiscoveryEntry {
 
 function uid(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-function startOfWeek(ts: number): number {
-  const d = new Date(ts);
-  d.setHours(0, 0, 0, 0);
-  const day = (d.getDay() + 6) % 7; // Pazartesi = 0
-  d.setDate(d.getDate() - day);
-  return d.getTime();
 }
 
 export function resolveThemeEmoji(t: DiscoveryTheme): string {
@@ -79,8 +71,8 @@ async function migrate(): Promise<void> {
   const pairs = await AsyncStorage.multiGet([LEGACY_ITEMS, LEGACY_ENTRIES]);
   const rawItems = pairs.find(p => p[0] === LEGACY_ITEMS)?.[1];
   const rawEntries = pairs.find(p => p[0] === LEGACY_ENTRIES)?.[1];
-  const oldItems: DiscoveryItem[] = rawItems ? JSON.parse(rawItems) : [];
-  const oldEntries: DiscoveryEntry[] = rawEntries ? JSON.parse(rawEntries) : [];
+  const oldItems: LegacyItem[] = rawItems ? JSON.parse(rawItems) : [];
+  const oldEntries: LegacyEntry[] = rawEntries ? JSON.parse(rawEntries) : [];
   const themes: DiscoveryTheme[] = oldItems.map(it => ({
     id: it.id,
     themeKey: 'other',
@@ -196,53 +188,6 @@ const discoveryStorage = {
       out[themeId] = { count: list.length, last: list[0], recent: list.slice(0, 3) };
     }
     return out;
-  },
-
-  // ── Geçiş shim'leri (eski API) — Faz 7'de kaldırılacak ──────────────────────
-  async getItems(): Promise<DiscoveryItem[]> {
-    const themes = await this.getThemes();
-    return themes.map(t => ({
-      id: t.id,
-      emoji: resolveThemeEmoji(t),
-      title: resolveThemeTitle(t),
-      createdAt: t.createdAt,
-    }));
-  },
-  async addItem(emoji: string, title: string): Promise<DiscoveryItem> {
-    const theme = await this.addTheme('other', title);
-    await this.updateTheme(theme.id, { emoji });
-    return { id: theme.id, emoji, title: title.trim(), createdAt: theme.createdAt };
-  },
-  async updateItem(id: string, emoji: string, title: string): Promise<void> {
-    await this.updateTheme(id, { title, emoji });
-  },
-  async removeItem(id: string): Promise<void> {
-    await this.removeTheme(id);
-  },
-  async getEntries(itemId: string): Promise<DiscoveryEntry[]> {
-    const exps = await this.getExperiences(itemId);
-    return exps.map(e => ({ id: e.id, itemId: e.themeId, time: e.createdAt, text: e.title }));
-  },
-  async addEntry(itemId: string, text: string): Promise<DiscoveryEntry> {
-    const exp = await this.addExperience(itemId, { title: text });
-    return { id: exp.id, itemId: exp.themeId, time: exp.createdAt, text: exp.title };
-  },
-  async removeEntry(entryId: string): Promise<void> {
-    await this.removeExperience(entryId);
-  },
-  async getThisWeekByItem(): Promise<Record<string, DiscoveryEntry | undefined>> {
-    const all = await this.getAllExperiences();
-    const weekStart = startOfWeek(Date.now());
-    const map: Record<string, DiscoveryEntry | undefined> = {};
-    for (const e of all) {
-      if (e.createdAt >= weekStart) {
-        const prev = map[e.themeId];
-        if (!prev || e.createdAt > prev.time) {
-          map[e.themeId] = { id: e.id, itemId: e.themeId, time: e.createdAt, text: e.title };
-        }
-      }
-    }
-    return map;
   },
 };
 

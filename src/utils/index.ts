@@ -45,8 +45,6 @@ export type {
   DiscoveryExperience,
   NewExperience,
   ThemeSummary,
-  DiscoveryItem,
-  DiscoveryEntry,
 } from './discoveryStorage';
 export {
   THEME_CATALOG,
