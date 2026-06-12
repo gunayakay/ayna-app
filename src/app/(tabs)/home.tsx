@@ -3,6 +3,7 @@ import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 
 import { Text } from '#components/atoms';
 import AddictionWidget from '#components/addiction-widget';
@@ -21,8 +22,10 @@ import {
   battleStorage,
   addGoalSheetRef,
   discoveryStorage,
-  DiscoveryItem,
-  DiscoveryEntry,
+  resolveThemeEmoji,
+  resolveThemeTitle,
+  DiscoveryTheme,
+  ThemeSummary,
   setupDailyReminder,
 } from '#/utils';
 
@@ -68,6 +71,9 @@ const ADDICTION_CONFIG: Record<string, { icon: string; title: string }> = {
   pornography: { icon: '🔞', title: 'Pornografi' },
 };
 
+// Keşfet thumb yığını tonları
+const KF_TINTS = ['#FBEAD7', '#E2EEF4', '#EFE4F6'];
+
 // Derive input mode from widget config
 function deriveInputMode(config: { maxValue: number; unit?: string }): InputMode {
   if (config.maxValue <= 1) return 'check';
@@ -87,8 +93,8 @@ export default function HomeScreen() {
   const [goalCategories, setGoalCategories] = useState<Record<string, GoalCategory>>({});
   const [activeSheetId, setActiveSheetId] = useState<string | null>(null);
   const [clarity, setClarity] = useState(1); // ayna berraklığı (kümülatif, son 3 gün)
-  const [discoveryItems, setDiscoveryItems] = useState<DiscoveryItem[]>([]);
-  const [discoveryWeek, setDiscoveryWeek] = useState<Record<string, DiscoveryEntry | undefined>>({});
+  const [themes, setThemes] = useState<DiscoveryTheme[]>([]);
+  const [themeSummaries, setThemeSummaries] = useState<Record<string, ThemeSummary>>({});
 
   const sheetRef = useRef<BottomSheetModal>(null);
 
@@ -185,8 +191,8 @@ export default function HomeScreen() {
     }
 
     // Keşfet (içerikli alışkanlık)
-    setDiscoveryItems(await discoveryStorage.getItems());
-    setDiscoveryWeek(await discoveryStorage.getThisWeekByItem());
+    setThemes(await discoveryStorage.getThemes());
+    setThemeSummaries(await discoveryStorage.getSummaryByTheme());
   };
 
 
@@ -362,33 +368,52 @@ export default function HomeScreen() {
           </>
         )}
 
-        {/* Keşfet — içerikli alışkanlık (dene + arşiv). Ekleme + butonundan. */}
-        {discoveryItems.length > 0 && (
+        {/* Keşfet — deneyim defteri. Tema kartları (arşiv); Hedefler'in halkası yok. */}
+        {themes.length > 0 && (
           <>
-            <Text style={styles.sectionTitle}>Keşfet</Text>
+            <View style={styles.kfHead}>
+              <Text style={styles.sectionTitle}>Keşfet</Text>
+              <Text style={styles.kfPill}>yeni dene</Text>
+            </View>
             <View style={styles.rows}>
-              {discoveryItems.map(item => {
-                const week = discoveryWeek[item.id];
+              {themes.map(t => {
+                const emoji = resolveThemeEmoji(t);
+                const title = resolveThemeTitle(t);
+                const sum = themeSummaries[t.id];
+                const count = sum?.count ?? 0;
                 return (
                   <TouchableOpacity
-                    key={item.id}
+                    key={t.id}
                     activeOpacity={0.85}
-                    onPress={() =>
-                      router.push({
-                        pathname: '/discovery/[id]',
-                        params: { id: item.id, emoji: item.emoji, title: item.title },
-                      })
-                    }>
+                    onPress={() => router.push({ pathname: '/discovery/[id]', params: { id: t.id } })}>
                     <GlassCard radius={22}>
                       <View style={styles.row}>
-                        <Text style={styles.rowEmoji}>{item.emoji}</Text>
+                        <View style={styles.kfEmoji}><Text style={styles.kfEmojiText}>{emoji}</Text></View>
                         <View style={styles.rowMid}>
-                          <Text style={styles.rowName}>{item.title}</Text>
-                          <Text style={styles.rowSub} numberOfLines={1}>
-                            haftada 1 · {week ? <Text style={styles.rowVal}>{week.text}</Text> : 'bu hafta eklenmedi'}
-                          </Text>
+                          <Text style={styles.rowName}>{title}</Text>
+                          {count > 0 ? (
+                            <Text style={styles.rowSub} numberOfLines={1}>
+                              {count} deneyim{sum?.last ? ` · son: ${sum.last.title}` : ''}
+                            </Text>
+                          ) : (
+                            <Text style={styles.kfNudge} numberOfLines={1}>Henüz bir şey eklemedin →</Text>
+                          )}
                         </View>
-                        <ProgressRing progress={week ? 1 : 0} mode={week ? 'done' : 'plus'} />
+                        {count > 0 ? (
+                          <View style={styles.thumbStack}>
+                            {sum!.recent.map((e, i) => (
+                              <View key={e.id} style={[styles.thumb, { marginLeft: i === 0 ? 0 : -10, backgroundColor: KF_TINTS[i % KF_TINTS.length] }]}>
+                                {e.photoUri ? (
+                                  <Image source={{ uri: e.photoUri }} style={styles.thumbImg} contentFit="cover" />
+                                ) : (
+                                  <Text style={styles.thumbEmoji}>{emoji}</Text>
+                                )}
+                              </View>
+                            ))}
+                          </View>
+                        ) : (
+                          <View style={styles.kfGo}><Text style={styles.kfGoText}>›</Text></View>
+                        )}
                       </View>
                     </GlassCard>
                   </TouchableOpacity>
@@ -399,7 +424,7 @@ export default function HomeScreen() {
         )}
 
         {/* Boş durum */}
-        {!hasAnyWidget && discoveryItems.length === 0 && (
+        {!hasAnyWidget && themes.length === 0 && (
           <View style={styles.emptyState}>
             <Text style={styles.emptyTitle}>Henüz bir hedefin yok.</Text>
             <Text style={styles.emptySubtitle}>Başlamak için (+) butonuna dokun.</Text>
@@ -536,6 +561,31 @@ const stylesheet = StyleSheet.create(theme => ({
     marginBottom: theme.spacing[2],
     marginLeft: theme.spacing[1],
   },
+  // Keşfet
+  kfHead: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing[2] },
+  kfPill: {
+    fontSize: 9.5, fontFamily: theme.fontFamily.bold, color: theme.colors.primaryDarker,
+    backgroundColor: theme.colors.primaryLightest, paddingHorizontal: theme.spacing[2], paddingVertical: 2,
+    borderRadius: theme.borderRadius.full, overflow: 'hidden', marginTop: theme.spacing[2],
+  },
+  kfEmoji: {
+    width: 44, height: 44, borderRadius: theme.borderRadius.xl, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: theme.colors.primaryLightest,
+  },
+  kfEmojiText: { fontSize: 23 },
+  kfNudge: { fontSize: theme.fontSizes.xs, fontFamily: theme.fontFamily.bold, color: theme.colors.primaryDarker, marginTop: 1 },
+  thumbStack: { flexDirection: 'row', alignItems: 'center' },
+  thumb: {
+    width: 34, height: 34, borderRadius: 9, overflow: 'hidden', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: theme.colors.background.MODAL,
+  },
+  thumbImg: { width: '100%', height: '100%' },
+  thumbEmoji: { fontSize: 16 },
+  kfGo: {
+    width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: theme.colors.background.PRIMARY, borderWidth: 1, borderColor: theme.colors.border.PRIMARY,
+  },
+  kfGoText: { fontSize: theme.fontSizes.lg, color: theme.colors.typography.TERTIARY, marginTop: -2 },
   // hero
   hero: { marginTop: theme.spacing[1] },
   heroRow: {
