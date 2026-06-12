@@ -1,7 +1,7 @@
 import { RefreshControl, View } from 'react-native';
 
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from './atoms';
 
@@ -52,7 +52,7 @@ export default function List<T>({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',

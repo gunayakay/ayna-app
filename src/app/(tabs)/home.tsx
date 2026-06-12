@@ -2,14 +2,14 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Text } from '#components/atoms';
 import AddictionWidget from '#components/addiction-widget';
 import MirrorAvatar from '#components/mirror-avatar';
 import CheckInSheet, { InputMode } from '#components/check-in-sheet';
-import GhostWidget from '#components/ghost-widget';
-import ProgressBar from '#components/progress-bar';
+import GlassCard from '#components/glass-card';
+import ProgressRing from '#components/progress-ring';
 import { StyleSheet, useStyles } from '#theme/unistyles';
 import {
   onboardingStorage,
@@ -20,6 +20,10 @@ import {
   HabitFrequency,
   battleStorage,
   addGoalSheetRef,
+  discoveryStorage,
+  DiscoveryItem,
+  DiscoveryEntry,
+  setupDailyReminder,
 } from '#/utils';
 
 // Widget configuration based on action IDs
@@ -74,6 +78,7 @@ function deriveInputMode(config: { maxValue: number; unit?: string }): InputMode
 export default function HomeScreen() {
   const { styles, theme } = useStyles(stylesheet);
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   const [userData, setUserData] = useState<OnboardingData | null>(null);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
@@ -81,6 +86,9 @@ export default function HomeScreen() {
   const [goalSettings, setGoalSettings] = useState<Record<string, GoalSettings>>({});
   const [goalCategories, setGoalCategories] = useState<Record<string, GoalCategory>>({});
   const [activeSheetId, setActiveSheetId] = useState<string | null>(null);
+  const [clarity, setClarity] = useState(1); // ayna berraklığı (kümülatif, son 3 gün)
+  const [discoveryItems, setDiscoveryItems] = useState<DiscoveryItem[]>([]);
+  const [discoveryWeek, setDiscoveryWeek] = useState<Record<string, DiscoveryEntry | undefined>>({});
 
   const sheetRef = useRef<BottomSheetModal>(null);
 
@@ -94,6 +102,11 @@ export default function HomeScreen() {
   // Reload when a goal is added via AddGoalSheet (sheet doesn't trigger focus change)
   useEffect(() => {
     return addGoalSheetRef.onGoalsChanged(loadUserData);
+  }, []);
+
+  // Günlük 23:00 hatırlatma (ilk açılışta izin ister, bir kez kurar)
+  useEffect(() => {
+    setupDailyReminder();
   }, []);
 
   const loadUserData = async () => {
@@ -135,7 +148,47 @@ export default function HomeScreen() {
     }
 
     setWidgetValues(initialValues);
+
+    // ── Ayna berraklığı (kümülatif, son 3 gün · recency-ağırlıklı) ──
+    // İhmal → buğu birikir; ardışık iyi günler → berraklaşır (~3 gün streak temizler).
+    const habitGoalIds = activeGoals.filter(
+      gid => WIDGET_CONFIG[gid] && categories[gid] !== 'addiction'
+    );
+    if (habitGoalIds.length === 0) {
+      setClarity(1);
+    } else {
+      const weights = [1, 0.7, 0.45]; // bugün, dün, evvelsi gün
+      let wsum = 0;
+      let csum = 0;
+      for (let i = 0; i < weights.length; i++) {
+        const dk = getDayKey(Date.now() - i * 86400000);
+        let goalSum = 0;
+        let goalN = 0;
+        for (const gid of habitGoalIds) {
+          const cfg = WIDGET_CONFIG[gid];
+          const mx = settings[gid]?.targetValue ?? cfg.maxValue;
+          if (mx <= 0) continue;
+          let dayVal = 0;
+          for (const b of allBattles) {
+            if (b.goalId === gid && getDayKey(b.timestamp) === dk) {
+              dayVal = Math.max(dayVal, b.value);
+            }
+          }
+          goalSum += Math.min(1, dayVal / mx);
+          goalN++;
+        }
+        const dayCompletion = goalN > 0 ? goalSum / goalN : 0;
+        csum += dayCompletion * weights[i];
+        wsum += weights[i];
+      }
+      setClarity(wsum > 0 ? csum / wsum : 1);
+    }
+
+    // Keşfet (içerikli alışkanlık)
+    setDiscoveryItems(await discoveryStorage.getItems());
+    setDiscoveryWeek(await discoveryStorage.getThisWeekByItem());
   };
+
 
   const greeting = getGreeting();
   const userName = userData?.userName || 'Kullanıcı';
@@ -152,7 +205,6 @@ export default function HomeScreen() {
     const config = WIDGET_CONFIG[activeSheetId];
     if (!config) return;
     const maxValue = goalSettings[activeSheetId]?.targetValue ?? config.maxValue;
-    const frequency = goalSettings[activeSheetId]?.frequency ?? { type: 'daily' as const };
     await battleStorage.save({
       goalId: activeSheetId,
       timestamp: Date.now(),
@@ -190,181 +242,188 @@ export default function HomeScreen() {
 
   const hasAnyWidget = addictionWidgets.length > 0 || habitWidgets.length > 0;
 
+  // ── Hero (B sesi + ayna berraklığı) ──
+  const doneCount = habitWidgets.filter(w => w.maxValue > 0 && w.value >= w.maxValue).length;
+  const totalCount = habitWidgets.length;
+  const hero = computeHero(userName, doneCount, totalCount, hasAnyWidget);
+  // clarity artık state'te (loadUserData'da kümülatif son-3-gün hesaplanıyor)
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.avatarContainer}>
-            <MirrorAvatar uri={avatarUri} initial={userInitial} size={48} />
-          </View>
-          <View style={styles.greetingContainer}>
-            <Text style={styles.greeting}>
-              {greeting}, {userName}.
-            </Text>
-            <Text style={styles.dateText}>{formatTodayDate()}</Text>
-          </View>
-        </View>
+      {/* sıcak ışık bloom'u */}
+      <View style={styles.bloomTop} pointerEvents="none" />
+      <View style={styles.bloomBottom} pointerEvents="none" />
 
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}>
-          {/* Direnç section */}
-          {addictionWidgets.length > 0 && (
-            <>
-              <Text style={styles.sectionTitle}>Direniş</Text>
-              <View style={styles.widgetGrid}>
-                {addictionWidgets.map(w => (
-                  <AddictionWidget
-                    key={w.id}
-                    id={w.id}
-                    icon={w.icon}
-                    title={w.title}
-                    onRemove={loadUserData}
-                  />
-                ))}
-              </View>
-            </>
-          )}
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.greeting}>
+          {greeting}, {userName}.
+        </Text>
+        <Text style={styles.dateText}>{formatTodayDate()}</Text>
+      </View>
 
-          {/* Hedefler section */}
-          {habitWidgets.length > 0 && (
-            <>
-              <Text style={styles.sectionTitle}>Hedefler</Text>
-              <View style={styles.widgetGrid}>
-              {habitWidgets.map(widget => {
-                if (widget.type === 'circular') {
-                  const done = widget.maxValue > 0 && widget.value >= widget.maxValue;
-                  const progress = widget.maxValue > 0 ? widget.value / widget.maxValue : 0;
-                  return (
-                    <TouchableOpacity
-                      key={widget.id}
-                      activeOpacity={0.7}
-                      onPress={() => handleWidgetPress(widget.id)}
-                      style={styles.widgetCard}>
-                      <Text style={styles.widgetTitle}>
-                        {widget.icon} {widget.title}
-                      </Text>
-                      <Text style={styles.widgetValue}>
-                        {widget.value}
-                        <Text style={styles.widgetValueUnit}> {widget.unit}</Text>
-                      </Text>
-                      <Text style={[styles.widgetSubtext, done && { color: theme.colors.success }]}>
-                        {done ? 'Tamamlandı ✓' : `Hedef: ${widget.maxValue} ${widget.unit ?? ''}`}
-                      </Text>
-                      {!done && widget.frequency && (
-                        <Text style={styles.widgetFreq}>
-                          {formatFrequency(widget.frequency)}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}>
+        {/* HERO — büyük ayna + B sesi */}
+        <GlassCard radius={28} intensity={26} style={styles.hero}>
+          <View style={styles.heroRow}>
+            <MirrorAvatar uri={avatarUri} initial={userInitial} size={84} clarity={clarity} />
+            <View style={styles.heroText}>
+              <Text style={styles.heroTitle}>{hero.title}</Text>
+              <Text style={styles.heroSub}>{hero.sub}</Text>
+              {habitWidgets.length > 0 && (
+                <View style={styles.chips}>
+                  {habitWidgets.map(w => {
+                    const done = w.maxValue > 0 && w.value >= w.maxValue;
+                    return (
+                      <View key={w.id} style={[styles.chip, done && styles.chipDone]}>
+                        <Text style={[styles.chipText, done && styles.chipTextDone]}>
+                          {done ? '✓ ' : ''}{w.icon} {w.title}
                         </Text>
-                      )}
-                      <View style={styles.progressContainer}>
-                        <ProgressBar progress={progress} height={6} />
                       </View>
-                    </TouchableOpacity>
-                  );
-                }
+                    );
+                  })}
+                </View>
+              )}
+            </View>
+          </View>
+        </GlassCard>
 
-                if (widget.type === 'wide') {
-                  return (
-                    <TouchableOpacity
-                      key={widget.id}
-                      activeOpacity={0.7}
-                      onPress={() => handleWidgetPress(widget.id)}
-                      style={[styles.widgetCard, styles.widgetCardWide]}>
-                      <Text style={styles.widgetTitle}>
-                        {widget.icon} {widget.title}
-                      </Text>
-                      <Text style={styles.widgetValue}>
-                        {widget.value.toLocaleString()}
-                        {widget.unit} / {widget.maxValue.toLocaleString()}
-                        {widget.unit}
-                      </Text>
-                      <View style={styles.progressContainer}>
-                        <ProgressBar progress={widget.value / widget.maxValue} height={12} />
-                      </View>
-                    </TouchableOpacity>
-                  );
-                }
+        {/* Direniş */}
+        {addictionWidgets.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Direniş</Text>
+            <View style={styles.rows}>
+              {addictionWidgets.map(w => (
+                <AddictionWidget
+                  key={w.id}
+                  id={w.id}
+                  icon={w.icon}
+                  title={w.title}
+                  onRemove={loadUserData}
+                />
+              ))}
+            </View>
+          </>
+        )}
 
-                // Check-type: status text instead of progress bar
-                if (widget.inputMode === 'check') {
-                  const isDone = widget.value >= 1;
-                  return (
-                    <TouchableOpacity
-                      key={widget.id}
-                      activeOpacity={0.7}
-                      onPress={() => handleWidgetPress(widget.id)}
-                      style={styles.widgetCard}>
-                      <Text style={styles.widgetTitle}>
-                        {widget.icon} {widget.title}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.widgetStatus,
-                          isDone && { color: theme.colors.success },
-                        ]}>
-                        {isDone ? 'Tamamlandı ✓' : 'Yapılmadı'}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                }
-
-                // Default progress bar type
+        {/* Hedefler — kompakt glass satırlar */}
+        {habitWidgets.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Hedefler</Text>
+            <View style={styles.rows}>
+              {habitWidgets.map(widget => {
+                const done = widget.maxValue > 0 && widget.value >= widget.maxValue;
+                const progress = widget.maxValue > 0 ? widget.value / widget.maxValue : 0;
+                const unitLabel = widget.unit ?? widget.maxLabel ?? '';
                 return (
                   <TouchableOpacity
                     key={widget.id}
-                    activeOpacity={0.7}
-                    onPress={() => handleWidgetPress(widget.id)}
-                    style={styles.widgetCard}>
-                    <Text style={styles.widgetTitle}>
-                      {widget.icon} {widget.title}
-                    </Text>
-                    <Text style={styles.widgetValue}>
-                      {widget.value} / {widget.maxValue} {widget.maxLabel || ''}
-                    </Text>
-                    <View style={styles.progressContainer}>
-                      <ProgressBar progress={widget.value / widget.maxValue} height={12} />
-                    </View>
+                    activeOpacity={0.85}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/goal/[id]',
+                        params: {
+                          id: widget.id,
+                          icon: widget.icon,
+                          title: widget.title,
+                          unit: unitLabel,
+                          maxValue: String(widget.maxValue),
+                          value: String(widget.value),
+                        },
+                      })
+                    }>
+                    <GlassCard radius={22}>
+                      <View style={styles.row}>
+                        <Text style={styles.rowEmoji}>{widget.icon}</Text>
+                        <View style={styles.rowMid}>
+                          <Text style={[styles.rowName, done && { color: theme.colors.success }]}>
+                            {widget.title}
+                          </Text>
+                          <Text style={styles.rowSub}>
+                            <Text style={styles.rowVal}>{widget.value}</Text>
+                            {' / '}{widget.maxValue} {unitLabel}
+                          </Text>
+                        </View>
+                        <TouchableOpacity
+                          activeOpacity={0.7}
+                          onPress={() => handleWidgetPress(widget.id)}
+                          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                          <ProgressRing progress={progress} mode={done ? 'done' : 'plus'} />
+                        </TouchableOpacity>
+                      </View>
+                    </GlassCard>
                   </TouchableOpacity>
                 );
               })}
-              </View>
-            </>
-          )}
-
-          {/* Ghost UI empty state */}
-          {!hasAnyWidget && (
-            <View style={styles.emptyState}>
-              <View style={styles.ghostGrid}>
-                <GhostWidget />
-                <GhostWidget />
-                <GhostWidget wide />
-              </View>
-              <Text style={styles.emptyTitle}>Henüz bir hedefin yok.</Text>
-              <Text style={styles.emptySubtitle}>
-                Başlamak için (+) butonuna dokun.
-              </Text>
             </View>
-          )}
-        </ScrollView>
-
-        {/* Dynamic Check-in Sheet (habit goals only) */}
-        {activeConfig && (
-          <CheckInSheet
-            ref={sheetRef}
-            title={activeConfig.title}
-            icon={activeConfig.icon}
-            goalId={activeSheetId || undefined}
-            inputMode={deriveInputMode(activeConfig)}
-            unit={activeConfig.unit}
-            step={activeConfig.step}
-            maxValue={activeMaxValue}
-            maxLabel={activeConfig.maxLabel}
-            initialValue={activeSheetId ? widgetValues[activeSheetId] || 0 : 0}
-            onUpdate={handleWidgetUpdate}
-          />
+          </>
         )}
-      </View>
+
+        {/* Keşfet — içerikli alışkanlık (dene + arşiv). Ekleme + butonundan. */}
+        {discoveryItems.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Keşfet</Text>
+            <View style={styles.rows}>
+              {discoveryItems.map(item => {
+                const week = discoveryWeek[item.id];
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    activeOpacity={0.85}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/discovery/[id]',
+                        params: { id: item.id, emoji: item.emoji, title: item.title },
+                      })
+                    }>
+                    <GlassCard radius={22}>
+                      <View style={styles.row}>
+                        <Text style={styles.rowEmoji}>{item.emoji}</Text>
+                        <View style={styles.rowMid}>
+                          <Text style={styles.rowName}>{item.title}</Text>
+                          <Text style={styles.rowSub} numberOfLines={1}>
+                            haftada 1 · {week ? <Text style={styles.rowVal}>{week.text}</Text> : 'bu hafta eklenmedi'}
+                          </Text>
+                        </View>
+                        <ProgressRing progress={week ? 1 : 0} mode={week ? 'done' : 'plus'} />
+                      </View>
+                    </GlassCard>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </>
+        )}
+
+        {/* Boş durum */}
+        {!hasAnyWidget && discoveryItems.length === 0 && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyTitle}>Henüz bir hedefin yok.</Text>
+            <Text style={styles.emptySubtitle}>Başlamak için (+) butonuna dokun.</Text>
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Check-in Sheet */}
+      {activeConfig && (
+        <CheckInSheet
+          ref={sheetRef}
+          title={activeConfig.title}
+          icon={activeConfig.icon}
+          goalId={activeSheetId || undefined}
+          inputMode={deriveInputMode(activeConfig)}
+          unit={activeConfig.unit}
+          step={activeConfig.step}
+          maxValue={activeMaxValue}
+          maxLabel={activeConfig.maxLabel}
+          initialValue={activeSheetId ? widgetValues[activeSheetId] || 0 : 0}
+          onUpdate={handleWidgetUpdate}
+        />
+      )}
+    </View>
   );
 }
 
@@ -376,14 +435,6 @@ function formatTodayDate(): string {
   return `${TR_DAYS[d.getDay()]}, ${d.getDate()} ${TR_MONTHS_LONG[d.getMonth()]}`;
 }
 
-function formatFrequency(freq?: HabitFrequency): string {
-  if (!freq) return '';
-  if (freq.type === 'daily') return 'Her gün';
-  if (freq.type === 'weekly') return `Haftada ${freq.timesPerWeek} kez`;
-  if (freq.type === 'interval') return `Her ${freq.hours} saatte bir`;
-  return '';
-}
-
 function getDayKey(ts: number): string {
   const d = new Date(ts);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -391,10 +442,41 @@ function getDayKey(ts: number): string {
 
 function getGreeting(): string {
   const hour = new Date().getHours();
-
   if (hour < 12) return 'Günaydın';
   if (hour < 18) return 'İyi günler';
   return 'İyi akşamlar';
+}
+
+// B sesi — güne göre değişen ayna konuşması (yargısız, sakin)
+function computeHero(
+  userName: string,
+  done: number,
+  total: number,
+  hasAny: boolean
+): { title: string; sub: string } {
+  if (!hasAny) {
+    return {
+      title: `Yeni bir gün, ${userName}.`,
+      sub: 'Henüz aramızda bir şey geçmedi. Başlamak için bir hedef ekle.',
+    };
+  }
+  if (total === 0) {
+    return { title: 'Bugün buradasın.', sub: 'Aynan seni bekliyor.' };
+  }
+  if (done === 0) {
+    return { title: 'Bugüne henüz başlamadın.', sub: 'Birinden başla — hangisi olursa. Gerisi gelir.' };
+  }
+  if (done >= total) {
+    return {
+      title: 'Bugün kendine baktın.',
+      sub: `${total} hedef, ${total} kez döndün. Bunu ben yapmadım — sen yaptın.`,
+    };
+  }
+  const left = total - done;
+  if (done >= total / 2) {
+    return { title: 'Yarısını getirdin.', sub: `${left} şey duruyor. Bugünü tamamlamana az kaldı.` };
+  }
+  return { title: 'Başladın. Görüyorum.', sub: `${left} şey daha seni bekliyor.` };
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -402,22 +484,35 @@ const stylesheet = StyleSheet.create(theme => ({
     flex: 1,
     backgroundColor: theme.colors.background.PRIMARY,
   },
+  bloomTop: {
+    position: 'absolute',
+    top: -120,
+    right: -80,
+    width: 360,
+    height: 360,
+    borderRadius: 360,
+    backgroundColor: theme.colors.primaryLighter,
+    opacity: 0.5,
+  },
+  bloomBottom: {
+    position: 'absolute',
+    bottom: -100,
+    left: -60,
+    width: 320,
+    height: 320,
+    borderRadius: 320,
+    backgroundColor: theme.colors.primaryLightest,
+    opacity: 0.6,
+  },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing[4],
+    paddingHorizontal: theme.spacing[5],
     paddingVertical: theme.spacing[3],
-  },
-  avatarContainer: {
-    marginRight: theme.spacing[3],
-  },
-  greetingContainer: {
-    flex: 1,
   },
   greeting: {
     fontSize: theme.fontSizes['2xl'],
-    fontFamily: theme.fontFamily.bold,
+    fontFamily: theme.fontFamily.extraBold,
     color: theme.colors.typography.PRIMARY,
+    letterSpacing: -0.4,
   },
   dateText: {
     fontSize: theme.fontSizes.sm,
@@ -425,92 +520,94 @@ const stylesheet = StyleSheet.create(theme => ({
     color: theme.colors.typography.SECONDARY,
     marginTop: theme.spacing[1],
   },
+  scrollView: { flex: 1 },
+  scrollContent: {
+    paddingHorizontal: theme.spacing[5],
+    paddingBottom: theme.spacing[24],
+    gap: theme.spacing[2],
+  },
   sectionTitle: {
     fontSize: theme.fontSizes.xs,
-    fontFamily: theme.fontFamily.semiBold,
-    color: theme.colors.typography.SECONDARY,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: theme.spacing[3],
-    marginTop: theme.spacing[1],
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: theme.spacing[4],
-    paddingBottom: theme.spacing[24],
-  },
-  addictionSection: {
-    gap: theme.spacing[3],
-    marginBottom: theme.spacing[3],
-    backgroundColor: theme.colors.primaryLighter,
-    borderRadius: theme.borderRadius['6xl'],
-    padding: theme.spacing[3],
-  },
-  widgetGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing[3],
-  },
-  widgetCard: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius['6xl'],
-    padding: theme.spacing[5],
-    flex: 1,
-    minWidth: '45%',
-  },
-  widgetCardWide: {
-    minWidth: '100%',
-  },
-  widgetTitle: {
-    fontSize: theme.fontSizes.base,
-    fontFamily: theme.fontFamily.semiBold,
-    color: theme.colors.typography.SECONDARY,
-    marginBottom: theme.spacing[2],
-  },
-  widgetValue: {
-    fontSize: theme.fontSizes['2xl'],
     fontFamily: theme.fontFamily.bold,
-    color: theme.colors.typography.PRIMARY,
-    marginBottom: theme.spacing[1],
-  },
-  widgetValueUnit: {
-    fontSize: theme.fontSizes.base,
-    fontFamily: theme.fontFamily.medium,
     color: theme.colors.typography.SECONDARY,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginTop: theme.spacing[4],
+    marginBottom: theme.spacing[2],
+    marginLeft: theme.spacing[1],
   },
-  widgetSubtext: {
+  // hero
+  hero: { marginTop: theme.spacing[1] },
+  heroRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[4],
+    padding: theme.spacing[5],
+  },
+  heroText: { flex: 1, minWidth: 0 },
+  heroTitle: {
+    fontSize: theme.fontSizes.lg,
+    fontFamily: theme.fontFamily.extraBold,
+    color: theme.colors.typography.PRIMARY,
+    letterSpacing: -0.3,
+    lineHeight: 22,
+  },
+  heroSub: {
     fontSize: theme.fontSizes.sm,
     fontFamily: theme.fontFamily.medium,
     color: theme.colors.typography.SECONDARY,
-    marginBottom: theme.spacing[1],
-  },
-  widgetFreq: {
-    fontSize: theme.fontSizes.xs,
-    fontFamily: theme.fontFamily.medium,
-    color: theme.colors.typography.TERTIARY,
-    marginBottom: theme.spacing[2],
-  },
-  widgetStatus: {
-    fontSize: theme.fontSizes.lg,
-    fontFamily: theme.fontFamily.semiBold,
-    color: theme.colors.typography.SECONDARY,
-    marginTop: theme.spacing[2],
-  },
-  progressContainer: {
     marginTop: theme.spacing[1],
+    lineHeight: 19,
   },
-  emptyState: {
-    alignItems: 'center',
-    paddingTop: theme.spacing[4],
-  },
-  ghostGrid: {
+  chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: theme.spacing[2],
+    marginTop: theme.spacing[3],
+  },
+  chip: {
+    backgroundColor: theme.colors.primaryLightest,
+    borderRadius: 99,
+    paddingHorizontal: theme.spacing[3],
+    paddingVertical: theme.spacing[1],
+  },
+  chipDone: { backgroundColor: 'rgba(54,179,126,0.14)' },
+  chipText: {
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.primaryDarker,
+  },
+  chipTextDone: { color: '#1f8a5f' },
+  // rows
+  rows: { gap: theme.spacing[2] },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: theme.spacing[3],
-    marginBottom: theme.spacing[8],
-    width: '100%',
+    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[4],
+  },
+  rowEmoji: { fontSize: 24, width: 32, textAlign: 'center' },
+  rowMid: { flex: 1, minWidth: 0 },
+  rowName: {
+    fontSize: theme.fontSizes.base,
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.typography.PRIMARY,
+  },
+  rowSub: {
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.typography.SECONDARY,
+    marginTop: 2,
+  },
+  rowVal: {
+    fontFamily: theme.fontFamily.extraBold,
+    color: theme.colors.typography.PRIMARY,
+  },
+  // empty
+  emptyState: {
+    alignItems: 'center',
+    paddingTop: theme.spacing[10],
   },
   emptyTitle: {
     fontSize: theme.fontSizes.xl,

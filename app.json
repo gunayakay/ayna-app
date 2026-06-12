@@ -31,7 +31,14 @@
         }
       }
     ],
-    "@react-native-community/datetimepicker"
+    "@react-native-community/datetimepicker",
+    [
+      "expo-notifications",
+      {
+        "icon": "./src/assets/splash/logo-without-bg.png",
+        "color": "#FF9F43"
+      }
+    ]
   ],
   "orientation": "portrait",
   "android": {
@@ -45,9 +52,12 @@
   },
   "ios": {
     "bundleIdentifier": "com.ayna",
-    "infoPlist": {}
+    "infoPlist": {
+      "ITSAppUsesNonExemptEncryption": false,
+      "NSPhotoLibraryUsageDescription": "Profil fotoğrafını seçebilmen için galerine erişim gerekiyor. Fotoğraf yalnızca bu cihazda saklanır."
+    }
   },
-  "newArchEnabled": false,
+  "newArchEnabled": true,
   "extra": {
     "router": {
       "origin": false

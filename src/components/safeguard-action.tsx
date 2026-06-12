@@ -1,6 +1,6 @@
 import { TouchableOpacity } from 'react-native';
 
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { RightArrow } from '#assets/svg';
 import { Svg, Text } from '#components/atoms';
@@ -25,7 +25,7 @@ export default function SafeguardAction({ title, onPress }: SafeguardActionProps
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     flexDirection: 'row',
     paddingVertical: theme.spacing[4],

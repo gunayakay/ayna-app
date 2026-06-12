@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from '../atoms';
 import Svg from '../atoms/svg';
@@ -111,7 +111,7 @@ export default function ConfrontationView({ goalId, onSave, onBack }: Confrontat
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     padding: theme.spacing[5],
     alignItems: 'center',

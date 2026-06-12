@@ -1,6 +1,6 @@
 import { View, TouchableOpacity } from 'react-native';
 
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from './atoms';
 
@@ -28,7 +28,7 @@ export default function EmptyList({ icon, title, subtitle, onPress, buttonText }
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     flex: 1,
     justifyContent: 'center',

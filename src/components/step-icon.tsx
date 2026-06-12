@@ -1,7 +1,7 @@
 import React from 'react';
 import { Platform, View } from 'react-native';
 
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { TickIcon } from '#assets/svg';
 import { Svg, Text } from '#components/atoms';
@@ -30,7 +30,7 @@ export default function StepIcon({ number, isLast, isActive, isCompleted }: Step
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   stepContainer: (isActive: boolean) => ({
     width: theme.spacing[8],
     height: theme.spacing[8],

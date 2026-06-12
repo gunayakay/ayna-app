@@ -1,7 +1,7 @@
 import { Modal as RNModal, View } from 'react-native';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import ModalHeader from './modal-header';
 
@@ -33,7 +33,7 @@ export default function Modal({ children, title, modalVisible, closeModal }: Mod
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   modalWrapper: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

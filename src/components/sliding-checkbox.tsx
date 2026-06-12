@@ -8,7 +8,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 interface SlidingCheckboxProps {
   checked: boolean;
@@ -97,7 +97,7 @@ export default function SlidingCheckbox({ checked, onPress, onValueChange }: Sli
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     marginLeft: 10,
     aspectRatio: 2,

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ayna — Logo-Ayna: buğu → berrak (durum oturtma)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#F8F8F4; --ink:#1E1E1E; --ink2:#757575; --ink3:#A0A0A0;
+    --accent:#FF9F43; --accent-deep:#F08C2E; --success:#36B37E;
+    --glass:rgba(255,255,255,0.55); --hairline:rgba(255,255,255,0.75);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:#ECECE6;min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:36px 16px 72px;gap:26px;color:var(--ink);}
+  h1{font-size:22px;font-weight:800;letter-spacing:-.4px;text-align:center;}
+  .sub{color:#6b6b6b;font-size:13px;text-align:center;max-width:560px;line-height:1.55;}
+  .sub b{color:var(--ink);}
+  .panel{background:#fff;border-radius:28px;padding:26px 24px;box-shadow:0 12px 40px rgba(120,90,40,.10);
+    width:100%;max-width:600px;}
+  .panel h2{font-size:12px;font-weight:700;color:var(--ink2);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:18px;}
+
+  /* ── The mirror-logo ── */
+  .mirror{position:relative;border-radius:30%;
+    background:linear-gradient(150deg,var(--accent),var(--accent-deep));
+    box-shadow:0 8px 22px rgba(255,140,46,.32),inset 0 1px 2px rgba(255,255,255,.6);}
+  .mirror .glass{position:absolute;inset:8%;border-radius:24%;overflow:hidden;
+    background:linear-gradient(150deg,#ffffff,#f3efea);
+    display:grid;place-items:center;}
+  /* clean reflection sheen (visible when clear) */
+  .mirror .sheen{position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(135deg,rgba(255,255,255,.85) 0%,rgba(255,255,255,0) 42%);}
+  /* the initial / reflection content */
+  .mirror .face{font-weight:800;color:var(--accent-deep);z-index:1;}
+  /* FOG layer — opacity driven by neglect (1 - clarity) */
+  .mirror .fog{position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:24%;
+    background:
+      radial-gradient(circle at 30% 28%,rgba(255,255,255,.95),rgba(236,236,230,.78) 60%,rgba(220,220,214,.7));
+    backdrop-filter:blur(2px);}
+  /* condensation streaks for heavy fog */
+  .mirror .fog::after{content:"";position:absolute;inset:0;opacity:.5;
+    background:
+      linear-gradient(115deg,transparent 40%,rgba(255,255,255,.7) 42%,transparent 46%),
+      linear-gradient(115deg,transparent 62%,rgba(255,255,255,.6) 64%,transparent 68%);}
+
+  .big{width:118px;height:118px;font-size:0;}
+  .big .face{font-size:46px;}
+  .row{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;}
+  .state{display:flex;flex-direction:column;align-items:center;gap:9px;width:96px;}
+  .state .mirror{width:74px;height:74px;}
+  .state .face{font-size:28px;}
+  .state .pct{font-size:15px;font-weight:800;}
+  .state .lab{font-size:11px;font-weight:600;color:var(--ink2);text-align:center;line-height:1.35;}
+  .state.clear .pct{color:var(--success);}
+  .state.warn .pct{color:var(--accent-deep);}
+
+  /* header preview */
+  .hdr{display:flex;align-items:center;gap:14px;background:linear-gradient(150deg,#fbf7f1,#f3ede5);
+    border-radius:24px;padding:18px 20px;}
+  .hdr .mirror{width:56px;height:56px;flex:none;}
+  .hdr .face{font-size:24px;}
+  .greet{font-size:20px;font-weight:800;letter-spacing:-.3px;}
+  .date{font-size:13px;color:var(--ink2);margin-top:2px;}
+  .hint{font-size:12px;color:var(--accent-deep);margin-top:5px;font-weight:600;}
+
+  /* streak clearing strip */
+  .seq{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+  .seq .arrow{color:var(--ink3);font-size:20px;}
+  .day{display:flex;flex-direction:column;align-items:center;gap:6px;width:78px;}
+  .day .mirror{width:58px;height:58px;}
+  .day .face{font-size:22px;}
+  .day .dl{font-size:10px;font-weight:600;color:var(--ink2);text-align:center;line-height:1.3;}
+  .chk{font-size:13px;}
+
+  .rules{list-style:none;display:flex;flex-direction:column;gap:11px;}
+  .rules li{display:flex;gap:11px;font-size:13.5px;line-height:1.5;color:#3a3a3a;}
+  .rules li b{color:var(--ink);}
+  .rules .ic{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
+    background:rgba(255,159,67,.14);font-size:14px;}
+  .q{background:rgba(255,159,67,.08);border:1px solid rgba(255,159,67,.25);border-radius:16px;
+    padding:14px 16px;font-size:13px;line-height:1.55;color:#5a4a32;}
+  .q b{color:var(--accent-deep);}
+</style>
+</head>
+<body>
+  <h1>Logo-Ayna · buğu → berrak</h1>
+  <p class="sub">Header'daki avatar artık <b>Ayna logosu</b> (turuncu çerçeve + cam). Bu cam, kullanıcının
+  durumunu <b>ortam ışığı gibi</b> her an yansıtır: ihmal edince <b>buğulanır</b>, başarı yüzdesi ve
+  streak ile <b>berraklaşır</b>. Kırmızı/ceza yok — sadece "bir süredir kendine bakmadın".</p>
+
+  <!-- HEADER PREVIEW -->
+  <div class="panel">
+    <h2>Header'da görünüm (şu an %62 — hafif buğulu)</h2>
+    <div class="hdr">
+      <div class="mirror" style="width:56px;height:56px">
+        <div class="glass"><span class="face">G</span><div class="sheen"></div>
+          <div class="fog" style="opacity:.38"></div></div>
+      </div>
+      <div>
+        <div class="greet">İyi akşamlar, Günay.</div>
+        <div class="date">Cuma, 6 Haziran</div>
+        <div class="hint">Aynan hafif buğulu · bugünün 3/5 hedefi tuttu</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATE SCALE -->
+  <div class="panel">
+    <h2>Berraklık skalası (başarı % → buğu)</h2>
+    <div class="row">
+      <div class="state clear">
+        <div class="mirror"><div class="glass"><span class="face">G</span><div class="sheen"></div>
+          <div class="fog" style="opacity:0"></div></div></div>
+        <div class="pct">%100</div><div class="lab">Berrak · pırıl pırıl</div>
+      </div>
+      <div class="state clear">
+        <div class="mirror"><div class="glass"><span class="face">G</span><div class="sheen"></div>
+          <div class="fog" style="opacity:.18"></div></div></div>
+        <div class="pct">%80</div><div class="lab">Neredeyse berrak</div>
+      </div>
+      <div class="state warn">
+        <div class="mirror"><div class="glass"><span class="face">G</span><div class="sheen"></div>
+          <div class="fog" style="opacity:.42"></div></div></div>
+        <div class="pct">%55</div><div class="lab">Buğulanıyor</div>
+      </div>
+      <div class="state warn">
+        <div class="mirror"><div class="glass"><span class="face">G</span><div class="sheen"></div>
+          <div class="fog" style="opacity:.72"></div></div></div>
+        <div class="pct">%25</div><div class="lab">Buğulu · seni zor görüyor</div>
+      </div>
+      <div class="state warn">
+        <div class="mirror"><div class="glass"><span class="face" style="opacity:.25">G</span><div class="sheen"></div>
+          <div class="fog" style="opacity:.94"></div></div></div>
+        <div class="pct">%0</div><div class="lab">Tamamen buğulu · 4 gündür ihmal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLEARING SEQUENCE -->
+  <div class="panel">
+    <h2>Temizleme · en az 3 günlük streak</h2>
+    <div class="seq">
+      <div class="day">
+        <div class="mirror"><div class="glass"><span class="face" style="opacity:.3">G</span><div class="sheen"></div>
+          <div class="fog" style="opacity:.9"></div></div></div>
+        <div class="dl">Başlangıç<br>buğulu</div>
+      </div>
+      <span class="arrow">→</span>
+      <div class="day">
+        <div class="mirror"><div class="glass"><span class="face" style="opacity:.5">G</span><div class="sheen"></div>
+          <div class="fog" style="opacity:.62"></div></div></div>
+        <div class="dl"><span class="chk">✅</span> 1. gün<br>biraz açıldı</div>
+      </div>
+      <span class="arrow">→</span>
+      <div class="day">
+        <div class="mirror"><div class="glass"><span class="face" style="opacity:.75">G</span><div class="sheen"></div>
+          <div class="fog" style="opacity:.34"></div></div></div>
+        <div class="dl"><span class="chk">✅✅</span> 2. gün<br>aralanıyor</div>
+      </div>
+      <span class="arrow">→</span>
+      <div class="day">
+        <div class="mirror"><div class="glass"><span class="face">G</span><div class="sheen"></div>
+          <div class="fog" style="opacity:0"></div></div></div>
+        <div class="dl" style="color:var(--success);font-weight:700"><span class="chk">✅✅✅</span> 3. gün<br>berrak! 🎉</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RULES -->
+  <div class="panel">
+    <h2>Kurallar (oturtmak için)</h2>
+    <ul class="rules">
+      <li><span class="ic">🌫️</span><div><b>İhmal → buğu.</b> Günlük checklist yapılmazsa cam o gün biraz buğulanır; ardışık ihmal günlerinde buğu birikir (koyulaşır).</div></li>
+      <li><span class="ic">📊</span><div><b>Başarı % → berraklık.</b> O günkü tamamlama oranı camın o anki netliğini belirler. %100 = pırıl pırıl, %0 = göremezsin.</div></li>
+      <li><span class="ic">🔥</span><div><b>Tam temizlik = ≥3 gün streak.</b> Tek iyi gün camı kısmen siler; <b>3 ardışık başarılı gün</b> birikmiş buğuyu tamamen kaldırır.</div></li>
+      <li><span class="ic">🪞</span><div><b>Yargı yok.</b> "Hata/başarısızlık" yok — sadece "bir süredir kendine bakmadın". Temizlemek = kendine dönüş.</div></li>
+    </ul>
+  </div>
+
+  <!-- OPEN QUESTIONS -->
+  <div class="panel" style="background:transparent;box-shadow:none;padding-top:0">
+    <div class="q">
+      <b>Karar bekleyen 2 nokta:</b><br>
+      1) Anasayfadaki ayrı <b>"berraklık gauge" hero kartı</b> kalsın mı, yoksa bu mantık tamamen logoya taşınıp hero kartı kaldırılsın/değiştirilsin mi?<br>
+      2) Buğu <b>günlük mü sıfırlanır</b> (her gün o günün %'si) yoksa <b>kümülatif mi birikir</b> (ardışık ihmalle koyulaşıp 3-gün streak ile temizlenir)? Yukarıdaki tasarım <b>kümülatif</b> varsayıyor.
+    </div>
+  </div>
+</body>
+</html>

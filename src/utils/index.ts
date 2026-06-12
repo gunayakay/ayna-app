@@ -37,5 +37,8 @@ export type {
 export { default as battleStorage } from './battleStorage';
 export type { HabitBattle, HabitStats } from './battleStorage';
 export { default as addictionStorage, formatDuration } from './addictionStorage';
-export type { AddictionSession, AddictionStats, AddictionUse } from './addictionStorage';
+export type { AddictionSession, AddictionStats, AddictionUse, RuleDay, RuleStats } from './addictionStorage';
 export { addGoalSheetRef } from './addGoalSheetRef';
+export { default as discoveryStorage } from './discoveryStorage';
+export type { DiscoveryItem, DiscoveryEntry } from './discoveryStorage';
+export { setupDailyReminder, cancelDailyReminder } from './notifications';

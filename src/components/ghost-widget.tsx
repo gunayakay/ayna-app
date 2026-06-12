@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 export interface GhostWidgetProps {
   wide?: boolean;
@@ -20,7 +20,7 @@ export default function GhostWidget({ wide }: GhostWidgetProps) {
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   card: {
     borderRadius: theme.borderRadius['6xl'],
     padding: theme.spacing[5],

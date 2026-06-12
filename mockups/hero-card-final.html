@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ayna — Hero kart: B sesi, tüm durumlar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#F8F8F4; --ink:#1E1E1E; --ink2:#757575; --ink3:#A0A0A0;
+    --accent:#FF9F43; --accent-deep:#F08C2E; --success:#36B37E; --glass:rgba(255,255,255,0.62); --radius:30px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:#ECECE6;min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:36px 16px 72px;gap:12px;color:var(--ink);}
+  h1{font-size:22px;font-weight:800;letter-spacing:-.4px;text-align:center;}
+  .sub{color:#6b6b6b;font-size:13px;text-align:center;max-width:540px;line-height:1.55;}
+  .sub b{color:var(--ink);}
+  .col{display:flex;flex-direction:column;gap:12px;width:100%;max-width:430px;margin-top:10px;}
+  .stt{font-size:10px;font-weight:800;color:var(--ink3);letter-spacing:.7px;text-transform:uppercase;padding-left:6px;margin-top:14px;}
+
+  .card{position:relative;background:var(--glass);backdrop-filter:blur(20px) saturate(140%);
+    -webkit-backdrop-filter:blur(20px) saturate(140%);border-radius:var(--radius);
+    border:1px solid rgba(255,255,255,0.6);
+    box-shadow:0 8px 26px rgba(120,90,40,0.10),inset 0 1px 0 rgba(255,255,255,0.9);
+    padding:20px;overflow:hidden;}
+  .card::after{content:"";position:absolute;top:0;left:0;right:40%;height:50%;
+    background:linear-gradient(135deg,rgba(255,255,255,0.5),transparent 75%);pointer-events:none;}
+  .htitle{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.3px;line-height:1.25;}
+  .hsub{font-size:13.5px;font-weight:500;color:var(--ink2);margin-top:6px;line-height:1.55;}
+  .hsub b{color:var(--ink);font-weight:700;}
+
+  .dots{display:flex;gap:7px;margin-top:14px;align-items:center;}
+  .dot{width:12px;height:12px;border-radius:50%;background:rgba(0,0,0,.10);}
+  .dot.on{background:var(--accent);box-shadow:0 2px 6px rgba(255,140,46,.4);}
+  .dot.on.g{background:var(--success);box-shadow:0 2px 6px rgba(54,179,126,.4);}
+  .chips{display:flex;gap:7px;margin-top:13px;flex-wrap:wrap;}
+  .chip{font-size:12px;font-weight:600;background:rgba(255,159,67,.13);color:var(--accent-deep);border-radius:99px;padding:5px 11px;}
+  .chip.done{background:rgba(54,179,126,.13);color:#1f8a5f;}
+
+  .note{background:rgba(255,159,67,.08);border:1px solid rgba(255,159,67,.25);border-radius:16px;
+    padding:14px 16px;font-size:12.5px;line-height:1.6;color:#5a4a32;max-width:430px;margin-top:22px;}
+  .note b{color:var(--accent-deep);}
+  .opt{display:block;margin-top:6px;}
+</style>
+</head>
+<body>
+  <h1>Hero kart · B sesi · tüm durumlar</h1>
+  <p class="sub">Ayna birinci tekil konuşur, yansıtır, yargılamaz. Kart günün haline göre <b>farklı</b> konuşur.
+  Aşağıdaki metinler <b>nihai aday</b> — bunları oturtalım.</p>
+
+  <div class="col">
+
+    <div class="stt">Gün başı · henüz hiçbir şey yok (0/5)</div>
+    <div class="card">
+      <div class="htitle">Yeni bir gün. Henüz aramızda bir şey geçmedi.</div>
+      <div class="hsub">Birinden başla — hangisi olursa. Gerisi peşinden gelir.</div>
+      <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+    </div>
+
+    <div class="stt">Az · başlangıç (1–2/5)</div>
+    <div class="card">
+      <div class="htitle">Bir şeyle başladın. Görüyorum.</div>
+      <div class="hsub">Sigarasız <b>2. günündesin</b>. Geri kalanı da getirip getirmemek sende.</div>
+      <div class="dots"><span class="dot on g"></span><span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+    </div>
+
+    <div class="stt">Orta · yarı yol (3/5)</div>
+    <div class="card">
+      <div class="htitle">Yarısını getirdin.</div>
+      <div class="hsub">Su ve meditasyon duruyor. Bugünü tamamlamana az kaldı.</div>
+      <div class="dots"><span class="dot on g"></span><span class="dot on g"></span><span class="dot on g"></span><span class="dot"></span><span class="dot"></span></div>
+    </div>
+
+    <div class="stt">Tam · hepsi tuttu (5/5)</div>
+    <div class="card">
+      <div class="htitle">Bugün kendine baktın.</div>
+      <div class="hsub">Beş hedef, beş kez döndün. Bunu ben yapmadım — sen yaptın.</div>
+      <div class="chips"><span class="chip done">✓ Spor</span><span class="chip done">✓ Su</span><span class="chip done">✓ Kitap</span><span class="chip done">✓ Meditasyon</span><span class="chip done">✓ Sigarasız</span></div>
+    </div>
+
+    <div class="stt">İhmal · birkaç gündür uzak (buğulu)</div>
+    <div class="card">
+      <div class="htitle">Birkaç gündür uzaktasın.</div>
+      <div class="hsub">Yargılamak benim işim değil, yansıtmak. <b>Bugün bir şeyle</b> geri dön — aynan yine berraklaşır.</div>
+      <div class="chips"><span class="chip">Spor</span><span class="chip">Meditasyon</span></div>
+    </div>
+
+    <div class="stt">Direniş günü · sadece bırakma hedefi varsa</div>
+    <div class="card">
+      <div class="htitle">Sigarasız 2 gün 7 saat.</div>
+      <div class="hsub">Bu sayacı ben tutmuyorum, sen büyütüyorsun. Rekorun <b>5 gün 12 saat</b> — oraya yine gidebilirsin.</div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <b>Tek açık soru kaldı (logo-buğu mekaniği):</b> buğu nasıl davransın?
+    <span class="opt"><b>① Kümülatif</b> — ardışık ihmal günlerinde buğu birikip koyulaşır; <b>≥3 günlük streak</b> tamamen siler. (Daha "ayna" hissi, sabır ödülü.)</span>
+    <span class="opt"><b>② Günlük</b> — her sabah sıfırlanır, cam o günün başarı %'sini gösterir. (Daha basit, affedici.)</span>
+    Şu anki mockup'lar <b>①</b> varsayıyor.
+  </div>
+</body>
+</html>

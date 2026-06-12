@@ -7,14 +7,15 @@ import {
   BottomSheetView,
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
+  BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from './atoms';
 import Svg from './atoms/svg';
 import Button from './button';
 import { BackArrow } from '#assets/svg';
-import { goalStorage, addictionStorage } from '#/utils';
+import { goalStorage, addictionStorage, discoveryStorage } from '#/utils';
 import type { GoalCategory, HabitFrequency } from '#/utils';
 
 // ─── Catalog data ─────────────────────────────────────────────────────────────
@@ -138,7 +139,7 @@ const FREQ_OPTIONS = [
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type SheetView = 'category' | 'catalog' | 'settings';
+type SheetView = 'category' | 'catalog' | 'settings' | 'discovery';
 
 interface CatalogItem {
   id: string;
@@ -164,16 +165,20 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
   const [targetValue, setTargetValue] = useState(1);
   const [freqType, setFreqType] = useState<'daily' | 'weekly' | 'interval'>('daily');
   const [freqCount, setFreqCount] = useState(3);
-  const [addictionMode, setAddictionMode] = useState<'abstinence' | 'limit'>('abstinence');
+  const [addictionMode, setAddictionMode] = useState<'abstinence' | 'limit' | 'rule'>('abstinence');
+  const [rule, setRule] = useState('');
+  const [discoveryName, setDiscoveryName] = useState('');
+  const [discoveryEmoji, setDiscoveryEmoji] = useState('🌱');
   const [limitPeriod, setLimitPeriod] = useState<'daily' | 'weekly'>('weekly');
   const [limitCount, setLimitCount] = useState(3);
   const [limitUnit, setLimitUnit] = useState<'count' | 'minutes'>('count');
 
   const snapPoints = useMemo(() => {
-    if (viewState === 'category') return ['38%'];
-    if (viewState === 'catalog') return ['80%'];
+    if (viewState === 'category') return ['52%'];
+    if (viewState === 'discovery') return ['62%'];
+    if (viewState === 'catalog') return ['86%'];
     if (selectedItem?.category === 'addiction') {
-      return addictionMode === 'limit' ? ['82%'] : ['58%'];
+      return addictionMode === 'limit' ? ['86%'] : addictionMode === 'rule' ? ['76%'] : ['64%'];
     }
     return ['90%'];
   }, [viewState, selectedItem, addictionMode]);
@@ -294,11 +299,23 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
       selectedItem.id,
       addictionMode === 'limit'
         ? { mode: 'limit', limitPeriod, limit: limitCount, unit: limitUnit }
-        : { mode: 'abstinence' }
+        : addictionMode === 'rule'
+          ? { mode: 'rule', rule: rule.trim() }
+          : { mode: 'abstinence' }
     );
     if (addictionMode === 'abstinence') {
       await addictionStorage.startSession(selectedItem.id);
     }
+    onGoalAdded?.();
+    dismiss();
+  };
+
+  const handleCreateDiscovery = async () => {
+    const t = discoveryName.trim();
+    if (!t) return;
+    await discoveryStorage.addItem(discoveryEmoji, t);
+    setDiscoveryName('');
+    setDiscoveryEmoji('🌱');
     onGoalAdded?.();
     dismiss();
   };
@@ -347,6 +364,66 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
               <Text style={styles.categoryCardDesc}>Durdurmak istediğin şeyler</Text>
             </TouchableOpacity>
           </View>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => snapTo('discovery')}
+            style={styles.discoveryCard}>
+            <Text style={styles.discoveryIcon}>✨</Text>
+            <View style={styles.discoveryText}>
+              <Text style={styles.categoryCardTitle}>Keşfet</Text>
+              <Text style={styles.categoryCardDesc}>Yeni bir şey dene, arşivle (haftada 1 yeni yemek gibi)</Text>
+            </View>
+          </TouchableOpacity>
+        </BottomSheetView>
+      </BottomSheetModal>
+    );
+  }
+
+  // ── Discovery (yeni keşif) view ──────────────────────────────────────────────
+
+  if (viewState === 'discovery') {
+    return (
+      <BottomSheetModal {...sharedModalProps}>
+        <BottomSheetView style={styles.categoryContainer}>
+          <View style={styles.sheetHeader}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => snapTo('category')}
+              style={styles.iconBtn}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <Svg Icon={BackArrow} width={22} height={22} stroke={theme.colors.typography.PRIMARY} />
+            </TouchableOpacity>
+            <Text style={styles.sheetTitle}>Yeni keşif</Text>
+          </View>
+          <Text style={styles.discoveryHint}>
+            Denemek istediğin yeni bir şey — yeni yemek, dil, enstrüman, tarif… Denedikçe arşive birikir.
+          </Text>
+          <View style={styles.emojiRow}>
+            {['🍳', '🗣️', '🎸', '📖', '🎨', '🧗', '✍️', '🌱'].map(e => (
+              <TouchableOpacity
+                key={e}
+                activeOpacity={0.7}
+                onPress={() => setDiscoveryEmoji(e)}
+                style={[styles.emojiOpt, discoveryEmoji === e && styles.emojiOptOn]}>
+                <Text style={styles.emojiOptText}>{e}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <BottomSheetTextInput
+            style={styles.ruleInput}
+            value={discoveryName}
+            onChangeText={setDiscoveryName}
+            placeholder="Örn. Yeni yemek dene"
+            placeholderTextColor={theme.colors.typography.TERTIARY}
+            autoFocus
+          />
+          <Button
+            onPress={handleCreateDiscovery}
+            style={styles.actionButton}
+            disabled={discoveryName.trim().length === 0}>
+            Keşfe Başla
+          </Button>
         </BottomSheetView>
       </BottomSheetModal>
     );
@@ -482,9 +559,23 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
                 </Text>
                 <Text style={styles.modeCardDesc}>Haftalık izin · kademeli azalt</Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setAddictionMode('rule')}
+                style={[styles.modeCard, addictionMode === 'rule' && styles.modeCardActive]}>
+                <Text
+                  style={[
+                    styles.modeCardTitle,
+                    addictionMode === 'rule' && styles.modeCardTitleActive,
+                  ]}>
+                  Kural
+                </Text>
+                <Text style={styles.modeCardDesc}>Kişisel kural · tut/tutma</Text>
+              </TouchableOpacity>
             </View>
 
-            {addictionMode === 'abstinence' ? (
+            {addictionMode === 'abstinence' && (
               <>
                 <Text style={styles.addictionDesc}>
                   Ömür boyu değil, sadece{'\n'}bir sonraki turu düşün.
@@ -494,7 +585,9 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
                   kaç kez ayağa kalktığın.
                 </Text>
               </>
-            ) : (
+            )}
+
+            {addictionMode === 'limit' && (
               <>
                 {/* Periyot: günlük / haftalık */}
                 <View style={styles.periodRow}>
@@ -596,8 +689,33 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
               </>
             )}
 
-            <Button onPress={handleStartAddiction} style={styles.actionButton}>
-              {addictionMode === 'abstinence' ? 'Savaşı Başlat' : 'Takibi Başlat'}
+            {addictionMode === 'rule' && (
+              <>
+                <Text style={styles.addictionDesc}>Bırakamasan da{'\n'}bir kural koy.</Text>
+                <BottomSheetTextInput
+                  style={styles.ruleInput}
+                  value={rule}
+                  onChangeText={setRule}
+                  placeholder="Örn. Aç karına içme"
+                  placeholderTextColor={theme.colors.typography.TERTIARY}
+                  multiline
+                />
+                <Text style={styles.addictionNote}>
+                  Her gün "kuralına uydun mu?" diye işaretlersin. Tam bırakmak değil; küçük,
+                  sürdürülebilir bir sınır. Tutamadığın gün ceza değil — sadece veri.
+                </Text>
+              </>
+            )}
+
+            <Button
+              onPress={handleStartAddiction}
+              style={styles.actionButton}
+              disabled={addictionMode === 'rule' && rule.trim().length === 0}>
+              {addictionMode === 'abstinence'
+                ? 'Savaşı Başlat'
+                : addictionMode === 'rule'
+                  ? 'Kuralı Koy'
+                  : 'Takibi Başlat'}
             </Button>
           </View>
         ) : (
@@ -764,7 +882,7 @@ function CatalogCard({
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   // ── Category ──────────────────────────────────────────────────────────────
   categoryContainer: {
     flex: 1,
@@ -807,6 +925,46 @@ const stylesheet = createStyleSheet(theme => ({
     color: theme.colors.typography.SECONDARY,
     textAlign: 'center',
   },
+  discoveryCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[3],
+    marginTop: theme.spacing[3],
+    padding: theme.spacing[4],
+    borderRadius: theme.borderRadius['4xl'],
+    backgroundColor: theme.colors.primaryLightest,
+  },
+  discoveryIcon: { fontSize: 28 },
+  discoveryText: { flex: 1 },
+  discoveryHint: {
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fontFamily.regular,
+    color: theme.colors.typography.SECONDARY,
+    lineHeight: 21,
+    marginTop: theme.spacing[2],
+    marginBottom: theme.spacing[2],
+  },
+  emojiRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing[2],
+    marginBottom: theme.spacing[2],
+  },
+  emojiOpt: {
+    width: 44,
+    height: 44,
+    borderRadius: theme.borderRadius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.background.PRIMARY,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+  },
+  emojiOptOn: {
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primaryLightest,
+  },
+  emojiOptText: { fontSize: 22 },
 
   // ── Shared header ──────────────────────────────────────────────────────────
   sheetHeader: {
@@ -1163,6 +1321,17 @@ const stylesheet = createStyleSheet(theme => ({
     fontFamily: theme.fontFamily.regular,
     color: theme.colors.typography.SECONDARY,
     lineHeight: 22,
+  },
+  ruleInput: {
+    fontSize: theme.fontSizes.lg,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.typography.PRIMARY,
+    backgroundColor: theme.colors.background.PRIMARY,
+    borderRadius: theme.borderRadius['4xl'],
+    paddingHorizontal: theme.spacing[4],
+    paddingVertical: theme.spacing[3],
+    marginVertical: theme.spacing[3],
+    minHeight: 56,
   },
 }));
 

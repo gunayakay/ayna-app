@@ -9,7 +9,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Image } from './atoms';
 
@@ -42,7 +42,7 @@ export default function Loading() {
   );
 }
 
-const stylesheet = createStyleSheet(() => ({
+const stylesheet = StyleSheet.create(() => ({
   container: {
     position: 'absolute',
     top: 0,

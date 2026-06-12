@@ -1,7 +1,7 @@
 import { TouchableOpacity, View } from 'react-native';
 
 import { Link, LinkProps } from 'expo-router';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { RightArrow } from '#assets/svg';
 
@@ -61,7 +61,7 @@ export default function IconLink({ href, title, Icon, children, onPress, ...rest
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     width: '100%',
     flexDirection: 'row',

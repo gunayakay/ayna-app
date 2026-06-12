@@ -1,5 +1,5 @@
 import Skeleton from 'react-native-reanimated-skeleton';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 interface HeaderSkeletonLoadingProps {
   isLoading: boolean;
@@ -27,7 +27,7 @@ export default function HeaderSkeletonLoading({ isLoading }: HeaderSkeletonLoadi
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   skeletonContainer: {
     flexDirection: 'row',
     paddingVertical: theme.spacing[2],

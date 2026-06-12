@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 
 import { FieldValues, useController, UseControllerProps } from 'react-hook-form';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from './atoms';
 import { CheckboxProps } from './checkbox';
@@ -61,7 +61,7 @@ export default function ControlledSlidingCheckbox<T extends FieldValues>({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   controlledCheckboxWrapper: {
     width: '100%',
   },

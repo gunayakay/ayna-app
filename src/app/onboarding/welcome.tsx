@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from '#components/atoms';
 
@@ -156,6 +156,8 @@ export default function WelcomeScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.bloomTop} pointerEvents="none" />
+      <View style={styles.bloomBottom} pointerEvents="none" />
       {/* Skip Button */}
       <Animated.View
         style={[
@@ -227,10 +229,30 @@ export default function WelcomeScreen() {
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background.PRIMARY,
+  },
+  bloomTop: {
+    position: 'absolute',
+    top: -120,
+    right: -80,
+    width: 380,
+    height: 380,
+    borderRadius: 380,
+    backgroundColor: theme.colors.primaryLighter,
+    opacity: 0.5,
+  },
+  bloomBottom: {
+    position: 'absolute',
+    bottom: -100,
+    left: -70,
+    width: 340,
+    height: 340,
+    borderRadius: 340,
+    backgroundColor: theme.colors.primaryLightest,
+    opacity: 0.6,
   },
   skipButton: {
     position: 'absolute',

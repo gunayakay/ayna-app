@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ayna — FAB karşılaştırma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{--accent:#FF9F43;--accent-deep:#F08C2E;--ink:#1E1E1E;--ink2:#757575;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:#ECECE6;color:var(--ink);
+    background-image:radial-gradient(600px 400px at 70% 0,rgba(255,159,67,.18),transparent 70%);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 16px 80px;gap:8px;}
+  h1{font-size:22px;font-weight:800;}
+  .sub{color:#6b6b6b;font-size:13px;text-align:center;max-width:520px;line-height:1.5;margin-bottom:18px;}
+  .variant{width:100%;max-width:420px;margin-bottom:34px;}
+  .vlabel{font-size:12px;font-weight:800;color:var(--accent-deep);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;}
+  .vdesc{font-size:12px;color:var(--ink2);margin-bottom:18px;line-height:1.4;}
+
+  /* tab pill bağlam */
+  .pill{position:relative;height:66px;border-radius:33px;display:flex;align-items:center;justify-content:space-around;
+    background:rgba(255,255,255,0.62);backdrop-filter:blur(26px) saturate(150%);-webkit-backdrop-filter:blur(26px) saturate(150%);
+    border:1px solid rgba(255,255,255,0.72);box-shadow:0 12px 30px rgba(120,90,40,.16);}
+  .tab{width:26px;height:26px;color:#1E1E1E;opacity:.42;}
+  .tab.active{opacity:1;color:var(--accent-deep);}
+  .slot{width:64px;}
+
+  .fab{position:absolute;left:50%;transform:translateX(-50%);top:-16px;width:58px;height:58px;
+    display:grid;place-items:center;}
+  .fab svg{width:28px;height:28px;}
+
+  /* A: gradient + glow daire */
+  .fabA{border-radius:50%;background:linear-gradient(155deg,#FFB463,#F0860F);
+    box-shadow:0 10px 22px rgba(240,134,15,.55),inset 0 2px 3px rgba(255,255,255,.55),inset 0 -3px 6px rgba(180,90,0,.3);}
+  /* B: kavisli-kare (ayna motifi) + gradient */
+  .fabB{border-radius:34%;background:linear-gradient(155deg,#FFB463,#F0860F);
+    box-shadow:0 10px 22px rgba(240,134,15,.5),inset 0 2px 3px rgba(255,255,255,.55),inset 0 -3px 6px rgba(180,90,0,.3);}
+  /* C: glass FAB + turuncu + */
+  .fabC{border-radius:50%;background:rgba(255,255,255,0.55);backdrop-filter:blur(20px) saturate(150%);
+    -webkit-backdrop-filter:blur(20px) saturate(150%);border:1.5px solid rgba(255,159,67,.55);
+    box-shadow:0 8px 20px rgba(120,90,40,.18),inset 0 1px 2px rgba(255,255,255,.9);}
+  /* D bonus: kavisli-kare glass (ayna + cam birlikte) */
+  .fabD{border-radius:34%;background:rgba(255,255,255,0.5);backdrop-filter:blur(20px) saturate(150%);
+    -webkit-backdrop-filter:blur(20px) saturate(150%);border:1.5px solid rgba(255,159,67,.6);
+    box-shadow:0 8px 20px rgba(120,90,40,.18),inset 0 1px 2px rgba(255,255,255,.9);}
+
+  .home{position:relative;}
+  .home::after{content:"";position:absolute;inset:0;border-radius:8px;background:var(--accent-deep);opacity:.0;}
+</style>
+</head>
+<body>
+  <h1>Ortadaki + butonu — 4 yön</h1>
+  <p class="sub">Hepsi gerçek tab pill bağlamında. + ikonu app'in gerçek SVG'si. Şu anki: düz dolu turuncu daire (koyu +).</p>
+
+  <!-- A -->
+  <div class="variant">
+    <div class="vlabel">A · Gradient + glow daire</div>
+    <div class="vdesc">Mevcut şekil (daire) ama turuncu degrade + ışıma + iç highlight. Premium/boyutlu, düşük risk.</div>
+    <div class="pill">
+      <svg class="tab active" viewBox="0 0 25 25" fill="none"><path d="M20.54 7.32L14.78 3.29C13.21 2.19 10.8 2.25 9.29 3.42L4.28 7.33C3.28 8.11 2.49 9.71 2.49 10.97V17.87C2.49 20.42 4.56 22.5 7.11 22.5H17.89C20.44 22.5 22.51 20.43 22.51 17.88V11.1C22.51 9.75 21.64 8.09 20.54 7.32Z" fill="currentColor"/></svg>
+      <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12Z" stroke="currentColor" stroke-width="1.6"/><path d="M15.71 15.18L12.61 13.33C12.07 13.01 11.63 12.24 11.63 11.61V7.51" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div class="slot"></div>
+      <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M3 21H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6.5 21V11.5M12 21V7M17.5 21V14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M12 12.5C14.76 12.5 17 10.26 17 7.5C17 4.74 14.76 2.5 12 2.5C9.24 2.5 7 4.74 7 7.5C7 10.26 9.24 12.5 12 12.5Z" stroke="currentColor" stroke-width="1.6"/><path d="M20.59 22.5C20.59 18.63 16.74 15.5 12 15.5C7.26 15.5 3.41 18.63 3.41 22.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div class="fab fabA"><svg viewBox="0 0 24 24" fill="none"><path d="M6 12H18M12 18V6" stroke="#3a2400" stroke-width="2.6" stroke-linecap="round"/></svg></div>
+    </div>
+  </div>
+
+  <!-- B -->
+  <div class="variant">
+    <div class="vlabel">B · Kavisli-kare (ayna motifi) + gradient</div>
+    <div class="vdesc">Logonun/aynanın kavisli-kare şekli. Marka kimliğiyle birebir, generic değil. Gradient + glow.</div>
+    <div class="pill">
+      <svg class="tab active" viewBox="0 0 25 25" fill="none"><path d="M20.54 7.32L14.78 3.29C13.21 2.19 10.8 2.25 9.29 3.42L4.28 7.33C3.28 8.11 2.49 9.71 2.49 10.97V17.87C2.49 20.42 4.56 22.5 7.11 22.5H17.89C20.44 22.5 22.51 20.43 22.51 17.88V11.1C22.51 9.75 21.64 8.09 20.54 7.32Z" fill="currentColor"/></svg>
+      <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12Z" stroke="currentColor" stroke-width="1.6"/><path d="M15.71 15.18L12.61 13.33C12.07 13.01 11.63 12.24 11.63 11.61V7.51" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div class="slot"></div>
+      <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M3 21H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6.5 21V11.5M12 21V7M17.5 21V14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M12 12.5C14.76 12.5 17 10.26 17 7.5C17 4.74 14.76 2.5 12 2.5C9.24 2.5 7 4.74 7 7.5C7 10.26 9.24 12.5 12 12.5Z" stroke="currentColor" stroke-width="1.6"/><path d="M20.59 22.5C20.59 18.63 16.74 15.5 12 15.5C7.26 15.5 3.41 18.63 3.41 22.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div class="fab fabB"><svg viewBox="0 0 24 24" fill="none"><path d="M6 12H18M12 18V6" stroke="#3a2400" stroke-width="2.6" stroke-linecap="round"/></svg></div>
+    </div>
+  </div>
+
+  <!-- C -->
+  <div class="variant">
+    <div class="vlabel">C · Glass daire + turuncu +</div>
+    <div class="vdesc">FAB da buzlu cam, içinde turuncu +. Pill ile tam tutarlı ama birincil aksiyon olarak daha silik.</div>
+    <div class="pill">
+      <svg class="tab active" viewBox="0 0 25 25" fill="none"><path d="M20.54 7.32L14.78 3.29C13.21 2.19 10.8 2.25 9.29 3.42L4.28 7.33C3.28 8.11 2.49 9.71 2.49 10.97V17.87C2.49 20.42 4.56 22.5 7.11 22.5H17.89C20.44 22.5 22.51 20.43 22.51 17.88V11.1C22.51 9.75 21.64 8.09 20.54 7.32Z" fill="currentColor"/></svg>
+      <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12Z" stroke="currentColor" stroke-width="1.6"/><path d="M15.71 15.18L12.61 13.33C12.07 13.01 11.63 12.24 11.63 11.61V7.51" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div class="slot"></div>
+      <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M3 21H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6.5 21V11.5M12 21V7M17.5 21V14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M12 12.5C14.76 12.5 17 10.26 17 7.5C17 4.74 14.76 2.5 12 2.5C9.24 2.5 7 4.74 7 7.5C7 10.26 9.24 12.5 12 12.5Z" stroke="currentColor" stroke-width="1.6"/><path d="M20.59 22.5C20.59 18.63 16.74 15.5 12 15.5C7.26 15.5 3.41 18.63 3.41 22.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div class="fab fabC"><svg viewBox="0 0 24 24" fill="none"><path d="M6 12H18M12 18V6" stroke="#F08C2E" stroke-width="2.8" stroke-linecap="round"/></svg></div>
+    </div>
+  </div>
+
+  <!-- D bonus -->
+  <div class="variant">
+    <div class="vlabel">D · Kavisli-kare glass (B+C birleşimi · bonus)</div>
+    <div class="vdesc">Ayna şekli + cam doku + turuncu kontur. En "Ayna" ama en sakin; birincil aksiyon vurgusu en az.</div>
+    <div class="pill">
+      <svg class="tab active" viewBox="0 0 25 25" fill="none"><path d="M20.54 7.32L14.78 3.29C13.21 2.19 10.8 2.25 9.29 3.42L4.28 7.33C3.28 8.11 2.49 9.71 2.49 10.97V17.87C2.49 20.42 4.56 22.5 7.11 22.5H17.89C20.44 22.5 22.51 20.43 22.51 17.88V11.1C22.51 9.75 21.64 8.09 20.54 7.32Z" fill="currentColor"/></svg>
+      <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12Z" stroke="currentColor" stroke-width="1.6"/><path d="M15.71 15.18L12.61 13.33C12.07 13.01 11.63 12.24 11.63 11.61V7.51" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div class="slot"></div>
+      <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M3 21H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6.5 21V11.5M12 21V7M17.5 21V14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <svg class="tab" viewBox="0 0 24 24" fill="none"><path d="M12 12.5C14.76 12.5 17 10.26 17 7.5C17 4.74 14.76 2.5 12 2.5C9.24 2.5 7 4.74 7 7.5C7 10.26 9.24 12.5 12 12.5Z" stroke="currentColor" stroke-width="1.6"/><path d="M20.59 22.5C20.59 18.63 16.74 15.5 12 15.5C7.26 15.5 3.41 18.63 3.41 22.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div class="fab fabD"><svg viewBox="0 0 24 24" fill="none"><path d="M6 12H18M12 18V6" stroke="#F08C2E" stroke-width="2.8" stroke-linecap="round"/></svg></div>
+    </div>
+  </div>
+
+</body>
+</html>

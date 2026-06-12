@@ -2,6 +2,28 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const KEY = '@ayna/addiction_sessions';
 const USES_KEY = '@ayna/addiction_uses';
+const RULE_KEY = '@ayna/rule_days';
+
+// "rule" modu — kişisel kurala bugün uyuldu mu (harm-reduction)
+export interface RuleDay {
+  goalId: string;
+  dateKey: string; // YYYY-M-D
+  kept: boolean;
+  time: number;
+}
+
+export interface RuleStats {
+  todayKept: boolean | null; // null = bugün işaretlenmedi
+  currentStreak: number; // ardışık tutulan gün (bugün dahil/değil)
+  bestStreak: number;
+  thisWeekKept: number;
+  last7: { label: string; kept: boolean | null }[];
+}
+
+function ruleDayKey(ts: number): string {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
 
 // One logged use in "limit" mode (harm-reduction).
 // amount: 'count' biriminde 1 (bir kez); 'minutes' biriminde eklenen dakika.
@@ -251,6 +273,65 @@ const addictionStorage = {
       .sort((a, b) => b - a);
 
     return { totalSessions, currentSessionStart, personalBestMs, allDurationsMs };
+  },
+
+  // ── "rule" modu — günlük kural takibi ──────────────────────────────────────
+  async getRuleDays(goalId: string): Promise<RuleDay[]> {
+    const raw = await AsyncStorage.getItem(RULE_KEY);
+    const all: RuleDay[] = raw ? JSON.parse(raw) : [];
+    return all.filter(d => d.goalId === goalId);
+  },
+
+  // Bugünü işaretle (kept = true/false). Aynı güne yeniden yazar.
+  async setRuleToday(goalId: string, kept: boolean): Promise<void> {
+    const raw = await AsyncStorage.getItem(RULE_KEY);
+    const all: RuleDay[] = raw ? JSON.parse(raw) : [];
+    const dk = ruleDayKey(Date.now());
+    const idx = all.findIndex(d => d.goalId === goalId && d.dateKey === dk);
+    const entry: RuleDay = { goalId, dateKey: dk, kept, time: Date.now() };
+    if (idx >= 0) all[idx] = entry;
+    else all.push(entry);
+    await AsyncStorage.setItem(RULE_KEY, JSON.stringify(all));
+  },
+
+  async getRuleStats(goalId: string): Promise<RuleStats> {
+    const days = await this.getRuleDays(goalId);
+    const byKey = new Map<string, boolean>();
+    for (const d of days) byKey.set(d.dateKey, d.kept);
+
+    const now = Date.now();
+    const todayKept = byKey.has(ruleDayKey(now)) ? byKey.get(ruleDayKey(now))! : null;
+
+    // ardışık tutulan gün (bugün işaretsizse kırılmaz; geriye doğru say)
+    let currentStreak = 0;
+    for (let i = 0; i < 365; i++) {
+      const k = ruleDayKey(now - i * 86400000);
+      const v = byKey.get(k);
+      if (v === true) currentStreak++;
+      else if (i === 0 && v === undefined) continue; // bugün işaretsiz → kırma
+      else break;
+    }
+
+    // en uzun streak (son 90 gün)
+    let bestStreak = 0;
+    let run = 0;
+    for (let i = 90; i >= 0; i--) {
+      const v = byKey.get(ruleDayKey(now - i * 86400000));
+      if (v === true) { run++; bestStreak = Math.max(bestStreak, run); }
+      else if (v === false) run = 0;
+    }
+
+    const TR = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+    const last7: { label: string; kept: boolean | null }[] = [];
+    let thisWeekKept = 0;
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now - i * 86400000);
+      const v = byKey.get(ruleDayKey(d.getTime()));
+      if (v === true) thisWeekKept++;
+      last7.push({ label: TR[d.getDay()], kept: v === undefined ? null : v });
+    }
+
+    return { todayKept, currentStreak, bestStreak, thisWeekKept, last7 };
   },
 };
 

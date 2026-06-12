@@ -1,7 +1,7 @@
 import React, { Image, TouchableOpacity, View } from 'react-native';
 
 import Skeleton from 'react-native-reanimated-skeleton';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Dots, User } from '#assets/svg';
 
@@ -96,7 +96,7 @@ export default function ImageRow({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   shadowWrapper: {
     flex: 1,
     marginTop: theme.spacing[4],

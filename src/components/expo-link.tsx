@@ -1,5 +1,5 @@
 import { Link } from 'expo-router';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 interface ExpoLinkProps {
   href: string;
@@ -21,7 +21,7 @@ export default function ExpoLink({ href, linkText, linkMode = 'replace' }: ExpoL
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   linkText: {
     fontFamily: theme.fontFamily.medium,
     color: theme.colors.typography.PRIMARY[800],

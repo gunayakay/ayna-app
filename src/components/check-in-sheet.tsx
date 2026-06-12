@@ -1,8 +1,8 @@
 import React, { forwardRef, useCallback, useMemo, useState } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, TextInput } from 'react-native';
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from './atoms';
 import Svg from './atoms/svg';
@@ -55,9 +55,9 @@ const CheckInSheet = forwardRef<BottomSheetModal, CheckInSheetProps>(
 
     // Dynamic snap points based on view state and input mode
     const snapPoints = useMemo(() => {
-      if (viewState === 'confrontation') return ['85%'];
-      if (inputMode === 'check') return ['40%'];
-      return ['50%'];
+      if (viewState === 'confrontation') return ['90%'];
+      if (inputMode === 'check') return ['54%'];
+      return ['64%'];
     }, [viewState, inputMode]);
 
     // Reset state when sheet closes
@@ -125,33 +125,55 @@ const CheckInSheet = forwardRef<BottomSheetModal, CheckInSheetProps>(
 
             {/* Dynamic Input */}
             <View style={styles.inputContainer}>
-              {inputMode === 'time' && (
-                <TimeQuickPick
-                  value={value}
-                  maxValue={maxValue}
-                  unit={unit || 'dk'}
-                  onValueChange={setValue}
-                />
-              )}
-              {inputMode === 'count' && (
-                <Stepper
-                  value={value}
-                  min={0}
-                  max={maxValue}
-                  step={step}
-                  unit={unit}
-                  maxLabel={maxLabel}
-                  onValueChange={setValue}
-                />
-              )}
-              {inputMode === 'check' && (
+              {inputMode === 'check' ? (
                 <CheckToggle checked={value >= 1} onToggle={checked => setValue(checked ? 1 : 0)} />
+              ) : (
+                <>
+                  <Text style={styles.askq}>Bugün ne kadar yaptın?</Text>
+                  <View style={styles.amountField}>
+                    <TextInput
+                      style={styles.amountInput}
+                      keyboardType="number-pad"
+                      value={value > 0 ? String(value) : ''}
+                      placeholder="0"
+                      placeholderTextColor={theme.colors.typography.TERTIARY}
+                      onChangeText={t => {
+                        const n = parseInt(t.replace(/[^0-9]/g, '') || '0', 10);
+                        setValue(Number.isNaN(n) ? 0 : n);
+                      }}
+                      maxLength={5}
+                      selectTextOnFocus
+                    />
+                    <Text style={styles.amountUnit}>{unit ?? maxLabel ?? ''}</Text>
+                  </View>
+                  <View style={styles.chipRow}>
+                    {(inputMode === 'time' ? [15, 30] : [step || 1]).map(q => (
+                      <TouchableOpacity
+                        key={q}
+                        activeOpacity={0.7}
+                        style={styles.chip}
+                        onPress={() => setValue(value + q)}>
+                        <Text style={styles.chipText}>+{q}</Text>
+                      </TouchableOpacity>
+                    ))}
+                    {maxValue > 0 && (
+                      <TouchableOpacity
+                        activeOpacity={0.7}
+                        style={[styles.chip, styles.chipDone]}
+                        onPress={() => setValue(maxValue)}>
+                        <Text style={[styles.chipText, styles.chipTextDone]}>
+                          ✓ Tamamladım
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </>
               )}
             </View>
 
             {/* Update Button */}
             <Button onPress={handleUpdate} style={styles.updateButton}>
-              Güncelle
+              Kaydet
             </Button>
 
             {/* Secondary Action */}
@@ -181,7 +203,7 @@ const CheckInSheet = forwardRef<BottomSheetModal, CheckInSheetProps>(
   }
 );
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     padding: theme.spacing[5],
     alignItems: 'center',
@@ -207,6 +229,60 @@ const stylesheet = createStyleSheet(theme => ({
   inputContainer: {
     marginBottom: theme.spacing[8],
     width: '100%',
+    alignItems: 'center',
+  },
+  askq: {
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.typography.SECONDARY,
+    marginBottom: theme.spacing[3],
+  },
+  amountField: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'center',
+    gap: theme.spacing[2],
+    minWidth: 140,
+    paddingBottom: theme.spacing[2],
+    borderBottomWidth: 2,
+    borderBottomColor: theme.colors.primaryLight,
+  },
+  amountInput: {
+    fontSize: 44,
+    fontFamily: theme.fontFamily.extraBold,
+    color: theme.colors.typography.PRIMARY,
+    textAlign: 'center',
+    minWidth: 70,
+    padding: 0,
+  },
+  amountUnit: {
+    fontSize: theme.fontSizes.lg,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.typography.SECONDARY,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: theme.spacing[2],
+    marginTop: theme.spacing[5],
+  },
+  chip: {
+    backgroundColor: theme.colors.primaryLightest,
+    borderRadius: theme.borderRadius.full,
+    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[4],
+  },
+  chipDone: {
+    backgroundColor: 'rgba(54,179,126,0.14)',
+  },
+  chipText: {
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.primaryDarker,
+  },
+  chipTextDone: {
+    color: '#1f8a5f',
   },
   updateButton: {
     backgroundColor: theme.colors.typography.PRIMARY,

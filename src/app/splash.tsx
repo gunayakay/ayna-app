@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, Image, StatusBar } from 'react-native';
 import { router } from 'expo-router';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 export default function SplashScreen() {
   const { styles, theme } = useStyles(stylesheet);
@@ -91,7 +91,7 @@ export default function SplashScreen() {
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     flex: 1,
     justifyContent: 'center',

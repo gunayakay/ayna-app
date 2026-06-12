@@ -8,7 +8,7 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import Svg, { SvgComponent } from './atoms/svg';
 
@@ -53,7 +53,7 @@ export default function Link({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: (mode: 'row' | 'column') => ({
     flexDirection: mode,
     alignItems: 'center',

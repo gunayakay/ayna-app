@@ -1,8 +1,8 @@
 import { forwardRef, memo, useCallback, useImperativeHandle, useRef, useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 
 import DatePickerRN from 'react-native-date-picker';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { TextInput } from './atoms';
 import { TextInputHandle, TextInputProps } from './atoms/text-input';
@@ -86,7 +86,7 @@ const DatePicker = forwardRef<TextInputHandle, IDatePickerProps>(
   }
 );
 
-const stylesheet = createStyleSheet(() => ({
+const stylesheet = StyleSheet.create(() => ({
   textInputWrapper: {
     position: 'relative',
   },

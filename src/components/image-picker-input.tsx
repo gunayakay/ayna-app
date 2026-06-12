@@ -4,7 +4,7 @@ import { TouchableOpacity, View } from 'react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Gallery } from '#assets/svg';
 import { launchCamera, launchGallery, show } from '#lib';
@@ -32,7 +32,8 @@ export default function ImagePickerInput({
   allowEditing = true,
   disabled = false,
 }: ImagePickerInputProps) {
-  const { styles, theme } = useStyles(stylesheet, { variant });
+  const { styles, theme } = useStyles(stylesheet);
+  styles.useVariants({ variant });
   const { t } = useTranslation();
   const photoUploadSheetRef = useRef<BottomSheetModal>(null);
   const [status, requestPermission] = ImagePicker.useCameraPermissions();
@@ -132,7 +133,7 @@ export default function ImagePickerInput({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   imagePickerContainer: (hasUploadedImage: boolean) => ({
     position: 'relative',
     alignItems: 'center',

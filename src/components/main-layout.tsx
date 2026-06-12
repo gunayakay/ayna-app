@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 
 import Constants from 'expo-constants';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 export interface MainLayoutProps {
   children: React.ReactNode;
@@ -39,7 +39,7 @@ export default function MainLayout({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     flex: 1,
   },

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { LayoutChangeEvent, StyleProp, StyleSheet, View, ViewProps, ViewStyle } from 'react-native';
+import { LayoutChangeEvent, StyleProp, View, ViewProps, ViewStyle } from 'react-native';
 
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -9,7 +9,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 const RIPPLE_DURATION = 500;
 const RIPPLE_COLOR = 'rgba(255, 255, 255, 0.5)';
@@ -109,7 +109,7 @@ export default function RippleWrapper({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     width: '100%',
     height: '100%',

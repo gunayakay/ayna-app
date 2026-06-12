@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 
 import { FieldValues, useController, UseControllerProps } from 'react-hook-form';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text, TextInput } from './atoms';
 import { TextInputProps } from './atoms/text-input';
@@ -66,7 +66,7 @@ export default function ControlledInput<T extends FieldValues>({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   helperText: {
     fontSize: theme.fontSizes.xs,
     fontFamily: theme.fontFamily.light,

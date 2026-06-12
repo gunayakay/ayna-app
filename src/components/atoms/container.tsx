@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleProp, View, ViewProps, ViewStyle } from 'react-native';
 
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 interface ContainerProps extends ViewProps {
   style?: StyleProp<ViewStyle>;
@@ -26,7 +26,7 @@ export default function Container({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   container: {
     paddingHorizontal: theme.spacing[4],
   },

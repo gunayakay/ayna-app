@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 
 import { FieldValues, useController, UseControllerProps } from 'react-hook-form';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from './atoms';
 import Selectbox, { SelectBoxProps } from './selectbox';
@@ -70,7 +70,7 @@ export default function ControlledSelectBox<
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   error: {
     color: theme.colors.danger,
     fontSize: theme.fontSizes.sm,

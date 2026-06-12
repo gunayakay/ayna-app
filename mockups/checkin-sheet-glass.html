@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ayna — Check-in / Düzenle sheet (glass)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#F8F8F4; --ink:#1E1E1E; --ink2:#757575; --ink3:#A0A0A0;
+    --accent:#FF9F43; --accent-deep:#F08C2E; --success:#36B37E;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:#ECECE6;min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:34px 16px 70px;gap:22px;color:var(--ink);}
+  h1{font-size:22px;font-weight:800;letter-spacing:-.4px;text-align:center;}
+  .sub{color:#6b6b6b;font-size:13px;text-align:center;max-width:560px;line-height:1.55;}
+  .sub b{color:var(--ink);}
+  .stage{display:flex;gap:26px;flex-wrap:wrap;justify-content:center;}
+  .wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .lbl{font-size:12px;font-weight:700;color:var(--ink2);letter-spacing:.5px;}
+
+  .phone{width:360px;height:720px;border-radius:50px;position:relative;overflow:hidden;
+    background:var(--bg);box-shadow:0 36px 70px rgba(0,0,0,.26),0 0 0 11px #111,0 0 0 12px #2a2a2a;}
+  /* dimmed home behind */
+  .phone::before{content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(380px 300px at 80% 0%,rgba(255,159,67,.18),transparent 70%),
+      linear-gradient(180deg,#f6f1ea,#efe9e1);}
+  .dim{position:absolute;inset:0;background:rgba(20,16,10,.34);backdrop-filter:blur(1px);}
+
+  /* ── glass sheet ── */
+  .sheet{position:absolute;left:0;right:0;bottom:0;border-radius:34px 34px 0 0;
+    background:rgba(255,255,255,0.72);backdrop-filter:blur(34px) saturate(150%);
+    -webkit-backdrop-filter:blur(34px) saturate(150%);border-top:1px solid rgba(255,255,255,0.9);
+    box-shadow:0 -16px 44px rgba(80,60,30,.18);padding:14px 22px 26px;}
+  .grab{width:40px;height:5px;border-radius:99px;background:rgba(0,0,0,.16);margin:2px auto 14px;}
+
+  .shead{display:flex;align-items:center;gap:13px;margin-bottom:4px;}
+  /* mini mirror-icon echoing the logo */
+  .micon{position:relative;width:52px;height:52px;border-radius:30%;flex:none;
+    background:linear-gradient(150deg,var(--accent),var(--accent-deep));
+    box-shadow:0 6px 16px rgba(255,140,46,.3);}
+  .micon .g{position:absolute;inset:9%;border-radius:24%;background:linear-gradient(150deg,#fff,#f3efea);
+    display:grid;place-items:center;font-size:24px;}
+  .stitle{font-size:19px;font-weight:800;letter-spacing:-.3px;}
+  .ssub{font-size:12.5px;font-weight:500;color:var(--ink2);margin-top:2px;}
+  .edit{margin-left:auto;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.7);
+    border:1px solid rgba(0,0,0,.06);display:grid;place-items:center;font-size:17px;color:var(--ink2);}
+
+  /* 7-day context mini chart */
+  .ctx{display:flex;align-items:flex-end;justify-content:space-between;gap:5px;height:46px;margin:16px 2px 4px;}
+  .ctx .bar{flex:1;background:rgba(255,159,67,.5);border-radius:4px 4px 0 0;}
+  .ctx .bar.today{background:var(--accent-deep);}
+  .ctxlab{display:flex;justify-content:space-between;font-size:9px;font-weight:600;color:var(--ink3);margin:0 2px;}
+
+  /* big value + stepper (count/time) */
+  .valrow{display:flex;align-items:center;justify-content:center;gap:22px;margin:20px 0 6px;}
+  .rnd{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:26px;font-weight:600;
+    background:rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.07);color:var(--ink);box-shadow:0 4px 12px rgba(0,0,0,.06);}
+  .bigval{font-size:46px;font-weight:800;letter-spacing:-1px;min-width:120px;text-align:center;}
+  .bigval small{font-size:16px;font-weight:600;color:var(--ink2);}
+  .target{text-align:center;font-size:12px;color:var(--ink2);font-weight:600;margin-bottom:18px;}
+
+  /* time quick chips */
+  .quick{display:flex;gap:9px;justify-content:center;margin:6px 0 18px;}
+  .qchip{font-size:13px;font-weight:700;color:var(--accent-deep);background:rgba(255,159,67,.13);
+    border-radius:99px;padding:9px 15px;}
+
+  .btn{width:100%;height:54px;border-radius:99px;display:grid;place-items:center;font-size:16px;font-weight:700;}
+  .btn.primary{background:#1E1E1E;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.18);}
+  .btn.cta{background:linear-gradient(150deg,var(--accent),var(--accent-deep));color:#1E1E1E;}
+  .struggle{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;
+    font-size:13px;font-weight:600;color:var(--ink2);}
+
+  /* edit mode rows */
+  .erow{display:flex;align-items:center;justify-content:space-between;padding:15px 4px;border-bottom:1px solid rgba(0,0,0,.06);}
+  .erow .k{font-size:14px;font-weight:600;color:var(--ink);}
+  .erow .v{font-size:14px;font-weight:700;color:var(--accent-deep);display:flex;align-items:center;gap:6px;}
+  .seg{display:flex;background:rgba(0,0,0,.05);border-radius:12px;padding:3px;gap:3px;}
+  .seg span{font-size:12px;font-weight:700;color:var(--ink2);padding:6px 12px;border-radius:9px;}
+  .seg span.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.08);}
+  .remove{text-align:center;color:#b94d2e;font-size:13px;font-weight:600;margin-top:18px;}
+
+  .note{background:rgba(255,159,67,.08);border:1px solid rgba(255,159,67,.25);border-radius:16px;
+    padding:13px 16px;font-size:12.5px;line-height:1.6;color:#5a4a32;max-width:560px;}
+  .note b{color:var(--accent-deep);}
+</style>
+</head>
+<body>
+  <h1>Check-in / Düzenle · glass sheet</h1>
+  <p class="sub">Anasayfada <b>karta dokununca</b> açılır. İki kip: <b>Check-in</b> (bugünkü değeri gir) ve
+  kalemle geçilen <b>Düzenle</b> (hedef/sıklık değiştir). Üstte 7-gün bağlam grafiği, B sesiyle alt satır,
+  "zorlanıyorum" → yüzleşme.</p>
+
+  <div class="stage">
+
+    <!-- ── CHECK-IN ── -->
+    <div class="wrap">
+      <div class="lbl">① Check-in (zaman hedefi · Meditasyon)</div>
+      <div class="phone">
+        <div class="dim"></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="shead">
+            <div class="micon"><div class="g">🧘</div></div>
+            <div>
+              <div class="stitle">Meditasyon</div>
+              <div class="ssub">Bugün başlamadın · 3 gündür aralıksız</div>
+            </div>
+            <div class="edit">✎</div>
+          </div>
+
+          <div class="ctx">
+            <div class="bar" style="height:46%"></div><div class="bar" style="height:70%"></div>
+            <div class="bar" style="height:34%"></div><div class="bar" style="height:58%"></div>
+            <div class="bar" style="height:80%"></div><div class="bar" style="height:50%"></div>
+            <div class="bar today" style="height:10%"></div>
+          </div>
+          <div class="ctxlab"><span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Bgn</span></div>
+
+          <div class="valrow">
+            <div class="rnd">−</div>
+            <div class="bigval">15<small> dk</small></div>
+            <div class="rnd">+</div>
+          </div>
+          <div class="target">hedef · 30 dk</div>
+          <div class="quick">
+            <span class="qchip">+5</span><span class="qchip">+10</span><span class="qchip">+15</span><span class="qchip">Tamam ✓</span>
+          </div>
+
+          <div class="btn primary">Güncelle</div>
+          <div class="struggle">Bugün zorlanıyorum… <span style="color:var(--accent-deep)">→</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DÜZENLE ── -->
+    <div class="wrap">
+      <div class="lbl">② Düzenle (kalem ✎ ile)</div>
+      <div class="phone">
+        <div class="dim"></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="shead">
+            <div class="micon"><div class="g">🧘</div></div>
+            <div>
+              <div class="stitle">Meditasyon</div>
+              <div class="ssub">Hedefini ayarla</div>
+            </div>
+            <div class="edit" style="background:#1E1E1E;color:#fff;border:none">✓</div>
+          </div>
+
+          <div style="margin-top:14px">
+            <div class="erow"><span class="k">Günlük hedef</span>
+              <span class="v"><span class="rnd" style="width:34px;height:34px;font-size:18px">−</span> 30 dk <span class="rnd" style="width:34px;height:34px;font-size:18px">+</span></span></div>
+            <div class="erow"><span class="k">Sıklık</span>
+              <span class="v"><span class="seg"><span>Her gün</span><span>Haftalık</span><span class="on">Aralık</span></span></span></div>
+            <div class="erow"><span class="k">Her kaç saatte</span><span class="v">6 saat</span></div>
+            <div class="erow" style="border:none"><span class="k">Hatırlatma</span>
+              <span class="v"><span class="seg"><span class="on">23:00</span><span>Kapalı</span></span></span></div>
+          </div>
+
+          <div class="btn cta" style="margin-top:14px">Kaydet</div>
+          <div class="remove">Bu hedefi kaldır</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <b>Notlar:</b> Mevcut input kipleri korunur — <b>zaman</b> (±/hızlı çipler), <b>sayı</b> (stepper),
+    <b>check</b> (tek toggle). 7-gün bağlam grafiği yeni: girmeden önce ritmi gösterir.
+    Alt satır B sesiyle ("Bugün başlamadın · 3 gündür aralıksız"). "Bugün zorlanıyorum…" yine
+    <b>yüzleşme (confrontation)</b> kipine götürür — onu da glass'a sonra çevireceğiz.
+    <b>Hatırlatma satırı</b> anasayfadaki 23:00 bildirimini buraya bağlar (henüz expo-notifications kurulu değil).
+  </div>
+</body>
+</html>

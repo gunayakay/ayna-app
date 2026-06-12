@@ -3,7 +3,7 @@ import { TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Row } from '#components';
 import { ROUTES } from '#constants';
@@ -87,7 +87,7 @@ export default function TabsLayout({
   );
 }
 
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   layout: {
     backgroundColor: theme.colors.white,
   },

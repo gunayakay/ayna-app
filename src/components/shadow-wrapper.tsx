@@ -1,6 +1,6 @@
 import { StyleProp, View, ViewStyle } from 'react-native';
 
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet, useStyles } from '#theme/unistyles';
 
 import { Text } from '#components/atoms';
 
@@ -18,7 +18,7 @@ export default function ShadowWrapper({ children, title, style }: ShadowWrapperP
     </View>
   );
 }
-const stylesheet = createStyleSheet(theme => ({
+const stylesheet = StyleSheet.create(theme => ({
   title: {
     fontSize: theme.fontSizes.sm,
     fontFamily: theme.fontFamily.regular,
