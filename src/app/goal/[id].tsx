@@ -1,16 +1,18 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import Svg, { Rect, Line } from 'react-native-svg';
+import { BottomSheetModal, BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
 import { Text } from '#components/atoms';
 import SvgIcon from '#components/atoms/svg';
 import GlassCard from '#components/glass-card';
 import ProgressRing from '#components/progress-ring';
-import { BackArrow } from '#assets/svg';
+import EditMenuSheet from '#components/edit-menu-sheet';
+import { BackArrow, Dots } from '#assets/svg';
 import { StyleSheet, useStyles } from '#theme/unistyles';
-import { battleStorage } from '#/utils';
+import { battleStorage, goalStorage } from '#/utils';
 
 const TR_DAY_SHORT = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
 
@@ -36,13 +38,40 @@ export default function GoalDetailScreen() {
   const icon = params.icon ?? '🎯';
   const title = params.title ?? 'Hedef';
   const unit = params.unit ?? '';
-  const maxValue = Number(params.maxValue ?? 0);
   const todayValue = Number(params.value ?? 0);
 
+  const [maxValue, setMaxValue] = useState(Number(params.maxValue ?? 0));
   const [days, setDays] = useState<{ label: string; value: number; max: number }[]>([]);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [weekTotal, setWeekTotal] = useState(0);
+
+  // düzenle/sil
+  const editRef = useRef<BottomSheetModal>(null);
+  const [targetDraft, setTargetDraft] = useState('');
+
+  const openEdit = () => {
+    setTargetDraft(maxValue > 0 ? String(maxValue) : '');
+    editRef.current?.present();
+  };
+
+  const handleSaveTarget = async () => {
+    const next = parseInt(targetDraft.replace(/[^0-9]/g, '') || '0', 10);
+    if (!next || next <= 0) return;
+    const existing = await goalStorage.getGoalSettings(id);
+    await goalStorage.saveGoalSettings(id, {
+      targetValue: next,
+      frequency: existing?.frequency ?? { type: 'daily' },
+    });
+    setMaxValue(next);
+    editRef.current?.dismiss();
+  };
+
+  const handleDelete = async () => {
+    await goalStorage.removeGoal(id);
+    editRef.current?.dismiss();
+    router.back();
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -122,7 +151,9 @@ export default function GoalDetailScreen() {
           <SvgIcon Icon={BackArrow} width={20} height={20} stroke={theme.colors.typography.PRIMARY} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={styles.topTitle}>{icon} {title}</Text>
-        <View style={styles.iconBtn} />
+        <TouchableOpacity style={styles.iconBtn} activeOpacity={0.7} onPress={openEdit}>
+          <SvgIcon Icon={Dots} width={20} height={20} stroke={theme.colors.typography.PRIMARY} strokeWidth={2} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -202,6 +233,32 @@ export default function GoalDetailScreen() {
               : 'Henüz bu hafta tutmadın. Bugün bir şeyle başla — gerisi gelir.'}
         </Text>
       </ScrollView>
+
+      <EditMenuSheet
+        ref={editRef}
+        heading={`${icon} ${title}`}
+        snapPoints={['48%']}
+        onSave={handleSaveTarget}
+        saveDisabled={!targetDraft.trim()}
+        deleteLabel="Bu hedefi sil"
+        deleteTitle="Hedefi sil"
+        deleteMessage={`"${title}" ve tüm kayıtları silinecek. Bu geri alınamaz.`}
+        onDelete={handleDelete}>
+        <Text style={styles.editLabel}>Günlük hedef{unit ? ` (${unit})` : ''}</Text>
+        <View style={styles.editField}>
+          <BottomSheetTextInput
+            style={styles.editInput}
+            keyboardType="number-pad"
+            value={targetDraft}
+            onChangeText={setTargetDraft}
+            placeholder="0"
+            placeholderTextColor={theme.colors.typography.TERTIARY}
+            maxLength={6}
+            selectTextOnFocus
+          />
+          {!!unit && <Text style={styles.editUnit}>{unit}</Text>}
+        </View>
+      </EditMenuSheet>
     </View>
   );
 }
@@ -255,4 +312,8 @@ const stylesheet = StyleSheet.create(theme => ({
     fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.medium, color: theme.colors.typography.SECONDARY,
     fontStyle: 'italic', textAlign: 'center', lineHeight: 20, paddingHorizontal: theme.spacing[4], paddingTop: theme.spacing[4],
   },
+  editLabel: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.SECONDARY, marginBottom: theme.spacing[2] },
+  editField: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing[2], borderBottomWidth: 2, borderBottomColor: theme.colors.primaryLight, paddingBottom: theme.spacing[2] },
+  editInput: { flex: 1, fontSize: 36, fontFamily: theme.fontFamily.extraBold, color: theme.colors.typography.PRIMARY, padding: 0 },
+  editUnit: { fontSize: theme.fontSizes.lg, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.SECONDARY },
 }));

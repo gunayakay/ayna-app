@@ -1,14 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import Svg, { Rect, Line } from 'react-native-svg';
+import { BottomSheetModal, BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
 import { Text } from '#components/atoms';
 import SvgIcon from '#components/atoms/svg';
 import GlassCard from '#components/glass-card';
 import ProgressRing from '#components/progress-ring';
-import { BackArrow, Reward } from '#assets/svg';
+import EditMenuSheet from '#components/edit-menu-sheet';
+import { BackArrow, Reward, Dots } from '#assets/svg';
 import { StyleSheet, useStyles } from '#theme/unistyles';
 import { addictionStorage, goalStorage, formatDuration, RuleStats } from '#/utils';
 
@@ -46,6 +48,13 @@ export default function AddictionDetailScreen() {
   const [usesCurrent, setUsesCurrent] = useState(0);
   const [usesPrev, setUsesPrev] = useState(0);
   const [weekUsage, setWeekUsage] = useState<{ label: string; value: number }[]>([]);
+
+  // düzenle/sil
+  const editRef = useRef<BottomSheetModal>(null);
+  const [draftRule, setDraftRule] = useState('');
+  const [draftLimit, setDraftLimit] = useState('');
+  const [draftPeriod, setDraftPeriod] = useState<'daily' | 'weekly'>('weekly');
+  const [draftUnit, setDraftUnit] = useState<'count' | 'minutes'>('count');
 
   useFocusEffect(useCallback(() => { load(); }, [id]));
 
@@ -117,6 +126,38 @@ export default function AddictionDetailScreen() {
     setRuleStats(await addictionStorage.getRuleStats(id));
   };
 
+  const openEdit = () => {
+    setDraftRule(ruleText);
+    setDraftLimit(limit > 0 ? String(limit) : '');
+    setDraftPeriod(period);
+    setDraftUnit(unit);
+    editRef.current?.present();
+  };
+
+  const handleSaveEdit = async () => {
+    if (mode === 'rule') {
+      const r = draftRule.trim();
+      if (!r) return;
+      await goalStorage.setAddictionConfig(id, { mode: 'rule', rule: r });
+      setRuleText(r);
+    } else if (mode === 'limit') {
+      const n = parseInt(draftLimit.replace(/[^0-9]/g, '') || '0', 10);
+      if (!n || n <= 0) return;
+      await goalStorage.setAddictionConfig(id, { mode: 'limit', limitPeriod: draftPeriod, limit: n, unit: draftUnit });
+    }
+    editRef.current?.dismiss();
+    load();
+  };
+
+  const handleDelete = async () => {
+    await goalStorage.removeGoal(id);
+    editRef.current?.dismiss();
+    router.back();
+  };
+
+  const editSaveDisabled =
+    mode === 'rule' ? !draftRule.trim() : mode === 'limit' ? !draftLimit.trim() : false;
+
   const u = unit === 'minutes' ? ' dk' : '';
   const ringPct =
     mode === 'limit'
@@ -132,7 +173,9 @@ export default function AddictionDetailScreen() {
           <SvgIcon Icon={BackArrow} width={20} height={20} stroke={theme.colors.typography.PRIMARY} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={styles.topTitle}>{icon} {title}</Text>
-        <View style={styles.iconBtn} />
+        <TouchableOpacity style={styles.iconBtn} activeOpacity={0.7} onPress={openEdit}>
+          <SvgIcon Icon={Dots} width={20} height={20} stroke={theme.colors.typography.PRIMARY} strokeWidth={2} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -319,6 +362,74 @@ export default function AddictionDetailScreen() {
           </>
         )}
       </ScrollView>
+
+      <EditMenuSheet
+        ref={editRef}
+        heading={`${icon} ${title}`}
+        snapPoints={['52%']}
+        saveLabel={mode === 'abstinence' ? 'Kapat' : 'Kaydet'}
+        onSave={handleSaveEdit}
+        saveDisabled={editSaveDisabled}
+        deleteLabel="Bu direnişi sil"
+        deleteTitle="Direnişi sil"
+        deleteMessage={`"${title}" ve tüm kayıtları silinecek. Bu geri alınamaz.`}
+        onDelete={handleDelete}>
+        {mode === 'rule' ? (
+          <>
+            <Text style={styles.editLabel}>Kuralın</Text>
+            <BottomSheetTextInput
+              style={styles.editInputMulti}
+              value={draftRule}
+              onChangeText={setDraftRule}
+              placeholder="Örn. Aç karına içme"
+              placeholderTextColor={theme.colors.typography.TERTIARY}
+              maxLength={80}
+              multiline
+            />
+          </>
+        ) : mode === 'limit' ? (
+          <>
+            <Text style={styles.editLabel}>Sınır ({draftUnit === 'minutes' ? 'dk' : 'kez'})</Text>
+            <View style={styles.editField}>
+              <BottomSheetTextInput
+                style={styles.editInput}
+                keyboardType="number-pad"
+                value={draftLimit}
+                onChangeText={setDraftLimit}
+                placeholder="0"
+                placeholderTextColor={theme.colors.typography.TERTIARY}
+                maxLength={4}
+                selectTextOnFocus
+              />
+              <Text style={styles.editUnit}>{draftUnit === 'minutes' ? 'dk' : 'kez'}</Text>
+            </View>
+
+            <Text style={[styles.editLabel, styles.editLabelGap]}>Periyot</Text>
+            <View style={styles.segRow}>
+              {(['daily', 'weekly'] as const).map(p => (
+                <TouchableOpacity key={p} activeOpacity={0.8} onPress={() => setDraftPeriod(p)}
+                  style={[styles.seg, draftPeriod === p && styles.segOn]}>
+                  <Text style={[styles.segText, draftPeriod === p && styles.segTextOn]}>{p === 'daily' ? 'Günlük' : 'Haftalık'}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={[styles.editLabel, styles.editLabelGap]}>Birim</Text>
+            <View style={styles.segRow}>
+              {(['count', 'minutes'] as const).map(un => (
+                <TouchableOpacity key={un} activeOpacity={0.8} onPress={() => setDraftUnit(un)}
+                  style={[styles.seg, draftUnit === un && styles.segOn]}>
+                  <Text style={[styles.segText, draftUnit === un && styles.segTextOn]}>{un === 'count' ? 'Kez' : 'Dakika'}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        ) : (
+          <Text style={styles.editNote}>
+            Tamamen bırakma turunda düzenlenecek bir ayar yok — rekorun kendi kendine işliyor. Bu direnişi silebilirsin.
+          </Text>
+        )}
+      </EditMenuSheet>
     </View>
   );
 }
@@ -370,4 +481,17 @@ const stylesheet = StyleSheet.create(theme => ({
   dayDotMiss: { backgroundColor: theme.colors.primaryLighter },
   dayTick: { fontSize: 13, color: theme.colors.white, fontFamily: theme.fontFamily.bold },
   dayLbl: { fontSize: 9, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.TERTIARY },
+  // düzenle
+  editLabel: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.SECONDARY, marginBottom: theme.spacing[2] },
+  editLabelGap: { marginTop: theme.spacing[5] },
+  editField: { flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing[2], borderBottomWidth: 2, borderBottomColor: theme.colors.primaryLight, paddingBottom: theme.spacing[2] },
+  editInput: { flex: 1, fontSize: 36, fontFamily: theme.fontFamily.extraBold, color: theme.colors.typography.PRIMARY, padding: 0 },
+  editInputMulti: { fontSize: theme.fontSizes.lg, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.PRIMARY, paddingVertical: theme.spacing[2], borderBottomWidth: 2, borderBottomColor: theme.colors.primaryLight, minHeight: 48 },
+  editUnit: { fontSize: theme.fontSizes.lg, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.SECONDARY },
+  editNote: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.medium, color: theme.colors.typography.SECONDARY, lineHeight: 21 },
+  segRow: { flexDirection: 'row', gap: theme.spacing[2] },
+  seg: { flex: 1, height: 44, borderRadius: theme.borderRadius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primaryLightest, borderWidth: 2, borderColor: 'transparent' },
+  segOn: { borderColor: theme.colors.primary, backgroundColor: theme.colors.primaryLighter },
+  segText: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.bold, color: theme.colors.typography.SECONDARY },
+  segTextOn: { color: theme.colors.typography.PRIMARY },
 }));

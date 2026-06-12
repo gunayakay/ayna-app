@@ -44,6 +44,14 @@ const discoveryStorage = {
     return item;
   },
 
+  async updateItem(id: string, emoji: string, title: string): Promise<void> {
+    const items = await this.getItems();
+    const idx = items.findIndex(i => i.id === id);
+    if (idx === -1) return;
+    items[idx] = { ...items[idx], emoji, title: title.trim() };
+    await AsyncStorage.setItem(KEY_ITEMS, JSON.stringify(items));
+  },
+
   async removeItem(id: string): Promise<void> {
     const items = (await this.getItems()).filter(i => i.id !== id);
     await AsyncStorage.setItem(KEY_ITEMS, JSON.stringify(items));
