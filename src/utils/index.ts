@@ -39,6 +39,20 @@ export type { HabitBattle, HabitStats } from './battleStorage';
 export { default as addictionStorage, formatDuration } from './addictionStorage';
 export type { AddictionSession, AddictionStats, AddictionUse, RuleDay, RuleStats } from './addictionStorage';
 export { addGoalSheetRef } from './addGoalSheetRef';
-export { default as discoveryStorage } from './discoveryStorage';
-export type { DiscoveryItem, DiscoveryEntry } from './discoveryStorage';
+export { default as discoveryStorage, resolveThemeEmoji, resolveThemeTitle } from './discoveryStorage';
+export type {
+  DiscoveryTheme,
+  DiscoveryExperience,
+  NewExperience,
+  ThemeSummary,
+  DiscoveryItem,
+  DiscoveryEntry,
+} from './discoveryStorage';
+export {
+  THEME_CATALOG,
+  THEME_ORDER,
+  REPEAT_OPTIONS,
+  getThemeDef,
+} from './discoveryThemes';
+export type { FieldKey, ThemeDef, RepeatValue } from './discoveryThemes';
 export { setupDailyReminder, cancelDailyReminder } from './notifications';
