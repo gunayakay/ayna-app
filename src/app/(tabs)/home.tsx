@@ -156,17 +156,27 @@ export default function HomeScreen() {
     setWidgetValues(initialValues);
 
     // ── Ayna berraklığı (kümülatif, son 3 gün · recency-ağırlıklı) ──
-    // İhmal → buğu birikir; ardışık iyi günler → berraklaşır (~3 gün streak temizler).
+    // Temiz sayfa = berrak/parıltı. Buğu, ANCAK kişi başladıktan sonra ihmalle birikir.
+    // Henüz hiç aktivite yoksa (yeni kullanıcı) buğulanmaz — ihmal edilecek bir şey yok.
     const habitGoalIds = activeGoals.filter(
       gid => WIDGET_CONFIG[gid] && categories[gid] !== 'addiction'
     );
-    if (habitGoalIds.length === 0) {
-      setClarity(1);
+    const habitBattles = allBattles.filter(b => habitGoalIds.includes(b.goalId));
+    if (habitGoalIds.length === 0 || habitBattles.length === 0) {
+      setClarity(1); // berrak + glow
     } else {
+      // ilk aktivite gününden önceki günler buğuya saymaz
+      const firstTs = Math.min(...habitBattles.map(b => b.timestamp));
+      const firstDay = new Date(firstTs);
+      firstDay.setHours(0, 0, 0, 0);
       const weights = [1, 0.7, 0.45]; // bugün, dün, evvelsi gün
       let wsum = 0;
       let csum = 0;
       for (let i = 0; i < weights.length; i++) {
+        const dayStart = new Date();
+        dayStart.setHours(0, 0, 0, 0);
+        dayStart.setDate(dayStart.getDate() - i);
+        if (dayStart.getTime() < firstDay.getTime()) continue; // başlamadan önce
         const dk = getDayKey(Date.now() - i * 86400000);
         let goalSum = 0;
         let goalN = 0;

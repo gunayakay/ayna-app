@@ -20,14 +20,25 @@ interface MirrorAvatarProps {
 // Foto yoksa cam beyaz kalır, baş harf gösterilir.
 // clarity < 1 ise üstüne buğu (frosted) biner — "bir süredir kendine bakmadın".
 export default function MirrorAvatar({ uri, initial, size, clarity = 1 }: MirrorAvatarProps) {
-  const { styles } = useStyles(stylesheet);
+  const { styles, theme } = useStyles(stylesheet);
   const frameRadius = Math.round(size * 0.3);
   const pad = Math.max(3, Math.round(size * 0.07));
   const innerRadius = Math.max(2, frameRadius - pad);
   const fog = Math.min(0.92, Math.max(0, 1 - clarity));
+  // berrak oldukça parıltı (temiz sayfa / streak'te canlı glow)
+  const glow = clarity >= 0.85 ? (clarity - 0.85) / 0.15 : 0;
+  const glowStyle = glow > 0
+    ? {
+        shadowColor: theme.colors.primary,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.6 * glow,
+        shadowRadius: 16 * glow,
+        elevation: Math.round(10 * glow),
+      }
+    : null;
 
   return (
-    <View style={[styles.frame, { width: size, height: size, borderRadius: frameRadius, padding: pad }]}>
+    <View style={[styles.frame, { width: size, height: size, borderRadius: frameRadius, padding: pad }, glowStyle]}>
       <View style={[styles.glass, { borderRadius: innerRadius }]}>
         {uri ? (
           <Image source={{ uri }} style={styles.image} contentFit="cover" />
