@@ -15,7 +15,7 @@ import { Text } from './atoms';
 import Svg from './atoms/svg';
 import Button from './button';
 import { BackArrow } from '#assets/svg';
-import { goalStorage, addictionStorage, discoveryStorage } from '#/utils';
+import { goalStorage, addictionStorage, discoveryStorage, THEME_ORDER, getThemeDef } from '#/utils';
 import type { GoalCategory, HabitFrequency } from '#/utils';
 
 // ─── Catalog data ─────────────────────────────────────────────────────────────
@@ -167,15 +167,13 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
   const [freqCount, setFreqCount] = useState(3);
   const [addictionMode, setAddictionMode] = useState<'abstinence' | 'limit' | 'rule'>('abstinence');
   const [rule, setRule] = useState('');
-  const [discoveryName, setDiscoveryName] = useState('');
-  const [discoveryEmoji, setDiscoveryEmoji] = useState('🌱');
   const [limitPeriod, setLimitPeriod] = useState<'daily' | 'weekly'>('weekly');
   const [limitCount, setLimitCount] = useState(3);
   const [limitUnit, setLimitUnit] = useState<'count' | 'minutes'>('count');
 
   const snapPoints = useMemo(() => {
     if (viewState === 'category') return ['52%'];
-    if (viewState === 'discovery') return ['62%'];
+    if (viewState === 'discovery') return ['82%'];
     if (viewState === 'catalog') return ['86%'];
     if (selectedItem?.category === 'addiction') {
       return addictionMode === 'limit' ? ['86%'] : addictionMode === 'rule' ? ['76%'] : ['64%'];
@@ -310,12 +308,8 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
     dismiss();
   };
 
-  const handleCreateDiscovery = async () => {
-    const t = discoveryName.trim();
-    if (!t) return;
-    await discoveryStorage.addItem(discoveryEmoji, t);
-    setDiscoveryName('');
-    setDiscoveryEmoji('🌱');
+  const handleAddTheme = async (themeKey: string) => {
+    await discoveryStorage.addTheme(themeKey);
     onGoalAdded?.();
     dismiss();
   };
@@ -385,46 +379,42 @@ const AddGoalSheet = forwardRef<BottomSheetModal, AddGoalSheetProps>(({ onGoalAd
   if (viewState === 'discovery') {
     return (
       <BottomSheetModal {...sharedModalProps}>
-        <BottomSheetView style={styles.categoryContainer}>
-          <View style={styles.sheetHeader}>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={() => snapTo('category')}
-              style={styles.iconBtn}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-              <Svg Icon={BackArrow} width={22} height={22} stroke={theme.colors.typography.PRIMARY} />
-            </TouchableOpacity>
-            <Text style={styles.sheetTitle}>Yeni keşif</Text>
-          </View>
-          <Text style={styles.discoveryHint}>
-            Denemek istediğin yeni bir şey — yeni yemek, dil, enstrüman, tarif… Denedikçe arşive birikir.
-          </Text>
-          <View style={styles.emojiRow}>
-            {['🍳', '🗣️', '🎸', '📖', '🎨', '🧗', '✍️', '🌱'].map(e => (
+        <View style={styles.sheetHeader}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => snapTo('category')}
+            style={styles.iconBtn}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Svg Icon={BackArrow} width={22} height={22} stroke={theme.colors.typography.PRIMARY} />
+          </TouchableOpacity>
+          <Text style={styles.sheetTitle}>Ne keşfetmek istersin? ✨</Text>
+        </View>
+        <Text style={styles.discoveryHint}>
+          Bir tema seç — denedikçe altında birikecek. Kurulumla, emojiyle uğraşma.
+        </Text>
+        <BottomSheetScrollView contentContainerStyle={styles.themeList}>
+          {THEME_ORDER.map(key => {
+            const def = getThemeDef(key);
+            return (
               <TouchableOpacity
-                key={e}
-                activeOpacity={0.7}
-                onPress={() => setDiscoveryEmoji(e)}
-                style={[styles.emojiOpt, discoveryEmoji === e && styles.emojiOptOn]}>
-                <Text style={styles.emojiOptText}>{e}</Text>
+                key={key}
+                activeOpacity={0.75}
+                onPress={() => handleAddTheme(key)}
+                style={styles.themeCard}>
+                <View style={styles.themeEmoji}>
+                  <Text style={styles.themeEmojiText}>{def.emoji}</Text>
+                </View>
+                <View style={styles.themeMid}>
+                  <Text style={styles.themeTitle}>{def.title}</Text>
+                  <Text style={styles.themeSub}>{def.subtitle}</Text>
+                </View>
+                <View style={styles.themePlus}>
+                  <Text style={styles.themePlusText}>+</Text>
+                </View>
               </TouchableOpacity>
-            ))}
-          </View>
-          <BottomSheetTextInput
-            style={styles.ruleInput}
-            value={discoveryName}
-            onChangeText={setDiscoveryName}
-            placeholder="Örn. Yeni yemek dene"
-            placeholderTextColor={theme.colors.typography.TERTIARY}
-            autoFocus
-          />
-          <Button
-            onPress={handleCreateDiscovery}
-            style={styles.actionButton}
-            disabled={discoveryName.trim().length === 0}>
-            Keşfe Başla
-          </Button>
-        </BottomSheetView>
+            );
+          })}
+        </BottomSheetScrollView>
       </BottomSheetModal>
     );
   }
@@ -941,30 +931,61 @@ const stylesheet = StyleSheet.create(theme => ({
     fontFamily: theme.fontFamily.regular,
     color: theme.colors.typography.SECONDARY,
     lineHeight: 21,
-    marginTop: theme.spacing[2],
-    marginBottom: theme.spacing[2],
+    paddingHorizontal: theme.spacing[5],
+    marginTop: theme.spacing[3],
+    marginBottom: theme.spacing[1],
   },
-  emojiRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  themeList: {
+    paddingHorizontal: theme.spacing[5],
+    paddingTop: theme.spacing[3],
+    paddingBottom: theme.spacing[8],
     gap: theme.spacing[2],
-    marginBottom: theme.spacing[2],
   },
-  emojiOpt: {
-    width: 44,
-    height: 44,
+  themeCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[3],
+    padding: theme.spacing[3],
+    borderRadius: theme.borderRadius['3xl'],
+    backgroundColor: theme.colors.background.PRIMARY,
+    borderWidth: 1,
+    borderColor: theme.colors.border.PRIMARY,
+  },
+  themeEmoji: {
+    width: 46,
+    height: 46,
+    borderRadius: theme.borderRadius.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.primaryLightest,
+  },
+  themeEmojiText: { fontSize: 23 },
+  themeMid: { flex: 1 },
+  themeTitle: {
+    fontSize: theme.fontSizes.base,
+    fontFamily: theme.fontFamily.bold,
+    color: theme.colors.typography.PRIMARY,
+  },
+  themeSub: {
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fontFamily.medium,
+    color: theme.colors.typography.SECONDARY,
+    marginTop: 1,
+  },
+  themePlus: {
+    width: 30,
+    height: 30,
     borderRadius: theme.borderRadius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.background.PRIMARY,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
+    backgroundColor: theme.colors.typography.PRIMARY,
   },
-  emojiOptOn: {
-    borderColor: theme.colors.primary,
-    backgroundColor: theme.colors.primaryLightest,
+  themePlusText: {
+    fontSize: theme.fontSizes.lg,
+    fontFamily: theme.fontFamily.semiBold,
+    color: theme.colors.white,
+    marginTop: -2,
   },
-  emojiOptText: { fontSize: 22 },
 
   // ── Shared header ──────────────────────────────────────────────────────────
   sheetHeader: {
