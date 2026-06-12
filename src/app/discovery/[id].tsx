@@ -1,20 +1,27 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { BottomSheetModal, BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import { Image } from 'expo-image';
 
 import { Text } from '#components/atoms';
 import SvgIcon from '#components/atoms/svg';
-import GlassCard from '#components/glass-card';
 import EditMenuSheet from '#components/edit-menu-sheet';
+import ExperienceSheet from '#components/experience-sheet';
 import { BackArrow, Dots } from '#assets/svg';
 import { StyleSheet, useStyles } from '#theme/unistyles';
-import { discoveryStorage, DiscoveryEntry } from '#/utils';
-
-const DISCOVERY_EMOJIS = ['🍳', '🗣️', '🎸', '📖', '🎨', '🧗', '✍️', '🌱'];
+import {
+  discoveryStorage,
+  getThemeDef,
+  resolveThemeEmoji,
+  resolveThemeTitle,
+  type DiscoveryTheme,
+  type DiscoveryExperience,
+} from '#/utils';
 
 const TR_MONTHS = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+const TINTS = ['#FBEAD7', '#E2EEF4', '#EFE4F6', '#E2F0EA'];
 
 function relTime(ts: number): string {
   const diff = Date.now() - ts;
@@ -32,65 +39,51 @@ export default function DiscoveryDetailScreen() {
   const { styles, theme } = useStyles(stylesheet);
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const params = useLocalSearchParams<{ id: string; emoji?: string; title?: string }>();
-
+  const params = useLocalSearchParams<{ id: string }>();
   const id = params.id;
 
-  const [emoji, setEmoji] = useState(params.emoji ?? '🌱');
-  const [title, setTitle] = useState(params.title ?? 'Keşif');
-  const [entries, setEntries] = useState<DiscoveryEntry[]>([]);
-  const [draft, setDraft] = useState('');
+  const [themeRow, setThemeRow] = useState<DiscoveryTheme | null>(null);
+  const [experiences, setExperiences] = useState<DiscoveryExperience[]>([]);
 
-  // düzenle/sil
+  const expRef = useRef<BottomSheetModal>(null);
   const editRef = useRef<BottomSheetModal>(null);
-  const [draftEmoji, setDraftEmoji] = useState(emoji);
-  const [draftTitle, setDraftTitle] = useState(title);
+  const [editingExp, setEditingExp] = useState<DiscoveryExperience | null>(null);
+  const [draftTitle, setDraftTitle] = useState('');
 
   useFocusEffect(useCallback(() => { load(); }, [id]));
 
-  const load = async () => setEntries(await discoveryStorage.getEntries(id));
+  const load = async () => {
+    setThemeRow(await discoveryStorage.getTheme(id));
+    setExperiences(await discoveryStorage.getExperiences(id));
+  };
 
-  const openEdit = () => {
-    setDraftEmoji(emoji);
+  const themeKey = themeRow?.themeKey ?? 'other';
+  const def = getThemeDef(themeKey);
+  const emoji = themeRow ? resolveThemeEmoji(themeRow) : def.emoji;
+  const title = themeRow ? resolveThemeTitle(themeRow) : def.title;
+
+  const openNew = () => {
+    setEditingExp(null);
+    setTimeout(() => expRef.current?.present(), 20);
+  };
+  const openEditExp = (exp: DiscoveryExperience) => {
+    setEditingExp(exp);
+    setTimeout(() => expRef.current?.present(), 20);
+  };
+
+  const openThemeEdit = () => {
     setDraftTitle(title);
     editRef.current?.present();
   };
-
-  const handleSaveItem = async () => {
-    const t = draftTitle.trim();
-    if (!t) return;
-    await discoveryStorage.updateItem(id, draftEmoji, t);
-    setEmoji(draftEmoji);
-    setTitle(t);
+  const handleSaveTheme = async () => {
+    await discoveryStorage.updateTheme(id, { title: draftTitle });
     editRef.current?.dismiss();
-  };
-
-  const handleDeleteItem = async () => {
-    await discoveryStorage.removeItem(id);
-    editRef.current?.dismiss();
-    router.back();
-  };
-
-  const add = async () => {
-    const t = draft.trim();
-    if (!t) return;
-    await discoveryStorage.addEntry(id, t);
-    setDraft('');
     load();
   };
-
-  const removeEntry = (entryId: string) => {
-    Alert.alert('Kaydı sil', 'Bu kayıt silinecek.', [
-      { text: 'Vazgeç', style: 'cancel' },
-      {
-        text: 'Sil',
-        style: 'destructive',
-        onPress: async () => {
-          await discoveryStorage.removeEntry(entryId);
-          load();
-        },
-      },
-    ]);
+  const handleDeleteTheme = async () => {
+    await discoveryStorage.removeTheme(id);
+    editRef.current?.dismiss();
+    router.back();
   };
 
   return (
@@ -101,80 +94,74 @@ export default function DiscoveryDetailScreen() {
           <SvgIcon Icon={BackArrow} width={20} height={20} stroke={theme.colors.typography.PRIMARY} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={styles.topTitle}>{emoji} {title}</Text>
-        <TouchableOpacity style={styles.iconBtn} activeOpacity={0.7} onPress={openEdit}>
+        <TouchableOpacity style={styles.iconBtn} activeOpacity={0.7} onPress={openThemeEdit}>
           <SvgIcon Icon={Dots} width={20} height={20} stroke={theme.colors.typography.PRIMARY} strokeWidth={2} />
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {/* giriş */}
-        <GlassCard radius={24} style={styles.addCard}>
-          <View style={styles.addPad}>
-            <Text style={styles.askq}>Bu hafta ne denedin?</Text>
-            <TextInput
-              style={styles.input}
-              value={draft}
-              onChangeText={setDraft}
-              placeholder="Örn. Mantı yaptım"
-              placeholderTextColor={theme.colors.typography.TERTIARY}
-              returnKeyType="done"
-              onSubmitEditing={add}
-            />
-            <TouchableOpacity activeOpacity={0.85} style={[styles.addBtn, !draft.trim() && styles.addBtnOff]} onPress={add} disabled={!draft.trim()}>
-              <Text style={styles.addBtnText}>Arşive ekle</Text>
-            </TouchableOpacity>
-          </View>
-        </GlassCard>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        {/* log girişi */}
+        <TouchableOpacity activeOpacity={0.9} onPress={openNew} style={styles.logMini}>
+          <Text style={styles.logPrompt}>{def.logPrompt}</Text>
+          <View style={styles.logAdd}><Text style={styles.logAddText}>+ Ekle</Text></View>
+        </TouchableOpacity>
 
-        <Text style={styles.sectionLabel}>
-          {entries.length > 0 ? `DENEDİKLERİN · ${entries.length}` : 'DENEDİKLERİN'}
-        </Text>
+        <View style={styles.ghead}>
+          <Text style={styles.gt}>{def.archiveLabel}</Text>
+          <Text style={styles.gc}>{experiences.length} deneyim</Text>
+        </View>
 
-        {entries.length === 0 ? (
-          <Text style={styles.empty}>Henüz bir şey eklemedin. İlk denemeni yukarıdan yaz — burada birikecek.</Text>
+        {experiences.length === 0 ? (
+          <Text style={styles.empty}>Henüz bir şey eklemedin. İlk denemeni “+ Ekle” ile yaz — burada birikecek.</Text>
         ) : (
-          entries.map(e => (
-            <TouchableOpacity key={e.id} activeOpacity={0.7} onLongPress={() => removeEntry(e.id)}>
-              <GlassCard radius={18} style={styles.entryCard}>
-                <View style={styles.entryPad}>
-                  <View style={styles.tick}><Text style={styles.tickText}>✓</Text></View>
-                  <Text style={styles.entryText}>{e.text}</Text>
-                  <Text style={styles.entryTime}>{relTime(e.time)}</Text>
+          <View style={styles.grid}>
+            {experiences.map((e, i) => (
+              <TouchableOpacity key={e.id} activeOpacity={0.85} onPress={() => openEditExp(e)} style={styles.gcard}>
+                <View style={styles.cover}>
+                  {e.photoUri ? (
+                    <>
+                      <Image source={{ uri: e.photoUri }} style={styles.coverImg} contentFit="cover" />
+                      <View style={styles.badge}><Text style={styles.badgeText}>📷</Text></View>
+                    </>
+                  ) : (
+                    <View style={[styles.coverEmo, { backgroundColor: TINTS[i % TINTS.length] }]}>
+                      <Text style={styles.coverEmoText}>{emoji}</Text>
+                    </View>
+                  )}
                 </View>
-              </GlassCard>
-            </TouchableOpacity>
-          ))
+                <View style={styles.ci}>
+                  <Text style={styles.cn} numberOfLines={1}>{e.title}</Text>
+                  <View style={styles.cmeta}>
+                    {!!e.rating && <Text style={styles.star}>★ {e.rating}</Text>}
+                    {!!e.note && <Text style={styles.tagMini}>📝</Text>}
+                  </View>
+                  {!!e.location && <Text style={styles.loc} numberOfLines={1}>📍 {e.location}</Text>}
+                  <Text style={styles.date}>{relTime(e.createdAt)}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         )}
       </ScrollView>
 
+      <ExperienceSheet ref={expRef} themeId={id} themeKey={themeKey} experience={editingExp} onSaved={load} />
+
       <EditMenuSheet
         ref={editRef}
-        heading="Keşfi düzenle"
-        snapPoints={['56%']}
-        onSave={handleSaveItem}
+        heading="Temayı düzenle"
+        snapPoints={['40%']}
+        onSave={handleSaveTheme}
         saveDisabled={!draftTitle.trim()}
-        deleteLabel="Bu keşfi sil"
-        deleteTitle="Keşfi sil"
-        deleteMessage={`"${title}" ve tüm denemelerin silinecek. Bu geri alınamaz.`}
-        onDelete={handleDeleteItem}>
-        <Text style={styles.editLabel}>Simge</Text>
-        <View style={styles.emojiRow}>
-          {DISCOVERY_EMOJIS.map(e => (
-            <TouchableOpacity
-              key={e}
-              activeOpacity={0.7}
-              onPress={() => setDraftEmoji(e)}
-              style={[styles.emojiOpt, draftEmoji === e && styles.emojiOptOn]}>
-              <Text style={styles.emojiOptText}>{e}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={[styles.editLabel, styles.editLabelGap]}>Ad</Text>
+        deleteLabel="Bu temayı sil"
+        deleteTitle="Temayı sil"
+        deleteMessage={`"${title}" ve tüm deneyimlerin silinecek. Bu geri alınamaz.`}
+        onDelete={handleDeleteTheme}>
+        <Text style={styles.editLabel}>Tema adı</Text>
         <BottomSheetTextInput
           style={styles.editInput}
           value={draftTitle}
           onChangeText={setDraftTitle}
-          placeholder="Örn. Yemek Yapmak"
+          placeholder={def.title}
           placeholderTextColor={theme.colors.typography.TERTIARY}
           maxLength={40}
         />
@@ -188,31 +175,35 @@ const stylesheet = StyleSheet.create(theme => ({
   bloom: { position: 'absolute', top: -110, right: -70, width: 340, height: 340, borderRadius: 340, backgroundColor: theme.colors.primaryLighter, opacity: 0.4 },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: theme.spacing[4], paddingVertical: theme.spacing[2] },
   iconBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.6)' },
-  topTitle: { fontSize: theme.fontSizes.base, fontFamily: theme.fontFamily.extraBold, color: theme.colors.typography.PRIMARY },
+  topTitle: { fontSize: theme.fontSizes.base, fontFamily: theme.fontFamily.extraBold, color: theme.colors.typography.PRIMARY, flex: 1, textAlign: 'center' },
   scroll: { paddingHorizontal: theme.spacing[5], paddingBottom: theme.spacing[16] },
-  addCard: { marginTop: theme.spacing[2], marginBottom: theme.spacing[5] },
-  addPad: { padding: theme.spacing[4] },
-  askq: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.SECONDARY, marginBottom: theme.spacing[3] },
-  input: {
-    fontSize: theme.fontSizes.lg, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.PRIMARY,
-    paddingVertical: theme.spacing[2], borderBottomWidth: 2, borderBottomColor: theme.colors.primaryLight, marginBottom: theme.spacing[4],
+  logMini: {
+    marginTop: theme.spacing[2], marginBottom: theme.spacing[5], flexDirection: 'row', alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.6)', borderWidth: 1, borderColor: theme.colors.border.PRIMARY,
+    borderRadius: theme.borderRadius['3xl'], paddingVertical: theme.spacing[3], paddingHorizontal: theme.spacing[4],
   },
-  addBtn: { height: 48, borderRadius: theme.borderRadius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.typography.PRIMARY },
-  addBtnOff: { opacity: 0.4 },
-  addBtnText: { fontSize: theme.fontSizes.base, fontFamily: theme.fontFamily.semiBold, color: theme.colors.white },
-  sectionLabel: { fontSize: theme.fontSizes.xs, fontFamily: theme.fontFamily.bold, color: theme.colors.typography.SECONDARY, letterSpacing: 0.8, marginBottom: theme.spacing[3], marginLeft: theme.spacing[1] },
-  empty: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.regular, color: theme.colors.typography.SECONDARY, lineHeight: 21, paddingHorizontal: theme.spacing[2] },
-  entryCard: { marginBottom: theme.spacing[2] },
-  entryPad: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing[3], paddingVertical: theme.spacing[3], paddingHorizontal: theme.spacing[4] },
-  tick: { width: 22, height: 22, borderRadius: 11, backgroundColor: 'rgba(54,179,126,0.16)', alignItems: 'center', justifyContent: 'center' },
-  tickText: { fontSize: 12, color: '#1f8a5f', fontFamily: theme.fontFamily.bold },
-  entryText: { flex: 1, fontSize: theme.fontSizes.base, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.PRIMARY },
-  entryTime: { fontSize: theme.fontSizes.xs, fontFamily: theme.fontFamily.medium, color: theme.colors.typography.TERTIARY },
-  editLabel: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.SECONDARY, marginBottom: theme.spacing[3] },
-  editLabelGap: { marginTop: theme.spacing[5] },
-  emojiRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing[2] },
-  emojiOpt: { width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primaryLightest, borderWidth: 2, borderColor: 'transparent' },
-  emojiOptOn: { borderColor: theme.colors.primary, backgroundColor: theme.colors.primaryLighter },
-  emojiOptText: { fontSize: 22 },
+  logPrompt: { flex: 1, fontSize: theme.fontSizes.base, fontFamily: theme.fontFamily.bold, color: theme.colors.typography.SECONDARY },
+  logAdd: { backgroundColor: theme.colors.typography.PRIMARY, borderRadius: theme.borderRadius.full, paddingVertical: theme.spacing[2], paddingHorizontal: theme.spacing[4] },
+  logAddText: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.bold, color: theme.colors.white },
+  ghead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: theme.spacing[1] },
+  gt: { fontSize: theme.fontSizes.lg, fontFamily: theme.fontFamily.extraBold, color: theme.colors.typography.PRIMARY },
+  gc: { fontSize: theme.fontSizes.xs, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.SECONDARY },
+  empty: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.regular, color: theme.colors.typography.SECONDARY, lineHeight: 21, paddingHorizontal: theme.spacing[2], marginTop: theme.spacing[3] },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing[3], marginTop: theme.spacing[3] },
+  gcard: { width: '47.5%', backgroundColor: 'rgba(255,255,255,0.62)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', borderRadius: theme.borderRadius['3xl'], overflow: 'hidden' },
+  cover: { height: 104, position: 'relative' },
+  coverImg: { width: '100%', height: '100%' },
+  coverEmo: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  coverEmoText: { fontSize: 40 },
+  badge: { position: 'absolute', left: 8, top: 8, width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.85)', alignItems: 'center', justifyContent: 'center' },
+  badgeText: { fontSize: 12 },
+  ci: { padding: theme.spacing[3] },
+  cn: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.bold, color: theme.colors.typography.PRIMARY },
+  cmeta: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing[2], marginTop: 5 },
+  star: { fontSize: theme.fontSizes.xs, fontFamily: theme.fontFamily.bold, color: theme.colors.primaryDarker },
+  tagMini: { fontSize: 11 },
+  loc: { fontSize: 10, fontFamily: theme.fontFamily.semiBold, color: '#3D7EA6', marginTop: 4 },
+  date: { fontSize: 10, fontFamily: theme.fontFamily.medium, color: theme.colors.typography.TERTIARY, marginTop: 5 },
+  editLabel: { fontSize: theme.fontSizes.sm, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.SECONDARY, marginBottom: theme.spacing[2] },
   editInput: { fontSize: theme.fontSizes.lg, fontFamily: theme.fontFamily.semiBold, color: theme.colors.typography.PRIMARY, paddingVertical: theme.spacing[2], borderBottomWidth: 2, borderBottomColor: theme.colors.primaryLight },
 }));
