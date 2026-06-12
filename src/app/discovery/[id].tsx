@@ -47,7 +47,6 @@ export default function DiscoveryDetailScreen() {
 
   const expRef = useRef<BottomSheetModal>(null);
   const editRef = useRef<BottomSheetModal>(null);
-  const [editingExp, setEditingExp] = useState<DiscoveryExperience | null>(null);
   const [draftTitle, setDraftTitle] = useState('');
 
   useFocusEffect(useCallback(() => { load(); }, [id]));
@@ -63,12 +62,10 @@ export default function DiscoveryDetailScreen() {
   const title = themeRow ? resolveThemeTitle(themeRow) : def.title;
 
   const openNew = () => {
-    setEditingExp(null);
-    setTimeout(() => expRef.current?.present(), 20);
+    expRef.current?.present();
   };
-  const openEditExp = (exp: DiscoveryExperience) => {
-    setEditingExp(exp);
-    setTimeout(() => expRef.current?.present(), 20);
+  const openExp = (expId: string) => {
+    router.push({ pathname: '/discovery/exp/[id]', params: { id: expId } });
   };
 
   const openThemeEdit = () => {
@@ -116,7 +113,7 @@ export default function DiscoveryDetailScreen() {
         ) : (
           <View style={styles.grid}>
             {experiences.map((e, i) => (
-              <TouchableOpacity key={e.id} activeOpacity={0.85} onPress={() => openEditExp(e)} style={styles.gcard}>
+              <TouchableOpacity key={e.id} activeOpacity={0.85} onPress={() => openExp(e.id)} style={styles.gcard}>
                 <View style={styles.cover}>
                   {e.photoUri ? (
                     <>
@@ -144,7 +141,7 @@ export default function DiscoveryDetailScreen() {
         )}
       </ScrollView>
 
-      <ExperienceSheet ref={expRef} themeId={id} themeKey={themeKey} experience={editingExp} onSaved={load} />
+      <ExperienceSheet ref={expRef} themeId={id} themeKey={themeKey} experience={null} onSaved={load} />
 
       <EditMenuSheet
         ref={editRef}
